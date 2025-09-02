@@ -8,6 +8,9 @@ Playground and prototypes for
 - Consuming an agent via A2A
   - a sample agent build in Langchain to be used
 
+# BPMN Process
+
+![Simple example process](example.png)
 
 # How to run
 

@@ -17,6 +17,14 @@ https://downloads.camunda.cloud/release/camunda-modeler/nightly/
 
 ## Run Camunda Orchestration Cluster 8.8-alpha8
 
+Set OpenAPI keys in `docker-compose/secrets.txt`
+
+```properties
+OPEN_API_KEY=xxx
+OPEN_API_ORG=yyy
+OPEN_API_PROJ=zzz
+```
+
 Currently available as rc2 via Docker, see docker compose config in `docker-compose/`
 
 ## Credit Card Loss Agent (Langchain/Python)

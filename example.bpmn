@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0ivd6ll" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.39.0-rc.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.8.0">
+  <bpmn:process id="A2aMcpExampleProcess" isExecutable="true">
+    <bpmn:extensionElements />
+    <bpmn:sequenceFlow id="Flow_0f8b0tc" sourceRef="StartEvent_1" targetRef="Subprocess_AvailableTools" />
+    <bpmn:endEvent id="Event_1b9qbnh">
+      <bpmn:incoming>Flow_0zqk837</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Activity_00y1q9m" name="Not so AI this agent">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="MyForm" />
+        <zeebe:assignmentDefinition assignee="demo" />
+      </bpmn:extensionElements>
+    </bpmn:userTask>
+    <bpmn:adHocSubProcess id="Subprocess_AvailableTools" zeebe:modelerTemplate="io.camunda.connectors.agenticai.aiagent.jobworker.v1" zeebe:modelerTemplateVersion="3" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiNBNTZFRkYiLz4KPG1hc2sgaWQ9InBhdGgtMi1vdXRzaWRlLTFfMTg1XzYiIG1hc2tVbml0cz0idXNlclNwYWNlT25Vc2UiIHg9IjQiIHk9IjQiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0iYmxhY2siPgo8cmVjdCBmaWxsPSJ3aGl0ZSIgeD0iNCIgeT0iNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ii8+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMjAuMDEwNSAxMi4wOTg3QzE4LjQ5IDEwLjU4OTQgMTcuMTU5NCA4LjEwODE0IDE2LjE3OTkgNi4wMTEwM0MxNi4xNTIgNi4wMDQ1MSAxNi4xMTc2IDYgMTYuMDc5NCA2QzE2LjA0MTEgNiAxNi4wMDY2IDYuMDA0NTEgMTUuOTc4OCA2LjAxMTA0QzE0Ljk5OTQgOC4xMDgxNCAxMy42Njk3IDEwLjU4ODkgMTIuMTQ4MSAxMi4wOTgxQzEwLjYyNjkgMTMuNjA3MSA4LjEyNTY4IDE0LjkyNjQgNi4wMTE1NyAxNS44OTgxQzYuMDA0NzQgMTUuOTI2MSA2IDE1Ljk2MTEgNiAxNkM2IDE2LjAzODcgNi4wMDQ2OCAxNi4wNzM2IDYuMDExNDQgMTYuMTAxNEM4LjEyNTE5IDE3LjA3MjkgMTAuNjI2MiAxOC4zOTE5IDEyLjE0NzcgMTkuOTAxNkMxMy42Njk3IDIxLjQxMDcgMTQuOTk5NiAyMy44OTIgMTUuOTc5MSAyNS45ODlDMTYuMDA2OCAyNS45OTU2IDE2LjA0MTEgMjYgMTYuMDc5MyAyNkMxNi4xMTc1IDI2IDE2LjE1MTkgMjUuOTk1NCAxNi4xNzk2IDI1Ljk4OUMxNy4xNTkxIDIzLjg5MiAxOC40ODg4IDIxLjQxMSAyMC4wMDk5IDE5LjkwMjFNMjAuMDA5OSAxOS45MDIxQzIxLjUyNTMgMTguMzk4NyAyMy45NDY1IDE3LjA2NjkgMjUuOTkxNSAxNi4wODI0QzI1Ljk5NjUgMTYuMDU5MyAyNiAxNi4wMzEgMjYgMTUuOTk5N0MyNiAxNS45Njg0IDI1Ljk5NjUgMTUuOTQwMyAyNS45OTE1IDE1LjkxNzFDMjMuOTQ3NCAxNC45MzI3IDIxLjUyNTkgMTMuNjAxIDIwLjAxMDUgMTIuMDk4NyIvPgo8L21hc2s+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMjAuMDEwNSAxMi4wOTg3QzE4LjQ5IDEwLjU4OTQgMTcuMTU5NCA4LjEwODE0IDE2LjE3OTkgNi4wMTEwM0MxNi4xNTIgNi4wMDQ1MSAxNi4xMTc2IDYgMTYuMDc5NCA2QzE2LjA0MTEgNiAxNi4wMDY2IDYuMDA0NTEgMTUuOTc4OCA2LjAxMTA0QzE0Ljk5OTQgOC4xMDgxNCAxMy42Njk3IDEwLjU4ODkgMTIuMTQ4MSAxMi4wOTgxQzEwLjYyNjkgMTMuNjA3MSA4LjEyNTY4IDE0LjkyNjQgNi4wMTE1NyAxNS44OTgxQzYuMDA0NzQgMTUuOTI2MSA2IDE1Ljk2MTEgNiAxNkM2IDE2LjAzODcgNi4wMDQ2OCAxNi4wNzM2IDYuMDExNDQgMTYuMTAxNEM4LjEyNTE5IDE3LjA3MjkgMTAuNjI2MiAxOC4zOTE5IDEyLjE0NzcgMTkuOTAxNkMxMy42Njk3IDIxLjQxMDcgMTQuOTk5NiAyMy44OTIgMTUuOTc5MSAyNS45ODlDMTYuMDA2OCAyNS45OTU2IDE2LjA0MTEgMjYgMTYuMDc5MyAyNkMxNi4xMTc1IDI2IDE2LjE1MTkgMjUuOTk1NCAxNi4xNzk2IDI1Ljk4OUMxNy4xNTkxIDIzLjg5MiAxOC40ODg4IDIxLjQxMSAyMC4wMDk5IDE5LjkwMjFNMjAuMDA5OSAxOS45MDIxQzIxLjUyNTMgMTguMzk4NyAyMy45NDY1IDE3LjA2NjkgMjUuOTkxNSAxNi4wODI0QzI1Ljk5NjUgMTYuMDU5MyAyNiAxNi4wMzEgMjYgMTUuOTk5N0MyNiAxNS45Njg0IDI1Ljk5NjUgMTUuOTQwMyAyNS45OTE1IDE1LjkxNzFDMjMuOTQ3NCAxNC45MzI3IDIxLjUyNTkgMTMuNjAxIDIwLjAxMDUgMTIuMDk4NyIgZmlsbD0id2hpdGUiLz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0yMC4wMTA1IDEyLjA5ODdDMTguNDkgMTAuNTg5NCAxNy4xNTk0IDguMTA4MTQgMTYuMTc5OSA2LjAxMTAzQzE2LjE1MiA2LjAwNDUxIDE2LjExNzYgNiAxNi4wNzk0IDZDMTYuMDQxMSA2IDE2LjAwNjYgNi4wMDQ1MSAxNS45Nzg4IDYuMDExMDRDMTQuOTk5NCA4LjEwODE0IDEzLjY2OTcgMTAuNTg4OSAxMi4xNDgxIDEyLjA5ODFDMTAuNjI2OSAxMy42MDcxIDguMTI1NjggMTQuOTI2NCA2LjAxMTU3IDE1Ljg5ODFDNi4wMDQ3NCAxNS45MjYxIDYgMTUuOTYxMSA2IDE2QzYgMTYuMDM4NyA2LjAwNDY4IDE2LjA3MzYgNi4wMTE0NCAxNi4xMDE0QzguMTI1MTkgMTcuMDcyOSAxMC42MjYyIDE4LjM5MTkgMTIuMTQ3NyAxOS45MDE2QzEzLjY2OTcgMjEuNDEwNyAxNC45OTk2IDIzLjg5MiAxNS45NzkxIDI1Ljk4OUMxNi4wMDY4IDI1Ljk5NTYgMTYuMDQxMSAyNiAxNi4wNzkzIDI2QzE2LjExNzUgMjYgMTYuMTUxOSAyNS45OTU0IDE2LjE3OTYgMjUuOTg5QzE3LjE1OTEgMjMuODkyIDE4LjQ4ODggMjEuNDExIDIwLjAwOTkgMTkuOTAyMU0yMC4wMDk5IDE5LjkwMjFDMjEuNTI1MyAxOC4zOTg3IDIzLjk0NjUgMTcuMDY2OSAyNS45OTE1IDE2LjA4MjRDMjUuOTk2NSAxNi4wNTkzIDI2IDE2LjAzMSAyNiAxNS45OTk3QzI2IDE1Ljk2ODQgMjUuOTk2NSAxNS45NDAzIDI1Ljk5MTUgMTUuOTE3MUMyMy45NDc0IDE0LjkzMjcgMjEuNTI1OSAxMy42MDEgMjAuMDEwNSAxMi4wOTg3IiBzdHJva2U9IiM0OTFEOEIiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgbWFzaz0idXJsKCNwYXRoLTItb3V0c2lkZS0xXzE4NV82KSIvPgo8L3N2Zz4K">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda.agenticai:aiagent-job-worker:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input target="toolCallResults" />
+          <zeebe:input source="openai" target="provider.type" />
+          <zeebe:input source="{{secrets.OPEN_API_KEY}}" target="provider.openai.authentication.apiKey" />
+          <zeebe:input source="{{secrets.OPEN_API_ORG}}" target="provider.openai.authentication.organizationId" />
+          <zeebe:input source="{{secrets.OPEN_API_PROJ}}" target="provider.openai.authentication.projectId" />
+          <zeebe:input source="gpt-4o" target="provider.openai.model.model" />
+          <zeebe:input source="=&#34;You are **TaskAgent**, a helpful, generic chat agent that can handle a wide variety of customer requests using your own domain knowledge **and** any tools explicitly provided to you at runtime.&#10;&#10;If tools are provided, you should prefer them instead of guessing an answer. You can call the same tool multiple times by providing different input values. Don&#39;t guess any tools which were not explicitly configured. If no tool matches the request, try to generate an answer. If you&#39;re not able to find a good answer, return with a message stating why you&#39;re not able to.&#10;&#10;Wrap minimal, inspectable reasoning in *exactly* this XML template:&#10;&#10;&#60;thinking&#62;&#10;&#60;context&#62;…briefly state the customer’s need and current state…&#60;/context&#62;&#10;&#60;reflection&#62;…list candidate tools, justify which you will call next and why…&#60;/reflection&#62;&#10;&#60;/thinking&#62;&#10;&#10;Reveal **no** additional private reasoning outside these tags.&#34;" target="data.systemPrompt.prompt" />
+          <zeebe:input source="=a2aProvidedInput.userRequest" target="data.userPrompt.prompt" />
+          <zeebe:input source="=uploaded_document" target="data.userPrompt.documents" />
+          <zeebe:input source="in-process" target="data.memory.storage.type" />
+          <zeebe:input source="=20" target="data.memory.contextWindowSize" />
+          <zeebe:input source="=10" target="data.limits.maxModelCalls" />
+          <zeebe:input source="text" target="data.response.format.type" />
+          <zeebe:input source="=false" target="data.response.format.parseJson" />
+          <zeebe:input source="=false" target="data.response.includeAssistantMessage" />
+          <zeebe:input source="=false" target="data.response.includeAgentContext" />
+          <zeebe:output source="=agent" target="agent" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="3" />
+          <zeebe:header key="elementTemplateId" value="io.camunda.connectors.agenticai.aiagent.jobworker.v1" />
+          <zeebe:header key="retryBackoff" value="PT0S" />
+        </zeebe:taskHeaders>
+        <zeebe:adHoc outputCollection="toolCallResults" outputElement="={&#10;  id: toolCall._meta.id,&#10;  name: toolCall._meta.name,&#10;  content: toolCallResult&#10;}" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0f8b0tc</bpmn:incoming>
+      <bpmn:outgoing>Flow_0hb83gm</bpmn:outgoing>
+      <bpmn:userTask id="HumanTask_AskHuman" name="Ask Human">
+        <bpmn:documentation>Whenever it is unclear what tools to use and what to do ask the Human</bpmn:documentation>
+        <bpmn:extensionElements>
+          <zeebe:userTask />
+        </bpmn:extensionElements>
+      </bpmn:userTask>
+      <bpmn:serviceTask id="Tool_A2A_CreditCardAgent" name="Handle lost or stolen credit cards" zeebe:modelerTemplate="dev.example.a2a.connector.outbound" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iMTIwMHB0IiBoZWlnaHQ9IjEyMDBwdCIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMTIwMCAxMjAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogPHBhdGggZD0ibTEwMjAgMzExLjQ4Yy03Mi41MTYgMC0xMzEuNDgtNTkuMDE2LTEzMS40OC0xMzEuNDggMC0xMy41LTExLjAxNi0yNC45ODQtMjQuOTg0LTI0Ljk4NC0xMy41IDAtMjQuOTg0IDExLjQ4NC0yNC45ODQgMjQuOTg0IDAgOC40ODQ0LTAuOTg0MzggMTcuMDE2LTIuNDg0NCAyNC45ODQtMC41MTU2MiAzLjk4NDQtMS41IDguMDE1Ni0zIDEyLTAuOTg0MzggMy45ODQ0LTIuNDg0NCA4LjAxNTYtMy45ODQ0IDExLjQ4NC02IDE1Ljk4NC0xNS41MTYgMzAuNTE2LTI3IDQyLjUxNi0xMi41MTYgMTMuNS0yNy45ODQgMjQtNDUuNTE2IDMwLjk4NC0zIDEuNS02LjUxNTYgMi40ODQ0LTkuOTg0NCAzLjUxNTYtMS41IDAuNTE1NjItMyAwLjk4NDM4LTQuNSAxLjUtNi41MTU2IDIuMDE1Ni0xMy41IDMtMjEgMy45ODQ0LTQuNSAwLjUxNTYyLTkgMC41MTU2Mi0xMy41IDAuNTE1NjItMTQuMDE2IDAtMjQuOTg0IDExLjAxNi0yNC45ODQgMjQuOTg0IDAgMTMuNSAxMS4wMTYgMjQuOTg0IDI0Ljk4NCAyNC45ODQgNzIuNTE2IDAgMTMxLjAyIDU4LjUgMTMxLjAyIDEzMS4wMiAwIDE0LjAxNiAxMS40ODQgMjQuOTg0IDI0Ljk4NCAyNC45ODQgMTQuMDE2IDAgMjQuOTg0LTExLjAxNiAyNC45ODQtMjQuOTg0IDAtNC41IDAtOSAwLjUxNTYyLTEzLjUgMC45ODQzOC03LjUgMi4wMTU2LTE0LjQ4NCAzLjk4NDQtMjEgMC41MTU2Mi0xLjUgMC45ODQzOC0zIDEuNS00LjUgMC45ODQzOC0zLjUxNTYgMi4wMTU2LTYuOTg0NCAzLjk4NDQtOS45ODQ0IDYuNTE1Ni0xNy40ODQgMTcuMDE2LTMzIDMwLjUxNi00NS41MTYgMTItMTEuNDg0IDI2LjQ4NC0yMSA0Mi41MTYtMjcgMy41MTU2LTEuNSA3LjUtMyAxMS40ODQtMy45ODQ0IDMuOTg0NC0xLjUgOC4wMTU2LTIuNDg0NCAxMi0zIDguMDE1Ni0xLjUgMTYuNS0yLjQ4NDQgMjQuOTg0LTIuNDg0NCAxMy41IDAgMjQuOTg0LTExLjQ4NCAyNC45ODQtMjQuOTg0LTAuMDQ2ODc1LTE0LjAxNi0xMS41MzEtMjUuMDMxLTI1LjAzMS0yNS4wMzF6IiBmaWxsPSIjNGMyNWUwIi8+CiA8cGF0aCBkPSJtOTU0IDQ0NS41Yy05Ljk4NDQgMTMuNS0xNS41MTYgMjkuNDg0LTE1LjUxNiA0Ny4wMTYgMCA0MS40ODQtMzMuNTE2IDc1LTc1IDc1LTQxLjAxNiAwLTc1LTMzLjUxNi03NS03NSAwLTQ0LjQ4NC0zNi41MTYtODEtODEtODEtNDEuNDg0IDAtNzUtMzMuOTg0LTc1LTc1IDAtNDEuNDg0IDMzLjUxNi03NSA3NS03NSAxNy40ODQgMCAzMy41MTYtNS40ODQ0IDQ3LjAxNi0xNS41MTYgMTQuMDE2LTkuOTg0NCAyNC45ODQtMjQuNTE2IDMwLTQxLjQ4NC01Ni4wMTYtMjYuNTMxLTExOC41LTQxLjAxNi0xODQuNS00MS4wMTYtMjQwLjUyIDAtNDM2LjUgMTk1Ljk4LTQzNi41IDQzNi41czE5NS45OCA0MzYuNSA0MzYuNSA0MzYuNSA0MzYuNS0xOTUuOTggNDM2LjUtNDM2LjVjMC02Ni0xNC40ODQtMTI4LjQ4LTQxLjAxNi0xODQuNS0xNi45NjkgNS4wMTU2LTMxLjUgMTUuOTg0LTQxLjQ4NCAzMHptLTExNy45OCAxMzMuNWMxNC4wMTYgMCAyNC45ODQgMTEuNDg0IDI0Ljk4NCAyNC45ODQgMCAxNC4wMTYtMTEuMDE2IDI0Ljk4NC0yNC45ODQgMjQuOTg0LTExOC41IDAtMjE1LjAyIDk2LjUxNi0yMTUuMDIgMjE1LjQ4IDAgMTMuNS0xMS40ODQgMjQuOTg0LTI0Ljk4NCAyNC45ODQtMTQuMDE2IDAtMjQuOTg0LTExLjQ4NC0yNC45ODQtMjQuOTg0IDAtMTE5LjAyLTk2LjUxNi0yMTUuNDgtMjE1LjQ4LTIxNS40OC0xMy41IDAtMjQuOTg0LTExLjAxNi0yNC45ODQtMjQuOTg0IDAtMTMuNSAxMS40ODQtMjQuOTg0IDI0Ljk4NC0yNC45ODQgMTE5LjAyIDAgMjE1LjQ4LTk2LjUxNiAyMTUuNDgtMjE1LjAyIDAtMTQuMDE2IDExLjAxNi0yNC45ODQgMjQuOTg0LTI0Ljk4NCAxMy41IDAgMjQuOTg0IDExLjAxNiAyNC45ODQgMjQuOTg0IDAgMTE4LjUgOTYuNTE2IDIxNS4wMiAyMTUuMDIgMjE1LjAyeiIgZmlsbD0iIzRjMjVlMCIvPgogPHBhdGggZD0ibTQ2OCA2MDMuOThjNTYuMDE2IDI2LjQ4NCAxMDEuNDggNzIgMTI4LjAyIDEyOC4wMiAyNi4wMTYtNTYuMDE2IDcxLjQ4NC0xMDEuNDggMTI3LjUtMTI4LjAyLTU2LjAxNi0yNi4wMTYtMTAxLjQ4LTcxLjQ4NC0xMjcuNS0xMjcuNS0yNi41MzEgNTYuMDE2LTcyIDEwMS41My0xMjguMDIgMTI3LjV6IiBmaWxsPSIjNGMyNWUwIi8+Cjwvc3ZnPgo=">
+        <bpmn:extensionElements>
+          <zeebe:taskDefinition type="dev.example:a2a:1" />
+          <zeebe:ioMapping>
+            <zeebe:input source="http://localhost:8000/a2a/" target="baseUrl" />
+            <zeebe:input source="A2A" target="mode" />
+            <zeebe:input target="inputText" />
+            <zeebe:input target="intent" />
+            <zeebe:input target="parameters" />
+            <zeebe:input target="headers" />
+            <zeebe:input source="= {&#10;  &#34;jsonrpc&#34;: &#34;2.0&#34;,&#10;  &#34;id&#34;: &#34;475478&#34;,&#10;  &#34;method&#34;: &#34;message/send&#34;,&#10;  &#34;params&#34;: {&#10;    &#34;message&#34;: {&#10;      &#34;messageId&#34;: &#34;m-123&#34;,&#10;      &#34;role&#34;: &#34;user&#34;,&#10;      &#34;parts&#34;: [&#10;        { &#34;text&#34;: &#34;My card ending on 9876 was stolen. Please make sure nobody can use it! And I need a replacement one.&#34; }&#10;      ]&#10;    }&#10;  }&#10;}" target="a2aPayload" />
+          </zeebe:ioMapping>
+          <zeebe:taskHeaders>
+            <zeebe:header key="resultVariable" value="toolCallResult" />
+          </zeebe:taskHeaders>
+        </bpmn:extensionElements>
+      </bpmn:serviceTask>
+      <bpmn:serviceTask id="Tool_Deepwiki" name="Use Deepwiki MCP provided tools" zeebe:modelerTemplate="io.camunda.connectors.agenticai.mcp.remoteclient.v0" zeebe:modelerTemplateVersion="0" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJub25lIiB2aWV3Qm94PSIwIDAgMjAwIDIwMCI+CiAgICA8cGF0aCBkPSJNMjUgOTcuODUyOEw5Mi44ODIzIDI5Ljk3MDZDMTAyLjI1NSAyMC41OTggMTE3LjQ1MSAyMC41OTggMTI2LjgyMyAyOS45NzA2VjI5Ljk3MDZDMTM2LjE5NiAzOS4zNDMxIDEzNi4xOTYgNTQuNTM5MSAxMjYuODIzIDYzLjkxMTdMNzUuNTU4MSAxMTUuMTc3IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik03Ni4yNjUzIDExNC40N0wxMjYuODIzIDYzLjkxMTdDMTM2LjE5NiA1NC41MzkxIDE1MS4zOTIgNTQuNTM5MSAxNjAuNzY1IDYzLjkxMTdMMTYxLjExOCA2NC4yNjUyQzE3MC40OTEgNzMuNjM3OCAxNzAuNDkxIDg4LjgzMzggMTYxLjExOCA5OC4yMDYzTDk5LjcyNDggMTU5LjZDOTYuNjAwNiAxNjIuNzI0IDk2LjYwMDYgMTY3Ljc4OSA5OS43MjQ4IDE3MC45MTNMMTEyLjMzMSAxODMuNTIiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMTIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTEwOS44NTMgNDYuOTQxMUw1OS42NDgyIDk3LjE0NTdDNTAuMjc1NyAxMDYuNTE4IDUwLjI3NTcgMTIxLjcxNCA1OS42NDgyIDEzMS4wODdWMTMxLjA4N0M2OS4wMjA4IDE0MC40NTkgODQuMjE2OCAxNDAuNDU5IDkzLjU4OTQgMTMxLjA4N0wxNDMuNzk0IDgwLjg4MjIiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMTIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K">
+        <bpmn:extensionElements>
+          <zeebe:taskDefinition type="io.camunda.agenticai:mcpremoteclient:0" retries="3" />
+          <zeebe:ioMapping>
+            <zeebe:input source="https://mcp.deepwiki.com/sse" target="data.connection.sseUrl" />
+            <zeebe:input source="=toolCall.method" target="data.operation.method" />
+            <zeebe:input source="=toolCall.params" target="data.operation.params" />
+          </zeebe:ioMapping>
+          <zeebe:taskHeaders>
+            <zeebe:header key="elementTemplateVersion" value="0" />
+            <zeebe:header key="elementTemplateId" value="io.camunda.connectors.agenticai.mcp.remoteclient.v0" />
+            <zeebe:header key="resultVariable" value="toolCallResult" />
+            <zeebe:header key="retryBackoff" value="PT0S" />
+          </zeebe:taskHeaders>
+          <zeebe:properties>
+            <zeebe:property name="io.camunda.agenticai.gateway.type" value="mcpClient" />
+          </zeebe:properties>
+        </bpmn:extensionElements>
+      </bpmn:serviceTask>
+    </bpmn:adHocSubProcess>
+    <bpmn:sequenceFlow id="Flow_0hb83gm" sourceRef="Subprocess_AvailableTools" targetRef="Activity_1l12i0n" />
+    <bpmn:startEvent id="StartEvent_1" zeebe:modelerTemplate="dev.example.a2a.connector.inbound" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iMTIwMHB0IiBoZWlnaHQ9IjEyMDBwdCIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMTIwMCAxMjAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogPHBhdGggZD0ibTEwMjAgMzExLjQ4Yy03Mi41MTYgMC0xMzEuNDgtNTkuMDE2LTEzMS40OC0xMzEuNDggMC0xMy41LTExLjAxNi0yNC45ODQtMjQuOTg0LTI0Ljk4NC0xMy41IDAtMjQuOTg0IDExLjQ4NC0yNC45ODQgMjQuOTg0IDAgOC40ODQ0LTAuOTg0MzggMTcuMDE2LTIuNDg0NCAyNC45ODQtMC41MTU2MiAzLjk4NDQtMS41IDguMDE1Ni0zIDEyLTAuOTg0MzggMy45ODQ0LTIuNDg0NCA4LjAxNTYtMy45ODQ0IDExLjQ4NC02IDE1Ljk4NC0xNS41MTYgMzAuNTE2LTI3IDQyLjUxNi0xMi41MTYgMTMuNS0yNy45ODQgMjQtNDUuNTE2IDMwLjk4NC0zIDEuNS02LjUxNTYgMi40ODQ0LTkuOTg0NCAzLjUxNTYtMS41IDAuNTE1NjItMyAwLjk4NDM4LTQuNSAxLjUtNi41MTU2IDIuMDE1Ni0xMy41IDMtMjEgMy45ODQ0LTQuNSAwLjUxNTYyLTkgMC41MTU2Mi0xMy41IDAuNTE1NjItMTQuMDE2IDAtMjQuOTg0IDExLjAxNi0yNC45ODQgMjQuOTg0IDAgMTMuNSAxMS4wMTYgMjQuOTg0IDI0Ljk4NCAyNC45ODQgNzIuNTE2IDAgMTMxLjAyIDU4LjUgMTMxLjAyIDEzMS4wMiAwIDE0LjAxNiAxMS40ODQgMjQuOTg0IDI0Ljk4NCAyNC45ODQgMTQuMDE2IDAgMjQuOTg0LTExLjAxNiAyNC45ODQtMjQuOTg0IDAtNC41IDAtOSAwLjUxNTYyLTEzLjUgMC45ODQzOC03LjUgMi4wMTU2LTE0LjQ4NCAzLjk4NDQtMjEgMC41MTU2Mi0xLjUgMC45ODQzOC0zIDEuNS00LjUgMC45ODQzOC0zLjUxNTYgMi4wMTU2LTYuOTg0NCAzLjk4NDQtOS45ODQ0IDYuNTE1Ni0xNy40ODQgMTcuMDE2LTMzIDMwLjUxNi00NS41MTYgMTItMTEuNDg0IDI2LjQ4NC0yMSA0Mi41MTYtMjcgMy41MTU2LTEuNSA3LjUtMyAxMS40ODQtMy45ODQ0IDMuOTg0NC0xLjUgOC4wMTU2LTIuNDg0NCAxMi0zIDguMDE1Ni0xLjUgMTYuNS0yLjQ4NDQgMjQuOTg0LTIuNDg0NCAxMy41IDAgMjQuOTg0LTExLjQ4NCAyNC45ODQtMjQuOTg0LTAuMDQ2ODc1LTE0LjAxNi0xMS41MzEtMjUuMDMxLTI1LjAzMS0yNS4wMzF6IiBmaWxsPSIjNGMyNWUwIi8+CiA8cGF0aCBkPSJtOTU0IDQ0NS41Yy05Ljk4NDQgMTMuNS0xNS41MTYgMjkuNDg0LTE1LjUxNiA0Ny4wMTYgMCA0MS40ODQtMzMuNTE2IDc1LTc1IDc1LTQxLjAxNiAwLTc1LTMzLjUxNi03NS03NSAwLTQ0LjQ4NC0zNi41MTYtODEtODEtODEtNDEuNDg0IDAtNzUtMzMuOTg0LTc1LTc1IDAtNDEuNDg0IDMzLjUxNi03NSA3NS03NSAxNy40ODQgMCAzMy41MTYtNS40ODQ0IDQ3LjAxNi0xNS41MTYgMTQuMDE2LTkuOTg0NCAyNC45ODQtMjQuNTE2IDMwLTQxLjQ4NC01Ni4wMTYtMjYuNTMxLTExOC41LTQxLjAxNi0xODQuNS00MS4wMTYtMjQwLjUyIDAtNDM2LjUgMTk1Ljk4LTQzNi41IDQzNi41czE5NS45OCA0MzYuNSA0MzYuNSA0MzYuNSA0MzYuNS0xOTUuOTggNDM2LjUtNDM2LjVjMC02Ni0xNC40ODQtMTI4LjQ4LTQxLjAxNi0xODQuNS0xNi45NjkgNS4wMTU2LTMxLjUgMTUuOTg0LTQxLjQ4NCAzMHptLTExNy45OCAxMzMuNWMxNC4wMTYgMCAyNC45ODQgMTEuNDg0IDI0Ljk4NCAyNC45ODQgMCAxNC4wMTYtMTEuMDE2IDI0Ljk4NC0yNC45ODQgMjQuOTg0LTExOC41IDAtMjE1LjAyIDk2LjUxNi0yMTUuMDIgMjE1LjQ4IDAgMTMuNS0xMS40ODQgMjQuOTg0LTI0Ljk4NCAyNC45ODQtMTQuMDE2IDAtMjQuOTg0LTExLjQ4NC0yNC45ODQtMjQuOTg0IDAtMTE5LjAyLTk2LjUxNi0yMTUuNDgtMjE1LjQ4LTIxNS40OC0xMy41IDAtMjQuOTg0LTExLjAxNi0yNC45ODQtMjQuOTg0IDAtMTMuNSAxMS40ODQtMjQuOTg0IDI0Ljk4NC0yNC45ODQgMTE5LjAyIDAgMjE1LjQ4LTk2LjUxNiAyMTUuNDgtMjE1LjAyIDAtMTQuMDE2IDExLjAxNi0yNC45ODQgMjQuOTg0LTI0Ljk4NCAxMy41IDAgMjQuOTg0IDExLjAxNiAyNC45ODQgMjQuOTg0IDAgMTE4LjUgOTYuNTE2IDIxNS4wMiAyMTUuMDIgMjE1LjAyeiIgZmlsbD0iIzRjMjVlMCIvPgogPHBhdGggZD0ibTQ2OCA2MDMuOThjNTYuMDE2IDI2LjQ4NCAxMDEuNDggNzIgMTI4LjAyIDEyOC4wMiAyNi4wMTYtNTYuMDE2IDcxLjQ4NC0xMDEuNDggMTI3LjUtMTI4LjAyLTU2LjAxNi0yNi4wMTYtMTAxLjQ4LTcxLjQ4NC0xMjcuNS0xMjcuNS0yNi41MzEgNTYuMDE2LTcyIDEwMS41My0xMjguMDIgMTI3LjV6IiBmaWxsPSIjNGMyNWUwIi8+Cjwvc3ZnPgo=">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="inbound.type" value="io.example:a2a:1" />
+          <zeebe:property name="agentId" value="TechnicalDemoAgent" />
+          <zeebe:property name="skills" value="check deepwiki, handle lost or stolen credit cards, ask a human that is around" />
+          <zeebe:property name="resultVariable" value="a2aProvidedInput" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_0f8b0tc</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_010bv8i" zeebe:modelerTemplate="io.camunda.connectors.agenticai.mcp.remoteclient.v0" zeebe:modelerTemplateVersion="0" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJub25lIiB2aWV3Qm94PSIwIDAgMjAwIDIwMCI+CiAgICA8cGF0aCBkPSJNMjUgOTcuODUyOEw5Mi44ODIzIDI5Ljk3MDZDMTAyLjI1NSAyMC41OTggMTE3LjQ1MSAyMC41OTggMTI2LjgyMyAyOS45NzA2VjI5Ljk3MDZDMTM2LjE5NiAzOS4zNDMxIDEzNi4xOTYgNTQuNTM5MSAxMjYuODIzIDYzLjkxMTdMNzUuNTU4MSAxMTUuMTc3IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik03Ni4yNjUzIDExNC40N0wxMjYuODIzIDYzLjkxMTdDMTM2LjE5NiA1NC41MzkxIDE1MS4zOTIgNTQuNTM5MSAxNjAuNzY1IDYzLjkxMTdMMTYxLjExOCA2NC4yNjUyQzE3MC40OTEgNzMuNjM3OCAxNzAuNDkxIDg4LjgzMzggMTYxLjExOCA5OC4yMDYzTDk5LjcyNDggMTU5LjZDOTYuNjAwNiAxNjIuNzI0IDk2LjYwMDYgMTY3Ljc4OSA5OS43MjQ4IDE3MC45MTNMMTEyLjMzMSAxODMuNTIiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMTIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTEwOS44NTMgNDYuOTQxMUw1OS42NDgyIDk3LjE0NTdDNTAuMjc1NyAxMDYuNTE4IDUwLjI3NTcgMTIxLjcxNCA1OS42NDgyIDEzMS4wODdWMTMxLjA4N0M2OS4wMjA4IDE0MC40NTkgODQuMjE2OCAxNDAuNDU5IDkzLjU4OTQgMTMxLjA4N0wxNDMuNzk0IDgwLjg4MjIiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMTIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda.agenticai:mcpremoteclient:0" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input target="data.connection.sseUrl" />
+          <zeebe:input source="=toolCall.method" target="data.operation.method" />
+          <zeebe:input source="=toolCall.params" target="data.operation.params" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="0" />
+          <zeebe:header key="elementTemplateId" value="io.camunda.connectors.agenticai.mcp.remoteclient.v0" />
+          <zeebe:header key="resultVariable" value="toolCallResult" />
+          <zeebe:header key="retryBackoff" value="PT0S" />
+        </zeebe:taskHeaders>
+        <zeebe:properties>
+          <zeebe:property name="io.camunda.agenticai.gateway.type" value="mcpClient" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_1e3ddxs" name="MCP: Tools for uploading, and checking documents" zeebe:modelerTemplate="io.camunda.connectors.agenticai.mcp.remoteclient.v0" zeebe:modelerTemplateVersion="0" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJub25lIiB2aWV3Qm94PSIwIDAgMjAwIDIwMCI+CiAgICA8cGF0aCBkPSJNMjUgOTcuODUyOEw5Mi44ODIzIDI5Ljk3MDZDMTAyLjI1NSAyMC41OTggMTE3LjQ1MSAyMC41OTggMTI2LjgyMyAyOS45NzA2VjI5Ljk3MDZDMTM2LjE5NiAzOS4zNDMxIDEzNi4xOTYgNTQuNTM5MSAxMjYuODIzIDYzLjkxMTdMNzUuNTU4MSAxMTUuMTc3IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik03Ni4yNjUzIDExNC40N0wxMjYuODIzIDYzLjkxMTdDMTM2LjE5NiA1NC41MzkxIDE1MS4zOTIgNTQuNTM5MSAxNjAuNzY1IDYzLjkxMTdMMTYxLjExOCA2NC4yNjUyQzE3MC40OTEgNzMuNjM3OCAxNzAuNDkxIDg4LjgzMzggMTYxLjExOCA5OC4yMDYzTDk5LjcyNDggMTU5LjZDOTYuNjAwNiAxNjIuNzI0IDk2LjYwMDYgMTY3Ljc4OSA5OS43MjQ4IDE3MC45MTNMMTEyLjMzMSAxODMuNTIiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMTIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTEwOS44NTMgNDYuOTQxMUw1OS42NDgyIDk3LjE0NTdDNTAuMjc1NyAxMDYuNTE4IDUwLjI3NTcgMTIxLjcxNCA1OS42NDgyIDEzMS4wODdWMTMxLjA4N0M2OS4wMjA4IDE0MC40NTkgODQuMjE2OCAxNDAuNDU5IDkzLjU4OTQgMTMxLjA4N0wxNDMuNzk0IDgwLjg4MjIiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMTIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda.agenticai:mcpremoteclient:0" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="http://host.docker.internal:8100/sse" target="data.connection.sseUrl" />
+          <zeebe:input source="=toolCall.method" target="data.operation.method" />
+          <zeebe:input source="=toolCall.params" target="data.operation.params" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="0" />
+          <zeebe:header key="elementTemplateId" value="io.camunda.connectors.agenticai.mcp.remoteclient.v0" />
+          <zeebe:header key="resultVariable" value="toolCallResult" />
+          <zeebe:header key="retryBackoff" value="PT0S" />
+        </zeebe:taskHeaders>
+        <zeebe:properties>
+          <zeebe:property name="io.camunda.agenticai.gateway.type" value="mcpClient" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0zqk837" sourceRef="Activity_1l12i0n" targetRef="Event_1b9qbnh" />
+    <bpmn:userTask id="Activity_1l12i0n" name="Review case">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0hb83gm</bpmn:incoming>
+      <bpmn:outgoing>Flow_0zqk837</bpmn:outgoing>
+    </bpmn:userTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="A2aMcpExampleProcess">
+      <bpmndi:BPMNShape id="Event_1b9qbnh_di" bpmnElement="Event_1b9qbnh">
+        <dc:Bounds x="1142" y="222" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0oipxdw_di" bpmnElement="Activity_00y1q9m">
+        <dc:Bounds x="470" y="560" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0wff543_di" bpmnElement="Subprocess_AvailableTools" isExpanded="true">
+        <dc:Bounds x="450" y="80" width="440" height="370" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0u57ntb_di" bpmnElement="HumanTask_AskHuman">
+        <dc:Bounds x="570" y="250" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0xdxj61_di" bpmnElement="Tool_A2A_CreditCardAgent">
+        <dc:Bounds x="720" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0nv9xyn" bpmnElement="Tool_Deepwiki">
+        <dc:Bounds x="570" y="120" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0soospq_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="172" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_02rldbr_di" bpmnElement="Activity_010bv8i">
+        <dc:Bounds x="710" y="560" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ilsqqm_di" bpmnElement="Activity_1e3ddxs">
+        <dc:Bounds x="590" y="560" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0o2l3ed_di" bpmnElement="Activity_1l12i0n">
+        <dc:Bounds x="960" y="200" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0f8b0tc_di" bpmnElement="Flow_0f8b0tc">
+        <di:waypoint x="188" y="190" />
+        <di:waypoint x="450" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0hb83gm_di" bpmnElement="Flow_0hb83gm">
+        <di:waypoint x="890" y="240" />
+        <di:waypoint x="960" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zqk837_di" bpmnElement="Flow_0zqk837">
+        <di:waypoint x="1060" y="240" />
+        <di:waypoint x="1142" y="240" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -13,6 +13,10 @@ import uuid
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("credit_card_agent")
+
 from pydantic import BaseModel, Field
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -40,35 +44,51 @@ def _ensure_card(last4: str):
         CARD_STATE[last4] = {"frozen": False, "replacement_order": None}
 
 def freeze_card_fn(card_last4: str) -> str:
+    logger.info(f"FREEZE_CARD action called for card ending in {card_last4}")
     _ensure_card(card_last4)
     CARD_STATE[card_last4]["frozen"] = True
-    return f"Card •••• {card_last4} frozen."
+    result = f"Card •••• {card_last4} frozen."
+    logger.info(f"FREEZE_CARD completed: {result}")
+    return result
 
 def unfreeze_card_fn(card_last4: str) -> str:
+    logger.info(f"UNFREEZE_CARD action called for card ending in {card_last4}")
     _ensure_card(card_last4)
     CARD_STATE[card_last4]["frozen"] = False
-    return f"Card •••• {card_last4} unfrozen."
+    result = f"Card •••• {card_last4} unfrozen."
+    logger.info(f"UNFREEZE_CARD completed: {result}")
+    return result
 
 def report_lost_fn(card_last4: str, date_lost: Optional[str] = None) -> str:
+    logger.info(f"REPORT_LOST action called for card ending in {card_last4}, date_lost: {date_lost}")
     _ensure_card(card_last4)
     when = date_lost or datetime.utcnow().date().isoformat()
-    return f"Lost report filed for card •••• {card_last4} (date_lost={when})."
+    result = f"Lost report filed for card •••• {card_last4} (date_lost={when})."
+    logger.info(f"REPORT_LOST completed: {result}")
+    return result
 
 def order_replacement_fn(card_last4: str, delivery_option: str = "standard") -> str:
+    logger.info(f"ORDER_REPLACEMENT action called for card ending in {card_last4}, delivery_option: {delivery_option}")
     _ensure_card(card_last4)
     CARD_STATE[card_last4]["replacement_order"] = {
         "status": "processing",
         "delivery_option": delivery_option,
         "eta_days": 5 if delivery_option == "standard" else 2,
     }
-    return f"Replacement ordered for •••• {card_last4} via {delivery_option}."
+    result = f"Replacement ordered for •••• {card_last4} via {delivery_option}."
+    logger.info(f"ORDER_REPLACEMENT completed: {result}")
+    return result
 
 def check_replacement_status_fn(card_last4: str) -> str:
+    logger.info(f"CHECK_REPLACEMENT_STATUS action called for card ending in {card_last4}")
     _ensure_card(card_last4)
     ro = CARD_STATE[card_last4]["replacement_order"]
     if not ro:
-        return f"No replacement order found for •••• {card_last4}."
-    return f"Replacement status for •••• {card_last4}: {ro['status']}, ETA {ro.get('eta_days','?')} days."
+        result = f"No replacement order found for •••• {card_last4}."
+    else:
+        result = f"Replacement status for •••• {card_last4}: {ro['status']}, ETA {ro.get('eta_days','?')} days."
+    logger.info(f"CHECK_REPLACEMENT_STATUS completed: {result}")
+    return result
 
 # ===========================
 # Tool schemas
@@ -228,6 +248,9 @@ def to_lc_messages(history: List[Dict[str, str]]) -> List[BaseMessage]:
 
 app = FastAPI(title="Card Management Agent", version="1.3.0")
 
+# Log startup
+logger.info("Credit Card Management Agent starting up...")
+
 class A2ARequest(BaseModel):
     intent: Optional[str] = Field(None, description="e.g., 'report_lost', 'freeze', 'check_status'")
     parameters: Dict[str, Any] = Field(default_factory=dict)
@@ -243,15 +266,24 @@ class A2AResponse(BaseModel):
 
 @app.post("/agents/card/handle", response_model=A2AResponse)
 def handle(req: A2ARequest):
+    logger.info(f"REST API invoked with request: intent={req.intent}, parameters={req.parameters}, input_text='{req.input_text}'")
+    
     agent_input = req.input_text or f"Intent: {req.intent}; Parameters: {req.parameters}"
     history_msgs = to_lc_messages(req.chat_history)
 
     parsed_action, parsed_last4 = extract_intent_and_last4(agent_input)
     hint = f"Parsed(action={parsed_action}, last4={parsed_last4})"
     agent_input_with_hint = f"{agent_input}\n\n{hint}"
+    
+    logger.info(f"Parsed intent: action={parsed_action}, card_last4={parsed_last4}")
 
     try:
+        logger.info(f"Invoking LangChain executor with input: '{agent_input_with_hint}'")
+        logger.info(f"Chat history: {history_msgs}")
+        
         result = executor.invoke({"input": agent_input_with_hint, "chat_history": history_msgs})
+        
+        logger.info(f"LangChain executor result: {result}")
         final_text = result.get("output", "")
         actions = []
         for step in result.get("intermediate_steps", []):
@@ -263,8 +295,13 @@ def handle(req: A2ARequest):
                     actions.append(ti["tool"])
                 else:
                     actions.append(str(ti))
+        
+        logger.info(f"Agent execution completed. Actions taken: {actions}")
+        logger.info(f"Final response: {final_text}")
+        
         return A2AResponse(status="ok", result={"message": final_text}, actions_taken=actions)
     except Exception as e:
+        logger.error(f"Error during agent execution: {str(e)}", exc_info=True)
         return JSONResponse(
             status_code=500,
             content=A2AResponse(
@@ -279,7 +316,7 @@ def handle(req: A2ARequest):
 # A2A protocol – Starlette app
 # ===========================
 
-logger = logging.getLogger("a2a-mount")
+a2a_logger = logging.getLogger("a2a-mount")
 A2A_MOUNTED = False
 A2A_MOUNT_PATH = "/a2a"
 
@@ -298,7 +335,7 @@ try:
         Message, Role, Part, DataPart,
     )
 
-    logger.info("a2a-sdk import OK, preparing to mount...")
+    a2a_logger.info("a2a-sdk import OK, preparing to mount...")
 
     CARD_SKILLS = [
         AgentSkill(id="freeze_card", name="Freeze a card",
@@ -406,20 +443,31 @@ try:
             user_text = _extract_text_from_message(context)
             if not user_text:
                 user_text = "Help with card management."
+            
+            logger.info(f"A2A Protocol invoked with message: '{user_text}'")
 
             parsed_action, parsed_last4 = extract_intent_and_last4(user_text)
             hint = f"Parsed(action={parsed_action}, last4={parsed_last4})"
+            
+            logger.info(f"A2A Parsed intent: action={parsed_action}, card_last4={parsed_last4}")
 
             try:
+                logger.info(f"A2A Invoking LangChain executor with input: '{user_text}\\n\\n{hint}'")
+                
                 lc_result = executor.invoke({"input": f"{user_text}\n\n{hint}", "chat_history": []})
+                
+                logger.info(f"A2A LangChain executor result: {lc_result}")
                 final_text = lc_result.get("output", "") or str(lc_result)
+                logger.info(f"A2A Agent execution completed with response: {final_text}")
             except Exception as e:
+                logger.error(f"A2A Error during agent execution: {str(e)}", exc_info=True)
                 final_text = json.dumps({
                     "handoff_required": True,
                     "reason": f"Error handling request: {e}",
                 })
 
             payload = _coerce_json(final_text)
+            logger.info(f"A2A Sending response payload: {payload}")
             await _emit_data_message(event_queue, context, payload)
 
         async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:
@@ -437,10 +485,10 @@ try:
 
     app.mount(A2A_MOUNT_PATH, a2a_app_builder.build())
     A2A_MOUNTED = True
-    logger.info(f"A2A app mounted at {A2A_MOUNT_PATH}")
+    a2a_logger.info(f"A2A app mounted at {A2A_MOUNT_PATH}")
 
 except Exception as e:
-    logger.exception(f"Failed to mount A2A app: {e}")
+    a2a_logger.exception(f"Failed to mount A2A app: {e}")
 
 # ---- Optional: minimal fallback well-known routes (discovery even if mount failed) ----
 MINIMAL_AGENT_CARD = {
@@ -479,4 +527,5 @@ def _a2a_health():
 # ===========================
 if __name__ == "__main__":
     import uvicorn
+    logger.info("Starting Credit Card Management Agent on http://0.0.0.0:8000")
     uvicorn.run("credit_card_loss_agent:app", host="0.0.0.0", port=8000, reload=True)

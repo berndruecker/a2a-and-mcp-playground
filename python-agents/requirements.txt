@@ -1,6 +1,7 @@
 # Core API server
 fastapi
 uvicorn[standard]
+sse-starlette
 
 # LangChain + OpenAI client
 langchain

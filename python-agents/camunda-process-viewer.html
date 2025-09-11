@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camunda Process Instance Viewer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .setup-info {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .setup-info h4 {
+            margin-top: 0;
+            color: #004085;
+        }
+        
+        .setup-info code {
+            background-color: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            margin-left: 15px;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status.loading {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status.success {
+            background-color: #d1edff;
+            color: #004085;
+        }
+        
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .process-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e9f7ff;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .process-info h3 {
+            margin-top: 0;
+            color: #004085;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            min-width: 200px;
+            color: #495057;
+        }
+        
+        .info-value {
+            color: #212529;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+        
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e9ecef;
+        }
+        
+        .json-container {
+            max-width: 100%;
+            width: 100%;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            position: relative;
+            box-sizing: border-box;
+        }
+        
+        .json-textarea {
+            width: 100%;
+            min-height: 200px;
+            max-height: 400px;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            background-color: #ffffff;
+            color: #212529;
+            resize: vertical;
+            outline: none;
+            overflow-y: auto;
+            white-space: pre;
+            word-wrap: break-word;
+            box-sizing: border-box;
+        }
+        
+        .json-textarea:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        .json-pretty {
+            white-space: pre;
+            word-wrap: break-word;
+            margin: 0;
+            color: #212529;
+            overflow-x: auto;
+            min-height: 20px;
+            font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        /* JSON syntax highlighting */
+        .json-key {
+            color: #d73a49;
+            font-weight: 600;
+        }
+        
+        .json-string {
+            color: #032f62;
+        }
+        
+        .json-number {
+            color: #005cc5;
+            font-weight: 500;
+        }
+        
+        .json-boolean {
+            color: #e36209;
+            font-weight: 600;
+        }
+        
+        .json-null {
+            color: #6f42c1;
+            font-style: italic;
+            font-weight: 600;
+        }
+        
+        .json-punctuation {
+            color: #24292e;
+            font-weight: 500;
+        }
+        
+        .json-copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #0366d6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            opacity: 0.8;
+            z-index: 10;
+            font-family: inherit;
+        }
+        
+        .json-copy-btn:hover {
+            opacity: 1;
+            background: #0256cc;
+        }
+        
+        .json-expand-btn {
+            position: absolute;
+            top: 10px;
+            right: 70px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            opacity: 0.8;
+            z-index: 10;
+            font-family: inherit;
+        }
+        
+        .json-expand-btn:hover {
+            opacity: 1;
+            background: #218838;
+        }
+        
+        .json-mode-btn {
+            position: absolute;
+            top: 10px;
+            right: 140px;
+            background: #6f42c1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            opacity: 0.8;
+            z-index: 10;
+            font-family: inherit;
+        }
+        
+        .json-mode-btn:hover {
+            opacity: 1;
+            background: #5a32a3;
+        }
+        
+        .simple-value {
+            font-family: inherit;
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+            display: block;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .variable-type-info {
+            font-size: 11px;
+            color: #6c757d;
+            font-style: italic;
+            margin-bottom: 8px;
+            padding: 4px 8px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        
+        .no-data {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px;
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .variable-name {
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .variable-type {
+            font-size: 11px;
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Camunda 8.8 Process Instance Viewer</h1>
+        
+        <div class="setup-info">
+            <h4>Setup Instructions (CORS Workaround)</h4>
+            <p>To avoid CORS issues, run the proxy server first:</p>
+            <ol>
+                <li>Open a terminal in this directory</li>
+                <li>Run: <code>python cors_proxy.py</code></li>
+                <li>Then access this page via: <code>http://localhost:3001/camunda-process-viewer.html</code></li>
+            </ol>
+            <p><strong>Note:</strong> Make sure Camunda is running on port 8088</p>
+        </div>
+        
+        <div class="controls">
+            <button id="refreshBtn" onclick="loadLatestProcessInstance()">Load Latest Process Instance</button>
+            <span id="status" class="status"></span>
+        </div>
+        
+        <div id="processInfo" class="process-info" style="display: none;">
+            <h3>Process Instance Information</h3>
+            <div id="processDetails"></div>
+        </div>
+        
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+        
+        <div id="processTreeContainer" style="display: none;">
+            <h3>Process Instance Hierarchy</h3>
+            <div id="processTree"></div>
+        </div>
+
+        <div id="variablesContainer">
+            <div id="noData" class="no-data">Click "Load Latest Process Instance" to fetch data from Camunda</div>
+        </div>
+    </div>
+
+    <script>
+        // Use proxy server to avoid CORS issues
+        const CAMUNDA_API_BASE = 'http://localhost:3001/v2';
+        
+        function updateStatus(message, type = 'loading') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            updateStatus('Error occurred', 'error');
+        }
+        
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        function formatValue(value) {
+            if (value === null) return 'null';
+            if (value === undefined) return 'undefined';
+            if (typeof value === 'string') return value;
+            if (typeof value === 'object') {
+                try {
+                    return JSON.stringify(value, null, 2);
+                } catch (e) {
+                    return String(value);
+                }
+            }
+            return String(value);
+        }
+        
+        function getValueType(value) {
+            if (value === null) return 'null';
+            if (value === undefined) return 'undefined';
+            if (Array.isArray(value)) return 'array';
+            return typeof value;
+        }
+        
+        function isJsonObject(value) {
+            return typeof value === 'object' && value !== null && !Array.isArray(value);
+        }
+        
+        function isJsonString(str) {
+            if (typeof str !== 'string') return false;
+            try {
+                const parsed = JSON.parse(str);
+                return typeof parsed === 'object' && parsed !== null;
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        function parseJsonString(str) {
+            try {
+                return JSON.parse(str);
+            } catch (e) {
+                return null;
+            }
+        }
+        
+        function syntaxHighlightJson(json) {
+            if (typeof json !== 'string') {
+                json = JSON.stringify(json, null, 2);
+            }
+            
+            // Escape HTML
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            // Apply syntax highlighting
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Show temporary feedback
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                btn.style.backgroundColor = '#28a745';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.backgroundColor = '#0366d6';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Copy failed. Please select and copy manually.');
+            });
+        }
+        
+        function copyJsonData(containerId) {
+            const jsonString = window.jsonData[containerId];
+            if (jsonString) {
+                copyToClipboard(jsonString);
+            }
+        }
+        
+        function expandJsonContainer(containerId) {
+            const container = document.getElementById(containerId);
+            if (container.style.maxHeight === 'none') {
+                container.style.maxHeight = '400px';
+                event.target.textContent = '⛶ Expand';
+                event.target.title = 'Expand to show full content';
+            } else {
+                container.style.maxHeight = 'none';
+                event.target.textContent = '⛶ Collapse';
+                event.target.title = 'Collapse to normal size';
+            }
+        }
+        
+        function toggleJsonMode(containerId) {
+            const container = document.getElementById(containerId);
+            const jsonString = window.jsonData[containerId];
+            const modeBtn = container.querySelector('.json-mode-btn');
+            const isTextarea = container.querySelector('textarea') !== null;
+            
+            if (isTextarea) {
+                // Switch to formatted view
+                const highlighted = syntaxHighlightJson(jsonString);
+                container.innerHTML = `
+                    <button class="json-mode-btn" onclick="toggleJsonMode('${containerId}')" title="Switch to plain text mode">📝 Plain Text</button>
+                    <button class="json-expand-btn" onclick="expandJsonContainer('${containerId}')" title="Expand to show full content">⛶ Expand</button>
+                    <button class="json-copy-btn" onclick="copyJsonData('${containerId}')" title="Copy JSON to clipboard">📋 Copy</button>
+                    <pre class="json-pretty">${highlighted}</pre>
+                `;
+            } else {
+                // Switch to textarea view  
+                container.innerHTML = `
+                    <button class="json-mode-btn" onclick="toggleJsonMode('${containerId}')" title="Switch to formatted mode">🎨 Formatted</button>
+                    <button class="json-expand-btn" onclick="expandJsonContainer('${containerId}')" title="Expand to show full content">⛶ Expand</button>
+                    <button class="json-copy-btn" onclick="copyJsonData('${containerId}')" title="Copy JSON to clipboard">📋 Copy</button>
+                    <textarea class="json-textarea" readonly></textarea>
+                `;
+                // Set the textarea content after it's created
+                setTimeout(() => {
+                    const textarea = container.querySelector('textarea');
+                    if (textarea) {
+                        textarea.value = jsonString;
+                    }
+                }, 0);
+            }
+        }
+        
+        function getObjectInfo(value) {
+            if (Array.isArray(value)) {
+                return `Array with ${value.length} ${value.length === 1 ? 'item' : 'items'}`;
+            } else if (typeof value === 'object' && value !== null) {
+                const keys = Object.keys(value);
+                return `Object with ${keys.length} ${keys.length === 1 ? 'property' : 'properties'}`;
+            }
+            return '';
+        }
+        
+        function renderVariableValue(value) {
+            const type = getValueType(value);
+            
+            // Check if it's a JSON object/array OR a string containing JSON
+            if (isJsonObject(value) || Array.isArray(value)) {
+                const jsonString = JSON.stringify(value, null, 2);
+                const objectInfo = getObjectInfo(value);
+                const containerId = 'json_' + Math.random().toString(36).substr(2, 9);
+                
+                // Store the JSON data in a global variable to avoid escaping issues
+                window.jsonData = window.jsonData || {};
+                window.jsonData[containerId] = jsonString;
+                
+                return `
+                    <div class="variable-type-info">${type} - ${objectInfo}</div>
+                    <div class="json-container" id="${containerId}" data-json-id="${containerId}">
+                        <button class="json-mode-btn" onclick="toggleJsonMode('${containerId}')" title="Switch to formatted mode">🎨 Formatted</button>
+                        <button class="json-expand-btn" onclick="expandJsonContainer('${containerId}')" title="Expand to show full content">⛶ Expand</button>
+                        <button class="json-copy-btn" onclick="copyJsonData('${containerId}')" title="Copy JSON to clipboard">📋 Copy</button>
+                        <textarea class="json-textarea" readonly></textarea>
+                    </div>
+                `;
+            } else if (typeof value === 'string' && isJsonString(value)) {
+                // Handle strings that contain JSON
+                const parsedValue = parseJsonString(value);
+                const jsonString = JSON.stringify(parsedValue, null, 2);
+                const objectInfo = getObjectInfo(parsedValue);
+                const containerId = 'json_' + Math.random().toString(36).substr(2, 9);
+                
+                // Store the JSON data in a global variable to avoid escaping issues
+                window.jsonData = window.jsonData || {};
+                window.jsonData[containerId] = jsonString;
+                
+                return `
+                    <div class="variable-type-info">string containing JSON - ${objectInfo}</div>
+                    <div class="json-container" id="${containerId}" data-json-id="${containerId}">
+                        <button class="json-mode-btn" onclick="toggleJsonMode('${containerId}')" title="Switch to formatted mode">🎨 Formatted</button>
+                        <button class="json-expand-btn" onclick="expandJsonContainer('${containerId}')" title="Expand to show full content">⛶ Expand</button>
+                        <button class="json-copy-btn" onclick="copyJsonData('${containerId}')" title="Copy JSON to clipboard">📋 Copy</button>
+                        <textarea class="json-textarea" readonly></textarea>
+                    </div>
+                `;
+            } else if (typeof value === 'string') {
+                // Handle strings - show full content
+                const displayValue = value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return `
+                    <div class="variable-type-info">string - ${value.length} characters</div>
+                    <div class="simple-value">"${displayValue}"</div>
+                `;
+            } else {
+                // Handle simple values (numbers, booleans, null)
+                let displayValue = value;
+                let className = '';
+                
+                if (typeof value === 'boolean') {
+                    className = 'json-boolean';
+                } else if (typeof value === 'number') {
+                    className = 'json-number';
+                } else if (value === null) {
+                    className = 'json-null';
+                    displayValue = 'null';
+                }
+                
+                const formattedValue = className ? `<span class="${className}">${displayValue}</span>` : displayValue;
+                
+                return `
+                    <div class="variable-type-info">${type}</div>
+                    <div class="simple-value">${formattedValue}</div>
+                `;
+            }
+        }
+        
+        async function fetchWithErrorHandling(url, options = {}) {
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        ...options.headers
+                    }
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    throw new Error('Cannot connect to Camunda API. Please ensure Camunda is running on localhost:8088');
+                }
+                throw error;
+            }
+        }
+        
+        async function getLatestProcessInstance() {
+            updateStatus('Fetching process instances...', 'loading');
+            
+            const searchQuery = {
+                sort: [{
+                    field: 'startDate',
+                    order: 'desc'
+                }],
+                page: {
+                    limit: 1
+                }
+            };
+            
+            const url = `${CAMUNDA_API_BASE}/process-instances/search`;
+            return await fetchWithErrorHandling(url, {
+                method: 'POST',
+                body: JSON.stringify(searchQuery)
+            });
+        }
+        
+        async function getProcessInstanceVariables(processInstanceKey) {
+            updateStatus('Fetching process variables...', 'loading');
+            
+            const url = `${CAMUNDA_API_BASE}/variables/search`;
+            const searchQuery = {
+                filter: {
+                    processInstanceKey: processInstanceKey
+                },
+                sort: [{
+                    field: 'name',
+                    order: 'asc'
+                }]
+            };
+            
+            return await fetchWithErrorHandling(url, {
+                method: 'POST',
+                body: JSON.stringify(searchQuery)
+            });
+        }
+        
+        function displayProcessInfo(processInstance) {
+            const processInfo = document.getElementById('processInfo');
+            const processDetails = document.getElementById('processDetails');
+            
+            const details = [
+                { label: 'Process Instance Key', value: processInstance.processInstanceKey },
+                { label: 'Process Definition ID', value: processInstance.processDefinitionId },
+                { label: 'Process Definition Name', value: processInstance.processDefinitionName || 'N/A' },
+                { label: 'Process Definition Version', value: processInstance.processDefinitionVersion },
+                { label: 'Start Date', value: new Date(processInstance.startDate).toLocaleString() },
+                { label: 'End Date', value: processInstance.endDate ? new Date(processInstance.endDate).toLocaleString() : 'Still running' },
+                { label: 'State', value: processInstance.state },
+                { label: 'Tenant ID', value: processInstance.tenantId || 'Default' },
+                { label: 'Has Incident', value: processInstance.hasIncident ? 'Yes' : 'No' }
+            ];
+            
+            processDetails.innerHTML = details.map(detail => `
+                <div class="info-row">
+                    <div class="info-label">${detail.label}:</div>
+                    <div class="info-value">${detail.value}</div>
+                </div>
+            `).join('');
+            
+            processInfo.style.display = 'block';
+        }
+        
+        function displayVariables(variables) {
+            const container = document.getElementById('variablesContainer');
+            const noData = document.getElementById('noData');
+            
+            if (!variables || variables.length === 0) {
+                container.innerHTML = '<div class="no-data">No variables found for this process instance</div>';
+                return;
+            }
+            
+            const tableHTML = `
+                <h3>Process Variables (${variables.length} total)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 200px;">Variable Name</th>
+                            <th style="width: 150px;">Scope</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${variables.map(variable => `
+                            <tr>
+                                <td>
+                                    <div class="variable-name">${variable.name}</div>
+                                </td>
+                                <td>
+                                    <div style="font-size: 12px;">${variable.scopeKey}</div>
+                                    <div style="font-size: 10px; color: #6c757d;">${variable.processInstanceKey === variable.scopeKey ? 'Process Instance' : 'Local Scope'}</div>
+                                </td>
+                                <td>
+                                    ${renderVariableValue(variable.value)}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = tableHTML;
+            
+            // Initialize textarea values after DOM is updated
+            setTimeout(() => {
+                initializeTextareas();
+            }, 0);
+        }
+        
+        function initializeTextareas() {
+            if (window.jsonData) {
+                Object.keys(window.jsonData).forEach(containerId => {
+                    const container = document.getElementById(containerId);
+                    if (container) {
+                        const textarea = container.querySelector('textarea');
+                        if (textarea) {
+                            textarea.value = window.jsonData[containerId];
+                        }
+                    }
+                });
+            }
+        }
+        
+        async function loadLatestProcessInstance() {
+            hideError();
+            
+            try {
+                document.getElementById('refreshBtn').disabled = true;
+                
+                // Get the latest process instance
+                const processInstancesResult = await getLatestProcessInstance();
+                
+                if (!processInstancesResult.items || processInstancesResult.items.length === 0) {
+                    document.getElementById('variablesContainer').innerHTML = 
+                        '<div class="no-data">No process instances found in Camunda</div>';
+                    updateStatus('No process instances found', 'error');
+                    return;
+                }
+                
+                const latestProcessInstance = processInstancesResult.items[0];
+                displayProcessInfo(latestProcessInstance);
+                
+                // Get variables for this process instance
+                const variablesResult = await getProcessInstanceVariables(latestProcessInstance.processInstanceKey);
+                displayVariables(variablesResult.items);
+                
+                updateStatus(`Loaded ${variablesResult.items?.length || 0} variables`, 'success');
+                
+            } catch (error) {
+                console.error('Error loading process instance:', error);
+                showError(error.message);
+            } finally {
+                document.getElementById('refreshBtn').disabled = false;
+            }
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('Ready to load data', 'success');
+        });
+    </script>
+</body>
+</html>

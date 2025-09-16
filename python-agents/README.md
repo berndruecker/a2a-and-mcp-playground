@@ -41,3 +41,14 @@ python account_support_agent.py
 ```
 
 http://localhost:8200/sse
+
+It provides the following tools:
+
+1. Customer Account Lookup Tool, Functions:
+  - search_customer(identifier --> account no, IBAN, card no) — returns customer ID 
+  - get_customer_profile(customer_id) — returns name, contact info, KYC status
+  - get_active_products(customer_id) — returns list of products (current accounts, cards, loans, etc.)
+2. Account Action Management Tool, Functions:
+  - freeze_account(account_id) / unfreeze_account(account_id) - returns success_status
+  - reset_password(customer_id) - returns success_status
+  - update_address(customer_id, new_address) - returns success_status

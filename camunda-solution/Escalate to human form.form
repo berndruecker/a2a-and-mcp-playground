@@ -1,0 +1,116 @@
+{
+  "components": [
+    {
+      "text": "## AI needs your help!",
+      "type": "text",
+      "id": "Heading_0",
+      "layout": {
+        "row": "Row_16pdden"
+      }
+    },
+    {
+      "label": "Request Details",
+      "type": "textarea",
+      "id": "Textarea_2",
+      "validate": {
+        "required": true
+      },
+      "key": "requestDetails",
+      "readonly": true,
+      "layout": {
+        "row": "Row_1m8bwtn"
+      }
+    },
+    {
+      "text": "### Taking over?\nYou might simply take control of this case and handle it manually. It will be marked as solved when completing it here.",
+      "type": "text",
+      "layout": {
+        "row": "Row_0ar4vkj",
+        "columns": null
+      },
+      "id": "Field_0piyv9u"
+    },
+    {
+      "label": "I took full control",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_0tleasr",
+        "columns": null
+      },
+      "id": "Field_1tzrg0y",
+      "key": "taking_full_control"
+    },
+    {
+      "text": "### Response to AI",
+      "type": "text",
+      "layout": {
+        "row": "Row_1cn0jzf",
+        "columns": null
+      },
+      "id": "Field_0qa4lej",
+      "conditional": {
+        "hide": "=taking_full_control"
+      }
+    },
+    {
+      "label": "Response to Request",
+      "type": "textarea",
+      "id": "Textarea_4",
+      "validate": {
+        "required": true
+      },
+      "key": "responseToRequest",
+      "layout": {
+        "row": "Row_09gn4og"
+      },
+      "conditional": {
+        "hide": "=taking_full_control"
+      }
+    },
+    {
+      "label": "Add to Knowledge Base?",
+      "values": [
+        {
+          "value": "yes",
+          "label": "Yes"
+        },
+        {
+          "value": "no",
+          "label": "No"
+        }
+      ],
+      "type": "radio",
+      "id": "Radio_6",
+      "validate": {
+        "required": true
+      },
+      "key": "knowledgeBaseDecision",
+      "layout": {
+        "row": "Row_18lmxe5"
+      },
+      "conditional": {
+        "hide": "=taking_full_control"
+      }
+    },
+    {
+      "label": "Submit",
+      "action": "submit",
+      "type": "button",
+      "layout": {
+        "row": "Row_1vfx72u",
+        "columns": null
+      },
+      "id": "Field_0tuly6o"
+    }
+  ],
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.8.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.39.0"
+  },
+  "schemaVersion": 19,
+  "id": "Form_HumanDecision",
+  "generated": true,
+  "type": "default"
+}

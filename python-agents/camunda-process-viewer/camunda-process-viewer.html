@@ -261,31 +261,10 @@
             background: #0256cc;
         }
         
-        .json-expand-btn {
-            position: absolute;
-            top: 10px;
-            right: 70px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 6px 12px;
-            font-size: 11px;
-            cursor: pointer;
-            opacity: 0.8;
-            z-index: 10;
-            font-family: inherit;
-        }
-        
-        .json-expand-btn:hover {
-            opacity: 1;
-            background: #218838;
-        }
-        
         .json-mode-btn {
             position: absolute;
             top: 10px;
-            right: 140px;
+            right: 70px;
             background: #6f42c1;
             color: white;
             border: none;
@@ -348,6 +327,55 @@
             color: #495057;
         }
         
+        #processTreeContainer {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .process-tree {
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .process-instance-item {
+            padding: 4px 0;
+            cursor: pointer;
+            border-radius: 3px;
+            padding-left: 8px;
+            padding-right: 8px;
+            margin: 2px 0;
+            transition: background-color 0.2s;
+        }
+        
+        .process-instance-item:hover {
+            background-color: #e9ecef;
+        }
+        
+        .process-instance-item.active {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .process-instance-item.root {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .process-instance-details {
+            font-size: 12px;
+            color: #6c757d;
+            margin-left: 20px;
+        }
+        
+        .process-instance-item.active .process-instance-details {
+            color: #e9ecef;
+        }
+        
         .variable-type {
             font-size: 11px;
             color: #6c757d;
@@ -360,11 +388,11 @@
         <h1>Camunda 8.8 Process Instance Viewer</h1>
         
         <div class="setup-info">
-            <h4>Setup Instructions (CORS Workaround)</h4>
-            <p>To avoid CORS issues, run the proxy server first:</p>
+            <h4>Setup Instructions</h4>
+            <p>To use this process viewer, run the server first:</p>
             <ol>
                 <li>Open a terminal in this directory</li>
-                <li>Run: <code>python cors_proxy.py</code></li>
+                <li>Run: <code>python camunda-process-viewer-server.py</code> or double-click <code>start-camunda-process-viewer-server.bat</code></li>
                 <li>Then access this page via: <code>http://localhost:3001/camunda-process-viewer.html</code></li>
             </ol>
             <p><strong>Note:</strong> Make sure Camunda is running on port 8088</p>
@@ -395,6 +423,11 @@
     <script>
         // Use proxy server to avoid CORS issues
         const CAMUNDA_API_BASE = 'http://localhost:3001/v2';
+        
+        // Global state for process hierarchy
+        let currentProcessInstance = null;
+        let processInstanceTree = null;
+        let allProcessInstances = new Map(); // Map of processInstanceKey -> process instance data
         
         function updateStatus(message, type = 'loading') {
             const status = document.getElementById('status');
@@ -506,19 +539,6 @@
             }
         }
         
-        function expandJsonContainer(containerId) {
-            const container = document.getElementById(containerId);
-            if (container.style.maxHeight === 'none') {
-                container.style.maxHeight = '400px';
-                event.target.textContent = '⛶ Expand';
-                event.target.title = 'Expand to show full content';
-            } else {
-                container.style.maxHeight = 'none';
-                event.target.textContent = '⛶ Collapse';
-                event.target.title = 'Collapse to normal size';
-            }
-        }
-        
         function toggleJsonMode(containerId) {
             const container = document.getElementById(containerId);
             const jsonString = window.jsonData[containerId];
@@ -530,7 +550,6 @@
                 const highlighted = syntaxHighlightJson(jsonString);
                 container.innerHTML = `
                     <button class="json-mode-btn" onclick="toggleJsonMode('${containerId}')" title="Switch to plain text mode">📝 Plain Text</button>
-                    <button class="json-expand-btn" onclick="expandJsonContainer('${containerId}')" title="Expand to show full content">⛶ Expand</button>
                     <button class="json-copy-btn" onclick="copyJsonData('${containerId}')" title="Copy JSON to clipboard">📋 Copy</button>
                     <pre class="json-pretty">${highlighted}</pre>
                 `;
@@ -538,7 +557,6 @@
                 // Switch to textarea view  
                 container.innerHTML = `
                     <button class="json-mode-btn" onclick="toggleJsonMode('${containerId}')" title="Switch to formatted mode">🎨 Formatted</button>
-                    <button class="json-expand-btn" onclick="expandJsonContainer('${containerId}')" title="Expand to show full content">⛶ Expand</button>
                     <button class="json-copy-btn" onclick="copyJsonData('${containerId}')" title="Copy JSON to clipboard">📋 Copy</button>
                     <textarea class="json-textarea" readonly></textarea>
                 `;
@@ -579,7 +597,6 @@
                     <div class="variable-type-info">${type} - ${objectInfo}</div>
                     <div class="json-container" id="${containerId}" data-json-id="${containerId}">
                         <button class="json-mode-btn" onclick="toggleJsonMode('${containerId}')" title="Switch to formatted mode">🎨 Formatted</button>
-                        <button class="json-expand-btn" onclick="expandJsonContainer('${containerId}')" title="Expand to show full content">⛶ Expand</button>
                         <button class="json-copy-btn" onclick="copyJsonData('${containerId}')" title="Copy JSON to clipboard">📋 Copy</button>
                         <textarea class="json-textarea" readonly></textarea>
                     </div>
@@ -599,7 +616,6 @@
                     <div class="variable-type-info">string containing JSON - ${objectInfo}</div>
                     <div class="json-container" id="${containerId}" data-json-id="${containerId}">
                         <button class="json-mode-btn" onclick="toggleJsonMode('${containerId}')" title="Switch to formatted mode">🎨 Formatted</button>
-                        <button class="json-expand-btn" onclick="expandJsonContainer('${containerId}')" title="Expand to show full content">⛶ Expand</button>
                         <button class="json-copy-btn" onclick="copyJsonData('${containerId}')" title="Copy JSON to clipboard">📋 Copy</button>
                         <textarea class="json-textarea" readonly></textarea>
                     </div>
@@ -785,33 +801,187 @@
             }
         }
         
+        async function getLatestRootProcessInstance() {
+            updateStatus('Fetching root process instances...', 'loading');
+            
+            const searchQuery = {
+                filter: {
+                    parentProcessInstanceKey: {
+                        $exists: false
+                    }
+                },
+                sort: [{
+                    field: 'startDate',
+                    order: 'desc'
+                }],
+                page: {
+                    limit: 1
+                }
+            };
+            
+            const url = `${CAMUNDA_API_BASE}/process-instances/search`;
+            return await fetchWithErrorHandling(url, {
+                method: 'POST',
+                body: JSON.stringify(searchQuery)
+            });
+        }
+        
+        async function getAllProcessInstances() {
+            updateStatus('Fetching all process instances...', 'loading');
+            
+            const searchQuery = {
+                sort: [{
+                    field: 'startDate',
+                    order: 'desc'
+                }],
+                page: {
+                    limit: 1000  // Get a large number to capture the full hierarchy
+                }
+            };
+            
+            const url = `${CAMUNDA_API_BASE}/process-instances/search`;
+            return await fetchWithErrorHandling(url, {
+                method: 'POST',
+                body: JSON.stringify(searchQuery)
+            });
+        }
+        
+        function buildProcessInstanceTree(allInstances, rootInstance) {
+            // Create a map for quick lookup
+            const instanceMap = new Map();
+            allInstances.forEach(instance => {
+                instanceMap.set(instance.processInstanceKey, instance);
+                allProcessInstances.set(instance.processInstanceKey, instance);
+            });
+            
+            // Build the tree structure
+            function buildNode(instance) {
+                const children = allInstances
+                    .filter(child => child.parentProcessInstanceKey === instance.processInstanceKey)
+                    .map(child => buildNode(child));
+                
+                return {
+                    instance: instance,
+                    children: children
+                };
+            }
+            
+            return buildNode(rootInstance);
+        }
+        
+        function displayProcessTree(tree) {
+            const container = document.getElementById('processTree');
+            const treeContainer = document.getElementById('processTreeContainer');
+            
+            function renderNode(node, depth = 0) {
+                const indent = '  '.repeat(depth);
+                const bullet = depth === 0 ? '🌳 ' : '├─ ';
+                const instance = node.instance;
+                const isActive = currentProcessInstance && 
+                    currentProcessInstance.processInstanceKey === instance.processInstanceKey;
+                const isRoot = depth === 0;
+                
+                const statusIcon = instance.state === 'ACTIVE' ? '🟢' : 
+                                 instance.state === 'COMPLETED' ? '✅' : 
+                                 instance.state === 'TERMINATED' ? '❌' : '⚪';
+                
+                let html = `
+                    <div class="process-instance-item ${isActive ? 'active' : ''} ${isRoot ? 'root' : ''}" 
+                         onclick="selectProcessInstance('${instance.processInstanceKey}')">
+                        ${indent}${bullet}${statusIcon} Process Instance ${instance.processInstanceKey}
+                        <div class="process-instance-details">
+                            ${indent}   Process: ${instance.processDefinitionName || instance.bpmnProcessId || 'Unknown'}
+                            <br>${indent}   Version: ${instance.processDefinitionVersion || 'N/A'}
+                            <br>${indent}   State: ${instance.state}
+                            <br>${indent}   Started: ${new Date(instance.startDate).toLocaleString()}
+                        </div>
+                    </div>
+                `;
+                
+                // Add children
+                node.children.forEach(child => {
+                    html += renderNode(child, depth + 1);
+                });
+                
+                return html;
+            }
+            
+            container.innerHTML = `<div class="process-tree">${renderNode(tree)}</div>`;
+            treeContainer.style.display = 'block';
+        }
+        
+        async function selectProcessInstance(processInstanceKey) {
+            const instance = allProcessInstances.get(processInstanceKey);
+            if (!instance) {
+                console.error('Process instance not found:', processInstanceKey);
+                return;
+            }
+            
+            currentProcessInstance = instance;
+            
+            // Update the tree display to show the new selection
+            displayProcessTree(processInstanceTree);
+            
+            // Update process info
+            displayProcessInfo(instance);
+            
+            // Load variables for the selected instance
+            try {
+                const variablesResult = await getProcessInstanceVariables(processInstanceKey);
+                displayVariables(variablesResult.items);
+                updateStatus(`Loaded ${variablesResult.items?.length || 0} variables for process ${processInstanceKey}`, 'success');
+            } catch (error) {
+                console.error('Error loading variables for process instance:', error);
+                showError(`Failed to load variables: ${error.message}`);
+            }
+        }
+
         async function loadLatestProcessInstance() {
             hideError();
             
             try {
                 document.getElementById('refreshBtn').disabled = true;
                 
-                // Get the latest process instance
-                const processInstancesResult = await getLatestProcessInstance();
+                // Get the latest root process instance (without parent)
+                const rootProcessResult = await getLatestRootProcessInstance();
                 
-                if (!processInstancesResult.items || processInstancesResult.items.length === 0) {
+                if (!rootProcessResult.items || rootProcessResult.items.length === 0) {
+                    document.getElementById('variablesContainer').innerHTML = 
+                        '<div class="no-data">No root process instances found in Camunda</div>';
+                    updateStatus('No root process instances found', 'error');
+                    return;
+                }
+                
+                const rootProcessInstance = rootProcessResult.items[0];
+                
+                // Get all process instances to build the hierarchy
+                const allProcessResult = await getAllProcessInstances();
+                
+                if (!allProcessResult.items || allProcessResult.items.length === 0) {
                     document.getElementById('variablesContainer').innerHTML = 
                         '<div class="no-data">No process instances found in Camunda</div>';
                     updateStatus('No process instances found', 'error');
                     return;
                 }
                 
-                const latestProcessInstance = processInstancesResult.items[0];
-                displayProcessInfo(latestProcessInstance);
+                // Build the process tree
+                processInstanceTree = buildProcessInstanceTree(allProcessResult.items, rootProcessInstance);
+                currentProcessInstance = rootProcessInstance;
                 
-                // Get variables for this process instance
-                const variablesResult = await getProcessInstanceVariables(latestProcessInstance.processInstanceKey);
+                // Display the process tree
+                displayProcessTree(processInstanceTree);
+                
+                // Display info and variables for the root process
+                displayProcessInfo(rootProcessInstance);
+                
+                // Get variables for the root process instance
+                const variablesResult = await getProcessInstanceVariables(rootProcessInstance.processInstanceKey);
                 displayVariables(variablesResult.items);
                 
-                updateStatus(`Loaded ${variablesResult.items?.length || 0} variables`, 'success');
+                updateStatus(`Loaded process hierarchy with ${allProcessResult.items.length} instances. Showing ${variablesResult.items?.length || 0} variables for root process.`, 'success');
                 
             } catch (error) {
-                console.error('Error loading process instance:', error);
+                console.error('Error loading process instance hierarchy:', error);
                 showError(error.message);
             } finally {
                 document.getElementById('refreshBtn').disabled = false;

@@ -8,6 +8,7 @@
 
 import json
 import logging
+import os
 import re
 import uuid
 from datetime import datetime
@@ -527,5 +528,9 @@ def _a2a_health():
 # ===========================
 if __name__ == "__main__":
     import uvicorn
-    logger.info("Starting Credit Card Management Agent on http://0.0.0.0:8000")
-    uvicorn.run("credit_card_loss_agent:app", host="0.0.0.0", port=8000, reload=True)
+    import os
+    
+    # Use PORT environment variable (for Cloud Run) or default to 8000 for local development
+    port = int(os.environ.get("PORT", 8000))
+    logger.info(f"Starting Credit Card Management Agent on http://0.0.0.0:{port}")
+    uvicorn.run("credit_card_loss_agent:app", host="0.0.0.0", port=port, reload=False)

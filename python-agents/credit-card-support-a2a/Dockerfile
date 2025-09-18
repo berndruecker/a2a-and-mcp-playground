@@ -64,5 +64,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 EXPOSE 8080
 
 # Start the application
-# Note: Cloud Run will set the PORT environment variable
-CMD ["python", "-c", "import uvicorn; import credit_card_loss_agent; uvicorn.run(credit_card_loss_agent.app, host='0.0.0.0', port=int(__import__('os').environ.get('PORT', 8080)))"]
+# Use the main module which now properly handles PORT environment variable
+CMD ["python", "credit_card_loss_agent.py"]

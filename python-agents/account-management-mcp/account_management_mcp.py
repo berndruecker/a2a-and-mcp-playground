@@ -30,15 +30,54 @@ def _short(obj: Any, maxlen: int = 500) -> str:
 # -----------------------------------------------------------------------------
 app = FastAPI(title="Account Support MCP Server", version="1.0.0")
 
-EXTERNAL_BASE_URL = os.getenv("EXTERNAL_BASE_URL", "http://host.docker.internal:8200/")
-ALLOWED_ORIGINS = {
-    "http://localhost:3000", 
-    "http://localhost", 
-    "http://127.0.0.1",
-    "http://host.docker.internal:8200",
-    "http://host.docker.internal:3000",
-    "http://host.docker.internal",
-}
+# Cloud Run automatically sets these environment variables
+# SERVICE_URL is the full URL of the Cloud Run service
+# PORT is the port the service should listen on
+def get_external_base_url():
+    # For Google Cloud Run, prefer SERVICE_URL if available
+    service_url = os.getenv("SERVICE_URL")
+    if service_url:
+        return service_url if service_url.endswith("/") else service_url + "/"
+    
+    # For local development or custom deployments
+    custom_url = os.getenv("EXTERNAL_BASE_URL")
+    if custom_url:
+        return custom_url if custom_url.endswith("/") else custom_url + "/"
+    
+    # Fallback for local development
+    port = os.getenv("PORT", "8200")
+    return f"http://localhost:{port}/"
+
+EXTERNAL_BASE_URL = get_external_base_url()
+
+# Allow origins including Cloud Run URLs and local development
+def get_allowed_origins():
+    origins = {
+        "http://localhost:3000", 
+        "http://localhost", 
+        "http://127.0.0.1",
+        "http://host.docker.internal:8200",
+        "http://host.docker.internal:3000",
+        "http://host.docker.internal",
+    }
+    
+    # Add Cloud Run service URL to allowed origins
+    service_url = os.getenv("SERVICE_URL")
+    if service_url:
+        origins.add(service_url)
+        # Also add without trailing slash if present
+        if service_url.endswith("/"):
+            origins.add(service_url[:-1])
+    
+    # Add any additional allowed origins from environment
+    additional_origins = os.getenv("ALLOWED_ORIGINS", "")
+    if additional_origins:
+        for origin in additional_origins.split(","):
+            origins.add(origin.strip())
+    
+    return origins
+
+ALLOWED_ORIGINS = get_allowed_origins()
 SESSIONS: Dict[str, asyncio.Queue] = {}
 SESSION_QUEUE_MAX = 100
 SSE_PING_SECONDS = 15
@@ -58,14 +97,23 @@ def check_origin(origin: Optional[str]):
     base = origin.split("/", 3)[:3]
     host = "/".join(base)
     if host not in ALLOWED_ORIGINS:
+        # For Cloud Run, also check if the origin matches the service URL pattern
+        service_url = os.getenv("SERVICE_URL", "")
+        if service_url and (origin.startswith(service_url) or host.startswith(service_url.split("//")[1].split("/")[0])):
+            return
         raise HTTPException(status_code=403, detail="Origin not allowed")
 
 def external_base_url(request: Request) -> str:
+    # For Cloud Run, use SERVICE_URL if available
+    service_url = os.getenv("SERVICE_URL")
+    if service_url:
+        return service_url if service_url.endswith("/") else service_url + "/"
+    
     # If EXTERNAL_BASE_URL is explicitly set, use it
-    if EXTERNAL_BASE_URL:
+    if EXTERNAL_BASE_URL != get_external_base_url():  # Only if different from default
         return EXTERNAL_BASE_URL.rstrip("/") + "/"
     
-    # Otherwise, construct from request headers
+    # Otherwise, construct from request headers (for reverse proxies)
     scheme = request.headers.get("x-forwarded-proto") or request.url.scheme
     host = request.headers.get("x-forwarded-host") or request.headers.get("host") or request.url.netloc
     prefix = request.headers.get("x-forwarded-prefix", "").rstrip("/")

@@ -16,7 +16,7 @@
           <zeebe:input source="gpt-5" target="provider.openai.model.model" />
           <zeebe:input source="=10000" target="provider.openai.model.parameters.maxCompletionTokens" />
           <zeebe:input source="=&#34;You are TaskAgent, a helpful chat agent that handles customer conversations using domain knowledge and the tools provided at runtime.&#10;&#10;CRITICAL INTERFACE RULES&#10;- When you choose a tool, you MUST invoke it via the model’s tool/function calling interface.&#10;- Do NOT print JSON for tool calls in your message content. Do NOT wrap outputs in code fences.&#10;- Use tools to fetch/act. Write the final reply to the customer as normal assistant text (not via a tool).&#10;&#10;WHEN TO USE TOOLS&#10;- Prefer tools for facts/actions they cover. You may call the same tool multiple times with different inputs.&#10;- If no tool matches, answer directly. If you cannot answer, say why.&#10;&#10;PARAMETERS TO PASS (when tools exist)&#10;- Always pass:&#10;  - userInquiry: the minimal excerpt relevant to that sub-inquiry&#10;  - currentEmail: the full original email&#10;&#10;THINKING FORMAT&#10;Wrap minimal, inspectable reasoning in exactly this JSON (keep it short):&#10;{&#10;\&#34;thinking\&#34;: {&#10;  \&#34;context\&#34;: briefly state the customer’s need and current state,&#10;  \&#34;reflection\&#34;: list candidate tools, justify which to call next and why&#10;  },&#10;  \&#34;resolution\&#34;: When you resolved the inquiry, provide a human readable answer or explanation which can be sent to the customer&#10;}&#10;&#10;Do not reveal any other private reasoning outside these tags. Keep the rest of your assistant text concise.&#10;&#34;" target="data.systemPrompt.prompt" />
-          <zeebe:input source="=userInquiry" target="data.userPrompt.prompt" />
+          <zeebe:input source="=supportCase.request" target="data.userPrompt.prompt" />
           <zeebe:input source="=agent.context" target="agentContext" />
           <zeebe:input source="camunda-document" target="data.memory.storage.type" />
           <zeebe:input source="=100" target="data.memory.contextWindowSize" />
@@ -57,7 +57,7 @@
           </zeebe:properties>
         </bpmn:extensionElements>
       </bpmn:serviceTask>
-      <bpmn:userTask id="UserTask_Ask_a_specialist" name="Resolve account inquiry">
+      <bpmn:userTask id="UserTask_Ask_a_specialist" name="Resolve account support request">
         <bpmn:documentation>Use this activity when you are not confident with having enough information to successfully assist the customer and need a human for resolution.</bpmn:documentation>
         <bpmn:extensionElements>
           <zeebe:userTask />
@@ -70,84 +70,22 @@
           </zeebe:ioMapping>
         </bpmn:extensionElements>
       </bpmn:userTask>
-      <bpmn:serviceTask id="Reply_with_email_to_customer" name="Ask customer via email" zeebe:modelerTemplate="io.camunda.connectors.email.v1" zeebe:modelerTemplateVersion="2" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzkwXzI0MjApIj4KPHBhdGggZD0iTTguMzM4MzUgOS45NTM2NUwxMC4zODk0IDEyLjAxMDRMOC4zMzI2MiAxNC4wNjcyTDkuMTQ2MTYgMTQuODc1TDEyLjAxMDcgMTIuMDEwNEw5LjE0NjE2IDkuMTQ1ODNMOC4zMzgzNSA5Ljk1MzY1WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEyLjM0ODggOS45NTM2NUwxNC4zOTk4IDEyLjAxMDRMMTIuMzQzIDE0LjA2NzJMMTMuMTU2NiAxNC44NzVMMTYuMDIxMiAxMi4wMTA0TDEzLjE1NjYgOS4xNDU4M0wxMi4zNDg4IDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMy45NzIgMTEuNDM3NUgxLjEyNTMzVjIuNzkyMTlMNy42NzM3NiA3LjMyMzk2QzcuNzY5NjcgNy4zOTA0OSA3Ljg4MzYgNy40MjYxNCA4LjAwMDMyIDcuNDI2MTRDOC4xMTcwNSA3LjQyNjE0IDguMjMwOTggNy4zOTA0OSA4LjMyNjg5IDcuMzIzOTZMMTQuODc1MyAyLjc5MjE5VjhIMTYuMDIxMlYyLjI3MDgzQzE2LjAyMTIgMS45NjY5NCAxNS45MDA0IDEuNjc1NDkgMTUuNjg1NiAxLjQ2MDYxQzE1LjQ3MDcgMS4yNDU3MiAxNS4xNzkyIDEuMTI1IDE0Ljg3NTMgMS4xMjVIMS4xMjUzM0MwLjgyMTQzMiAxLjEyNSAwLjUyOTk4NCAxLjI0NTcyIDAuMzE1MDk5IDEuNDYwNjFDMC4xMDAyMTQgMS42NzU0OSAtMC4wMjA1MDc4IDEuOTY2OTQgLTAuMDIwNTA3OCAyLjI3MDgzVjExLjQzNzVDLTAuMDIwNTA3OCAxMS43NDE0IDAuMTAwMjE0IDEyLjAzMjggMC4zMTUwOTkgMTIuMjQ3N0MwLjUyOTk4NCAxMi40NjI2IDAuODIxNDMyIDEyLjU4MzMgMS4xMjUzMyAxMi41ODMzSDMuOTcyVjExLjQzNzVaTTEzLjYxNDkgMi4yNzA4M0w4LjAwMDMyIDYuMTU1MjFMMi4zODU3NCAyLjI3MDgzSDEzLjYxNDlaIiBmaWxsPSIjRkM1RDBEIi8+CjxwYXRoIGQ9Ik00LjI4MjEgOS45NTM2NUw2LjMzMzE0IDEyLjAxMDRMNC4yNzYzNyAxNC4wNjcyTDUuMDg5OTEgMTQuODc1TDcuOTU0NDkgMTIuMDEwNEw1LjA4OTkxIDkuMTQ1ODNMNC4yODIxIDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzkwXzI0MjAiPgo8cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==">
-        <bpmn:documentation>Use this activity to reply to the customer via email to ask questions and clarify requirements.</bpmn:documentation>
+      <bpmn:callActivity id="Tool_AskCustomer" name="Ask customer">
         <bpmn:extensionElements>
-          <zeebe:taskDefinition type="io.camunda:email:1" retries="3" />
+          <zeebe:calledElement processId="customer-communication" propagateAllChildVariables="false" propagateAllParentVariables="false" />
           <zeebe:ioMapping>
-            <zeebe:input source="simple" target="authentication.type" />
-            <zeebe:input source="{{secrets.GMAIL_INBOX_USER}}" target="authentication.username" />
-            <zeebe:input source="{{secrets.GMAIL_INBOX_PASSWORD}}" target="authentication.password" />
-            <zeebe:input source="smtp" target="protocol" />
-            <zeebe:input source="smtp.gmail.com" target="data.smtpConfig.smtpHost" />
-            <zeebe:input source="=587" target="data.smtpConfig.smtpPort" />
-            <zeebe:input source="TLS" target="data.smtpConfig.smtpCryptographicProtocol" />
-            <zeebe:input source="sendEmailSmtp" target="data.smtpActionDiscriminator" />
-            <zeebe:input source="{{secrets.GMAIL_INBOX_USER}}" target="data.smtpAction.from" />
-            <zeebe:input source="=currentEmail.fromAddress" target="data.smtpAction.to" />
-            <zeebe:input source="={&#10;  &#34;In-Reply-To&#34;: currentEmail.messageId&#10;}" target="data.smtpAction.headers" />
-            <zeebe:input source="=&#34;RE: &#34; + currentEmail.subject" target="data.smtpAction.subject" />
-            <zeebe:input source="PLAIN" target="data.smtpAction.contentType" />
-            <zeebe:input source="=fromAi(toolCall.emailContent, &#34;The email text content to reply the customer&#34;)" target="data.smtpAction.body" />
-          </zeebe:ioMapping>
-          <zeebe:taskHeaders>
-            <zeebe:header key="resultVariable" value="ourReplyEmail" />
-            <zeebe:header key="retryBackoff" value="PT0S" />
-          </zeebe:taskHeaders>
-        </bpmn:extensionElements>
-        <bpmn:outgoing>Flow_09gjg6u</bpmn:outgoing>
-      </bpmn:serviceTask>
-      <bpmn:intermediateThrowEvent id="Event_ResponseCorrelated" name="Response correlated">
-        <bpmn:extensionElements>
-          <zeebe:ioMapping>
-            <zeebe:output source="=responseEmail" target="toolCallResult" />
+            <zeebe:input source="=supportCase.communicationContext" target="communicationContext" />
+            <zeebe:input source="={&#10;  &#34;subject&#34;: &#34;RE: &#34; + supportCase.subject,&#10;  &#34;text&#34;: fromAi(toolCall.response, &#34;The text response to reply to the customer&#34;)&#10;}" target="communicationContent" />
+            <zeebe:output source="=communicationResult" target="toolCallResult" />
           </zeebe:ioMapping>
         </bpmn:extensionElements>
-        <bpmn:incoming>Flow_0frr2bk</bpmn:incoming>
-      </bpmn:intermediateThrowEvent>
-      <bpmn:intermediateCatchEvent id="Event_WaitForResponse" name="Customer response received" zeebe:modelerTemplate="io.camunda.connectors.inbound.EmailIntermediate.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzkwXzI0MjApIj4KPHBhdGggZD0iTTguMzM4MzUgOS45NTM2NUwxMC4zODk0IDEyLjAxMDRMOC4zMzI2MiAxNC4wNjcyTDkuMTQ2MTYgMTQuODc1TDEyLjAxMDcgMTIuMDEwNEw5LjE0NjE2IDkuMTQ1ODNMOC4zMzgzNSA5Ljk1MzY1WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEyLjM0ODggOS45NTM2NUwxNC4zOTk4IDEyLjAxMDRMMTIuMzQzIDE0LjA2NzJMMTMuMTU2NiAxNC44NzVMMTYuMDIxMiAxMi4wMTA0TDEzLjE1NjYgOS4xNDU4M0wxMi4zNDg4IDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMy45NzIgMTEuNDM3NUgxLjEyNTMzVjIuNzkyMTlMNy42NzM3NiA3LjMyMzk2QzcuNzY5NjcgNy4zOTA0OSA3Ljg4MzYgNy40MjYxNCA4LjAwMDMyIDcuNDI2MTRDOC4xMTcwNSA3LjQyNjE0IDguMjMwOTggNy4zOTA0OSA4LjMyNjg5IDcuMzIzOTZMMTQuODc1MyAyLjc5MjE5VjhIMTYuMDIxMlYyLjI3MDgzQzE2LjAyMTIgMS45NjY5NCAxNS45MDA0IDEuNjc1NDkgMTUuNjg1NiAxLjQ2MDYxQzE1LjQ3MDcgMS4yNDU3MiAxNS4xNzkyIDEuMTI1IDE0Ljg3NTMgMS4xMjVIMS4xMjUzM0MwLjgyMTQzMiAxLjEyNSAwLjUyOTk4NCAxLjI0NTcyIDAuMzE1MDk5IDEuNDYwNjFDMC4xMDAyMTQgMS42NzU0OSAtMC4wMjA1MDc4IDEuOTY2OTQgLTAuMDIwNTA3OCAyLjI3MDgzVjExLjQzNzVDLTAuMDIwNTA3OCAxMS43NDE0IDAuMTAwMjE0IDEyLjAzMjggMC4zMTUwOTkgMTIuMjQ3N0MwLjUyOTk4NCAxMi40NjI2IDAuODIxNDMyIDEyLjU4MzMgMS4xMjUzMyAxMi41ODMzSDMuOTcyVjExLjQzNzVaTTEzLjYxNDkgMi4yNzA4M0w4LjAwMDMyIDYuMTU1MjFMMi4zODU3NCAyLjI3MDgzSDEzLjYxNDlaIiBmaWxsPSIjRkM1RDBEIi8+CjxwYXRoIGQ9Ik00LjI4MjEgOS45NTM2NUw2LjMzMzE0IDEyLjAxMDRMNC4yNzYzNyAxNC4wNjcyTDUuMDg5OTEgMTQuODc1TDcuOTU0NDkgMTIuMDEwNEw1LjA4OTkxIDkuMTQ1ODNMNC4yODIxIDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzkwXzI0MjAiPgo8cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==">
-        <bpmn:extensionElements>
-          <zeebe:properties>
-            <zeebe:property name="inbound.type" value="io.camunda:connector-email-inbound:1" />
-            <zeebe:property name="authentication.type" value="simple" />
-            <zeebe:property name="authentication.username" value="{{secrets.GMAIL_INBOX_USER}}" />
-            <zeebe:property name="authentication.password" value="{{secrets.GMAIL_INBOX_PASSWORD}}" />
-            <zeebe:property name="data.imapConfig.imapHost" value="imap.gmail.com" />
-            <zeebe:property name="data.imapConfig.imapPort" value="993" />
-            <zeebe:property name="data.imapConfig.imapCryptographicProtocol" value="TLS" />
-            <zeebe:property name="data.pollingWaitTime" value="PT10S" />
-            <zeebe:property name="data.pollingConfigDiscriminator" value="unseenPollingConfig" />
-            <zeebe:property name="data.pollingConfig.handlingStrategy" value="READ" />
-            <zeebe:property name="activationCondition" value="=not(is empty(headers[key = &#34;In-Reply-To&#34;]))" />
-            <zeebe:property name="consumeUnmatchedEvents" value="false" />
-            <zeebe:property name="correlationKeyExpression" value="=headers[key = &#34;In-Reply-To&#34;][1].value" />
-            <zeebe:property name="deduplicationModeManualFlag" value="true" />
-            <zeebe:property name="deduplicationId" value="loan-support-agent-reply-to-emails" />
-            <zeebe:property name="deduplicationMode" value="MANUAL" />
-            <zeebe:property name="resultVariable" value="responseEmail" />
-            <zeebe:property name="resultExpression" value="" />
-          </zeebe:properties>
-        </bpmn:extensionElements>
-        <bpmn:incoming>Flow_09gjg6u</bpmn:incoming>
-        <bpmn:outgoing>Flow_0frr2bk</bpmn:outgoing>
-        <bpmn:messageEventDefinition id="MessageEventDefinition_08tkzj2" messageRef="Message_014qquh" />
-      </bpmn:intermediateCatchEvent>
-      <bpmn:sequenceFlow id="Flow_09gjg6u" sourceRef="Reply_with_email_to_customer" targetRef="Event_WaitForResponse" />
-      <bpmn:sequenceFlow id="Flow_0frr2bk" sourceRef="Event_WaitForResponse" targetRef="Event_ResponseCorrelated" />
+      </bpmn:callActivity>
     </bpmn:adHocSubProcess>
     <bpmn:sequenceFlow id="Flow_0syzscg" sourceRef="StartEvent_1" targetRef="AI_AccountSupport" />
-    <bpmn:endEvent id="Event_1v5xnnr" name="Inquiry resolved">
-      <bpmn:incoming>Flow_1yfsn27</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_17qvxan" sourceRef="AI_AccountSupport" targetRef="Activity_0yu3vq0" />
-    <bpmn:sequenceFlow id="Flow_1yfsn27" sourceRef="Activity_0yu3vq0" targetRef="Event_1v5xnnr" />
-    <bpmn:userTask id="Activity_0yu3vq0" name="Stop and go">
-      <bpmn:extensionElements>
-        <zeebe:userTask />
-      </bpmn:extensionElements>
+    <bpmn:endEvent id="Event_1v5xnnr" name="Request&#10;resolved">
       <bpmn:incoming>Flow_17qvxan</bpmn:incoming>
-      <bpmn:outgoing>Flow_1yfsn27</bpmn:outgoing>
-    </bpmn:userTask>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_17qvxan" sourceRef="AI_AccountSupport" targetRef="Event_1v5xnnr" />
     <bpmn:serviceTask id="Activity_166v380" name="Send resolution to customer" zeebe:modelerTemplate="io.camunda.connectors.email.v1" zeebe:modelerTemplateVersion="2" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzkwXzI0MjApIj4KPHBhdGggZD0iTTguMzM4MzUgOS45NTM2NUwxMC4zODk0IDEyLjAxMDRMOC4zMzI2MiAxNC4wNjcyTDkuMTQ2MTYgMTQuODc1TDEyLjAxMDcgMTIuMDEwNEw5LjE0NjE2IDkuMTQ1ODNMOC4zMzgzNSA5Ljk1MzY1WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEyLjM0ODggOS45NTM2NUwxNC4zOTk4IDEyLjAxMDRMMTIuMzQzIDE0LjA2NzJMMTMuMTU2NiAxNC44NzVMMTYuMDIxMiAxMi4wMTA0TDEzLjE1NjYgOS4xNDU4M0wxMi4zNDg4IDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMy45NzIgMTEuNDM3NUgxLjEyNTMzVjIuNzkyMTlMNy42NzM3NiA3LjMyMzk2QzcuNzY5NjcgNy4zOTA0OSA3Ljg4MzYgNy40MjYxNCA4LjAwMDMyIDcuNDI2MTRDOC4xMTcwNSA3LjQyNjE0IDguMjMwOTggNy4zOTA0OSA4LjMyNjg5IDcuMzIzOTZMMTQuODc1MyAyLjc5MjE5VjhIMTYuMDIxMlYyLjI3MDgzQzE2LjAyMTIgMS45NjY5NCAxNS45MDA0IDEuNjc1NDkgMTUuNjg1NiAxLjQ2MDYxQzE1LjQ3MDcgMS4yNDU3MiAxNS4xNzkyIDEuMTI1IDE0Ljg3NTMgMS4xMjVIMS4xMjUzM0MwLjgyMTQzMiAxLjEyNSAwLjUyOTk4NCAxLjI0NTcyIDAuMzE1MDk5IDEuNDYwNjFDMC4xMDAyMTQgMS42NzU0OSAtMC4wMjA1MDc4IDEuOTY2OTQgLTAuMDIwNTA3OCAyLjI3MDgzVjExLjQzNzVDLTAuMDIwNTA3OCAxMS43NDE0IDAuMTAwMjE0IDEyLjAzMjggMC4zMTUwOTkgMTIuMjQ3N0MwLjUyOTk4NCAxMi40NjI2IDAuODIxNDMyIDEyLjU4MzMgMS4xMjUzMyAxMi41ODMzSDMuOTcyVjExLjQzNzVaTTEzLjYxNDkgMi4yNzA4M0w4LjAwMDMyIDYuMTU1MjFMMi4zODU3NCAyLjI3MDgzSDEzLjYxNDlaIiBmaWxsPSIjRkM1RDBEIi8+CjxwYXRoIGQ9Ik00LjI4MjEgOS45NTM2NUw2LjMzMzE0IDEyLjAxMDRMNC4yNzYzNyAxNC4wNjcyTDUuMDg5OTEgMTQuODc1TDcuOTU0NDkgMTIuMDEwNEw1LjA4OTkxIDkuMTQ1ODNMNC4yODIxIDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzkwXzI0MjAiPgo8cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==">
       <bpmn:documentation>Use this activity to reply to the customer via email to ask questions and clarify requirements.</bpmn:documentation>
       <bpmn:extensionElements>
@@ -174,6 +112,70 @@
         </zeebe:taskHeaders>
       </bpmn:extensionElements>
     </bpmn:serviceTask>
+    <bpmn:serviceTask id="Reply_with_email_to_customer" name="Ask customer via email" zeebe:modelerTemplate="io.camunda.connectors.email.v1" zeebe:modelerTemplateVersion="2" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzkwXzI0MjApIj4KPHBhdGggZD0iTTguMzM4MzUgOS45NTM2NUwxMC4zODk0IDEyLjAxMDRMOC4zMzI2MiAxNC4wNjcyTDkuMTQ2MTYgMTQuODc1TDEyLjAxMDcgMTIuMDEwNEw5LjE0NjE2IDkuMTQ1ODNMOC4zMzgzNSA5Ljk1MzY1WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEyLjM0ODggOS45NTM2NUwxNC4zOTk4IDEyLjAxMDRMMTIuMzQzIDE0LjA2NzJMMTMuMTU2NiAxNC44NzVMMTYuMDIxMiAxMi4wMTA0TDEzLjE1NjYgOS4xNDU4M0wxMi4zNDg4IDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMy45NzIgMTEuNDM3NUgxLjEyNTMzVjIuNzkyMTlMNy42NzM3NiA3LjMyMzk2QzcuNzY5NjcgNy4zOTA0OSA3Ljg4MzYgNy40MjYxNCA4LjAwMDMyIDcuNDI2MTRDOC4xMTcwNSA3LjQyNjE0IDguMjMwOTggNy4zOTA0OSA4LjMyNjg5IDcuMzIzOTZMMTQuODc1MyAyLjc5MjE5VjhIMTYuMDIxMlYyLjI3MDgzQzE2LjAyMTIgMS45NjY5NCAxNS45MDA0IDEuNjc1NDkgMTUuNjg1NiAxLjQ2MDYxQzE1LjQ3MDcgMS4yNDU3MiAxNS4xNzkyIDEuMTI1IDE0Ljg3NTMgMS4xMjVIMS4xMjUzM0MwLjgyMTQzMiAxLjEyNSAwLjUyOTk4NCAxLjI0NTcyIDAuMzE1MDk5IDEuNDYwNjFDMC4xMDAyMTQgMS42NzU0OSAtMC4wMjA1MDc4IDEuOTY2OTQgLTAuMDIwNTA3OCAyLjI3MDgzVjExLjQzNzVDLTAuMDIwNTA3OCAxMS43NDE0IDAuMTAwMjE0IDEyLjAzMjggMC4zMTUwOTkgMTIuMjQ3N0MwLjUyOTk4NCAxMi40NjI2IDAuODIxNDMyIDEyLjU4MzMgMS4xMjUzMyAxMi41ODMzSDMuOTcyVjExLjQzNzVaTTEzLjYxNDkgMi4yNzA4M0w4LjAwMDMyIDYuMTU1MjFMMi4zODU3NCAyLjI3MDgzSDEzLjYxNDlaIiBmaWxsPSIjRkM1RDBEIi8+CjxwYXRoIGQ9Ik00LjI4MjEgOS45NTM2NUw2LjMzMzE0IDEyLjAxMDRMNC4yNzYzNyAxNC4wNjcyTDUuMDg5OTEgMTQuODc1TDcuOTU0NDkgMTIuMDEwNEw1LjA4OTkxIDkuMTQ1ODNMNC4yODIxIDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzkwXzI0MjAiPgo8cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==">
+      <bpmn:documentation>Use this activity to reply to the customer via email to ask questions and clarify requirements.</bpmn:documentation>
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.camunda:email:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="simple" target="authentication.type" />
+          <zeebe:input source="{{secrets.GMAIL_INBOX_USER}}" target="authentication.username" />
+          <zeebe:input source="{{secrets.GMAIL_INBOX_PASSWORD}}" target="authentication.password" />
+          <zeebe:input source="smtp" target="protocol" />
+          <zeebe:input source="smtp.gmail.com" target="data.smtpConfig.smtpHost" />
+          <zeebe:input source="=587" target="data.smtpConfig.smtpPort" />
+          <zeebe:input source="TLS" target="data.smtpConfig.smtpCryptographicProtocol" />
+          <zeebe:input source="sendEmailSmtp" target="data.smtpActionDiscriminator" />
+          <zeebe:input source="{{secrets.GMAIL_INBOX_USER}}" target="data.smtpAction.from" />
+          <zeebe:input source="=currentEmail.fromAddress" target="data.smtpAction.to" />
+          <zeebe:input source="={&#10;  &#34;In-Reply-To&#34;: currentEmail.messageId&#10;}" target="data.smtpAction.headers" />
+          <zeebe:input source="=&#34;RE: &#34; + currentEmail.subject" target="data.smtpAction.subject" />
+          <zeebe:input source="PLAIN" target="data.smtpAction.contentType" />
+          <zeebe:input source="=fromAi(toolCall.emailContent, &#34;The email text content to reply the customer&#34;)" target="data.smtpAction.body" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="resultVariable" value="ourReplyEmail" />
+          <zeebe:header key="retryBackoff" value="PT0S" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_09gjg6u</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:intermediateCatchEvent id="Event_WaitForResponse" name="Customer response received" zeebe:modelerTemplate="io.camunda.connectors.inbound.EmailIntermediate.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzkwXzI0MjApIj4KPHBhdGggZD0iTTguMzM4MzUgOS45NTM2NUwxMC4zODk0IDEyLjAxMDRMOC4zMzI2MiAxNC4wNjcyTDkuMTQ2MTYgMTQuODc1TDEyLjAxMDcgMTIuMDEwNEw5LjE0NjE2IDkuMTQ1ODNMOC4zMzgzNSA5Ljk1MzY1WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEyLjM0ODggOS45NTM2NUwxNC4zOTk4IDEyLjAxMDRMMTIuMzQzIDE0LjA2NzJMMTMuMTU2NiAxNC44NzVMMTYuMDIxMiAxMi4wMTA0TDEzLjE1NjYgOS4xNDU4M0wxMi4zNDg4IDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMy45NzIgMTEuNDM3NUgxLjEyNTMzVjIuNzkyMTlMNy42NzM3NiA3LjMyMzk2QzcuNzY5NjcgNy4zOTA0OSA3Ljg4MzYgNy40MjYxNCA4LjAwMDMyIDcuNDI2MTRDOC4xMTcwNSA3LjQyNjE0IDguMjMwOTggNy4zOTA0OSA4LjMyNjg5IDcuMzIzOTZMMTQuODc1MyAyLjc5MjE5VjhIMTYuMDIxMlYyLjI3MDgzQzE2LjAyMTIgMS45NjY5NCAxNS45MDA0IDEuNjc1NDkgMTUuNjg1NiAxLjQ2MDYxQzE1LjQ3MDcgMS4yNDU3MiAxNS4xNzkyIDEuMTI1IDE0Ljg3NTMgMS4xMjVIMS4xMjUzM0MwLjgyMTQzMiAxLjEyNSAwLjUyOTk4NCAxLjI0NTcyIDAuMzE1MDk5IDEuNDYwNjFDMC4xMDAyMTQgMS42NzU0OSAtMC4wMjA1MDc4IDEuOTY2OTQgLTAuMDIwNTA3OCAyLjI3MDgzVjExLjQzNzVDLTAuMDIwNTA3OCAxMS43NDE0IDAuMTAwMjE0IDEyLjAzMjggMC4zMTUwOTkgMTIuMjQ3N0MwLjUyOTk4NCAxMi40NjI2IDAuODIxNDMyIDEyLjU4MzMgMS4xMjUzMyAxMi41ODMzSDMuOTcyVjExLjQzNzVaTTEzLjYxNDkgMi4yNzA4M0w4LjAwMDMyIDYuMTU1MjFMMi4zODU3NCAyLjI3MDgzSDEzLjYxNDlaIiBmaWxsPSIjRkM1RDBEIi8+CjxwYXRoIGQ9Ik00LjI4MjEgOS45NTM2NUw2LjMzMzE0IDEyLjAxMDRMNC4yNzYzNyAxNC4wNjcyTDUuMDg5OTEgMTQuODc1TDcuOTU0NDkgMTIuMDEwNEw1LjA4OTkxIDkuMTQ1ODNMNC4yODIxIDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzkwXzI0MjAiPgo8cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="inbound.type" value="io.camunda:connector-email-inbound:1" />
+          <zeebe:property name="authentication.type" value="simple" />
+          <zeebe:property name="authentication.username" value="{{secrets.GMAIL_INBOX_USER}}" />
+          <zeebe:property name="authentication.password" value="{{secrets.GMAIL_INBOX_PASSWORD}}" />
+          <zeebe:property name="data.imapConfig.imapHost" value="imap.gmail.com" />
+          <zeebe:property name="data.imapConfig.imapPort" value="993" />
+          <zeebe:property name="data.imapConfig.imapCryptographicProtocol" value="TLS" />
+          <zeebe:property name="data.pollingWaitTime" value="PT10S" />
+          <zeebe:property name="data.pollingConfigDiscriminator" value="unseenPollingConfig" />
+          <zeebe:property name="data.pollingConfig.handlingStrategy" value="READ" />
+          <zeebe:property name="activationCondition" value="=not(is empty(headers[key = &#34;In-Reply-To&#34;]))" />
+          <zeebe:property name="consumeUnmatchedEvents" value="false" />
+          <zeebe:property name="correlationKeyExpression" value="=headers[key = &#34;In-Reply-To&#34;][1].value" />
+          <zeebe:property name="deduplicationModeManualFlag" value="true" />
+          <zeebe:property name="deduplicationId" value="loan-support-agent-reply-to-emails" />
+          <zeebe:property name="deduplicationMode" value="MANUAL" />
+          <zeebe:property name="resultVariable" value="responseEmail" />
+          <zeebe:property name="resultExpression" value="" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_09gjg6u</bpmn:incoming>
+      <bpmn:outgoing>Flow_0frr2bk</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_08tkzj2" messageRef="Message_014qquh" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:intermediateThrowEvent id="Event_ResponseCorrelated" name="Response correlated">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="=responseEmail" target="toolCallResult" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0frr2bk</bpmn:incoming>
+    </bpmn:intermediateThrowEvent>
+    <bpmn:sequenceFlow id="Flow_09gjg6u" sourceRef="Reply_with_email_to_customer" targetRef="Event_WaitForResponse" />
+    <bpmn:sequenceFlow id="Flow_0frr2bk" sourceRef="Event_WaitForResponse" targetRef="Event_ResponseCorrelated" />
   </bpmn:process>
   <bpmn:message id="Message_014qquh" name="e7b4ac59-e06a-4d7e-9a76-b88bbe61b242" zeebe:modelerTemplate="io.camunda.connectors.inbound.EmailIntermediate.v1">
     <bpmn:extensionElements>
@@ -183,13 +185,13 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="account-support-agent">
       <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
-        <dc:Bounds x="182" y="212" width="36" height="36" />
+        <dc:Bounds x="192" y="212" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="160" y="255" width="80" height="27" />
+          <dc:Bounds x="170" y="255" width="80" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_04wzcos_di" bpmnElement="AI_AccountSupport" isExpanded="true">
-        <dc:Bounds x="270" y="110" width="510" height="310" />
+        <dc:Bounds x="290" y="110" width="310" height="260" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0nt8y5o_di" bpmnElement="Task_MCP_AccountManagementTools">
@@ -197,58 +199,54 @@
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1338851_di" bpmnElement="UserTask_Ask_a_specialist">
-        <dc:Bounds x="470" y="150" width="100" height="80" />
+        <dc:Bounds x="460" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1v0upkw_di" bpmnElement="Tool_AskCustomer">
+        <dc:Bounds x="460" y="150" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1v5xnnr_di" bpmnElement="Event_1v5xnnr">
+        <dc:Bounds x="662" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="659" y="255" width="42" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0ulenmj" bpmnElement="Activity_166v380">
+        <dc:Bounds x="750" y="560" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0pn4ems_di" bpmnElement="Reply_with_email_to_customer">
-        <dc:Bounds x="330" y="270" width="100" height="80" />
+        <dc:Bounds x="330" y="560" width="100" height="80" />
         <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0jmzwhr_di" bpmnElement="Event_ResponseCorrelated">
-        <dc:Bounds x="582" y="292" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="576" y="335" width="50" height="27" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1r7dbg4_di" bpmnElement="Event_WaitForResponse">
-        <dc:Bounds x="492" y="292" width="36" height="36" />
+        <dc:Bounds x="492" y="582" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="460" y="336" width="90" height="27" />
+          <dc:Bounds x="460" y="626" width="90" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_09gjg6u_di" bpmnElement="Flow_09gjg6u">
-        <di:waypoint x="430" y="310" />
-        <di:waypoint x="492" y="310" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0frr2bk_di" bpmnElement="Flow_0frr2bk">
-        <di:waypoint x="528" y="310" />
-        <di:waypoint x="582" y="310" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_1v5xnnr_di" bpmnElement="Event_1v5xnnr">
-        <dc:Bounds x="1022" y="212" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_0jmzwhr_di" bpmnElement="Event_ResponseCorrelated">
+        <dc:Bounds x="582" y="582" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1001" y="255" width="78" height="14" />
+          <dc:Bounds x="576" y="625" width="51" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1woy8cz_di" bpmnElement="Activity_0yu3vq0">
-        <dc:Bounds x="850" y="190" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0ulenmj" bpmnElement="Activity_166v380">
-        <dc:Bounds x="850" y="380" width="100" height="80" />
-        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0syzscg_di" bpmnElement="Flow_0syzscg">
-        <di:waypoint x="218" y="230" />
-        <di:waypoint x="270" y="230" />
+        <di:waypoint x="228" y="230" />
+        <di:waypoint x="290" y="230" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_17qvxan_di" bpmnElement="Flow_17qvxan">
-        <di:waypoint x="780" y="230" />
-        <di:waypoint x="850" y="230" />
+        <di:waypoint x="600" y="230" />
+        <di:waypoint x="662" y="230" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1yfsn27_di" bpmnElement="Flow_1yfsn27">
-        <di:waypoint x="950" y="230" />
-        <di:waypoint x="1022" y="230" />
+      <bpmndi:BPMNEdge id="Flow_09gjg6u_di" bpmnElement="Flow_09gjg6u">
+        <di:waypoint x="430" y="600" />
+        <di:waypoint x="492" y="600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0frr2bk_di" bpmnElement="Flow_0frr2bk">
+        <di:waypoint x="528" y="600" />
+        <di:waypoint x="582" y="600" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

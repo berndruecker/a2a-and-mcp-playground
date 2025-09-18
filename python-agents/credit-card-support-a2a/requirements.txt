@@ -1,0 +1,13 @@
+# Core API server
+fastapi
+uvicorn[standard]
+pydantic
+
+# LangChain + OpenAI
+langchain
+langchain-openai
+
+# A2A protocol (includes Starlette + SSE via extras)
+a2a-sdk[http-server]
+starlette
+sse-starlette

@@ -181,7 +181,6 @@ MOCK_IDENTIFIERS = {
     "CHASUS33": "CUST001",  # Chase Bank
     "BOFAUS3N": "CUST002",  # Bank of America
     "CITIUS33": "CUST003"   # Citibank
-    # Note: US banks do not use IBAN codes - they use routing numbers + account numbers
 }
 
 MOCK_PRODUCTS = {
@@ -289,15 +288,13 @@ ACCOUNT_STATUS = {
 # Customer Account Lookup Tool Functions
 # -----------------------------------------------------------------------------
 def search_customer(identifier: str) -> Dict[str, Any]:
-    """Search for customer by account number, card number, or SWIFT/BIC code
-    Note: US banks do not use IBAN codes - use routing number + account number instead"""
+    """Search for customer by account number, card number, or SWIFT/BIC code"""
     customer_id = MOCK_IDENTIFIERS.get(identifier)
     if not customer_id:
         return {
             "success": False,
             "error": "Customer not found",
-            "identifier": identifier,
-            "note": "US banks do not use IBAN codes. Use account number, card number, or SWIFT/BIC code."
+            "identifier": identifier
         }
     
     return {
@@ -342,8 +339,7 @@ def get_active_products(customer_id: str) -> Dict[str, Any]:
     }
 
 def get_banking_details(account_id: str) -> Dict[str, Any]:
-    """Get banking details including SWIFT/BIC codes for an account
-    US banks use routing numbers + account numbers, not IBAN codes"""
+    """Get banking details including SWIFT/BIC codes for an account"""
     # Find the account across all customers
     for customer_id, products in MOCK_PRODUCTS.items():
         for product in products:
@@ -359,9 +355,7 @@ def get_banking_details(account_id: str) -> Dict[str, Any]:
                         "bank_name": product.get("bank_name"),
                         "routing_number": product.get("routing_number"),
                         "account_number": product.get("account_number"),
-                        "balance": product.get("balance", 0.00),
-                        "iban": None,  # US banks do not use IBAN codes
-                        "iban_note": "US banks do not use IBAN codes. Use routing number + account number for domestic transfers, SWIFT code for international."
+                        "balance": product.get("balance", 0.00)
                     }
                     return {
                         "success": True,
@@ -419,38 +413,7 @@ def search_by_swift_bic(swift_bic_code: str) -> Dict[str, Any]:
         "timestamp": datetime.now().isoformat()
     }
 
-def get_iban_info(account_id: str) -> Dict[str, Any]:
-    """Handle IBAN requests for US accounts - explains why IBAN is not applicable"""
-    # Check if account exists first
-    account_found = False
-    for customer_id, products in MOCK_PRODUCTS.items():
-        for product in products:
-            if product["product_id"] == account_id:
-                account_found = True
-                break
-        if account_found:
-            break
-    
-    if not account_found:
-        return {
-            "success": False,
-            "error": "Account not found",
-            "account_id": account_id
-        }
-    
-    return {
-        "success": False,
-        "error": "IBAN not applicable for US bank accounts",
-        "account_id": account_id,
-        "explanation": "US banks do not use IBAN (International Bank Account Number) codes. Instead, US banks use:",
-        "alternatives": {
-            "domestic_transfers": "Routing number + Account number",
-            "international_transfers": "SWIFT/BIC code + Routing number + Account number",
-            "wire_transfers": "SWIFT code + Bank name + Account details"
-        },
-        "note": "IBAN is primarily used by European banks and some other international banks, but not by US financial institutions.",
-        "timestamp": datetime.now().isoformat()
-    }
+
 
 # -----------------------------------------------------------------------------
 # Account Action Management Tool Functions  
@@ -567,7 +530,7 @@ TOOL_REGISTRY: Dict[str, Tuple[ToolFn, Dict[str, Any]]] = {
             "properties": {
                 "identifier": {
                     "type": "string", 
-                    "description": "Customer identifier: account number, card number, or SWIFT/BIC code (US banks do not use IBAN)"
+                    "description": "Customer identifier: account number, card number, or SWIFT/BIC code"
                 }
             },
             "required": ["identifier"]
@@ -679,19 +642,6 @@ TOOL_REGISTRY: Dict[str, Tuple[ToolFn, Dict[str, Any]]] = {
                 }
             },
             "required": ["swift_bic_code"]
-        }
-    ),
-    "get_iban_info": (
-        lambda args: get_iban_info(args.get("account_id", "")),
-        {
-            "type": "object",
-            "properties": {
-                "account_id": {
-                    "type": "string",
-                    "description": "Account identifier to check for IBAN (will explain why IBAN is not applicable for US accounts)"
-                }
-            },
-            "required": ["account_id"]
         }
     )
 }

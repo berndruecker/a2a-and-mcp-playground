@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_09w5b7d" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.39.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.7.0">
-  <bpmn:process id="customer-communication" isExecutable="true">
+  <bpmn:process id="customer-communication-question" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1" name="Information from customer needed">
       <bpmn:outgoing>Flow_1q78z4g</bpmn:outgoing>
     </bpmn:startEvent>
@@ -26,7 +26,7 @@
           <zeebe:input source="sendEmailSmtp" target="data.smtpActionDiscriminator" />
           <zeebe:input source="{{secrets.GMAIL_INBOX_USER}}" target="data.smtpAction.from" />
           <zeebe:input source="=communicationContext.emailAddress" target="data.smtpAction.to" />
-          <zeebe:input source="={&#10;  &#34;In-Reply-To&#34;: communicationContext.conversationId&#10;}" target="data.smtpAction.headers" />
+          <zeebe:input source="=if communicationContext.conversationId != null then &#10;  { &#34;In-Reply-To&#34;: communicationContext.conversationId } &#10;else &#10;  {}" target="data.smtpAction.headers" />
           <zeebe:input source="=communicationContent.subject" target="data.smtpAction.subject" />
           <zeebe:input source="PLAIN" target="data.smtpAction.contentType" />
           <zeebe:input source="=communicationContent.text" target="data.smtpAction.body" />
@@ -74,7 +74,7 @@
     <bpmn:endEvent id="Event_18d7ipg" name="Information retrieved via email">
       <bpmn:extensionElements>
         <zeebe:ioMapping>
-          <zeebe:output source="={&#10;  status: &#34;success&#34;,&#10;  email: responseEmail,&#10;  text: responseEmail.plainTextBody&#10;}" target="response" />
+          <zeebe:output source="={&#10;  status: &#34;success&#34;,&#10;  email: responseEmail,&#10;  text: responseEmail.plainTextBody&#10;}" target="communicationResult" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1ysplnr</bpmn:incoming>
@@ -89,11 +89,6 @@
       <bpmn:outgoing>Flow_0wkuaim</bpmn:outgoing>
       <bpmn:outgoing>Flow_0xqvsdn</bpmn:outgoing>
     </bpmn:eventBasedGateway>
-    <bpmn:intermediateCatchEvent id="Event_1po9h9l" name="Customer response received">
-      <bpmn:incoming>Flow_0wkuaim</bpmn:incoming>
-      <bpmn:outgoing>Flow_1rc65b3</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_03r2gyo" messageRef="Message_07i0alk" />
-    </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_0wkuaim" sourceRef="Gateway_1jk4paz" targetRef="Event_1po9h9l" />
     <bpmn:intermediateCatchEvent id="Event_1rpgkfs" name="Chat timeout">
       <bpmn:incoming>Flow_0xqvsdn</bpmn:incoming>
@@ -104,9 +99,28 @@
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_0xqvsdn" sourceRef="Gateway_1jk4paz" targetRef="Event_1rpgkfs" />
     <bpmn:sequenceFlow id="Flow_1s3wsgo" sourceRef="Event_1rpgkfs" targetRef="Gateway_07tayzc" />
-    <bpmn:serviceTask id="Activity_1e8hun9" name="Ask customer via chat">
+    <bpmn:serviceTask id="Activity_1e8hun9" name="Ask customer via chat" zeebe:modelerTemplate="io.camunda.chat.rest.reply.camunda-chat-admin-986421179728.europe-west1.run.app.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIKICAgICBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIxLjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIKICAgICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iQ2hhdCI+CiAgPCEtLSBidWJibGUgLS0+CiAgPHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE0IiByeD0iNCIgLz4KICA8IS0tIHRhaWwgLS0+CiAgPHBhdGggZD0iTTggMTdMNCAyMVYxNyIgLz4KICA8IS0tIGRvdHMgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjEwIiByPSIxLjIiIC8+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMS4yIiAvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMTAiIHI9IjEuMiIgLz4KPC9zdmc+">
       <bpmn:extensionElements>
-        <zeebe:taskDefinition type="todo" />
+        <zeebe:taskDefinition type="io.camunda:http-json:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="https://camunda-chat-admin-986421179728.europe-west1.run.app/api/" target="apiBaseUrl" />
+          <zeebe:input source="=communicationContext.channelId" target="channelUUID" />
+          <zeebe:input source="=communicationContext.conversationId" target="conversationUUID" />
+          <zeebe:input source="{{secrets.CHAT_BACKEND_SERVICE_TOKEN}}" target="authToken" />
+          <zeebe:input source="text" target="messageType" />
+          <zeebe:input source="=communicationContent.text" target="content" />
+          <zeebe:input source="={&#34;type&#34;: &#34;bearer&#34;, &#34;token&#34;: authToken}" target="authentication" />
+          <zeebe:input source="PUT" target="method" />
+          <zeebe:input source="=apiBaseUrl + &#34;channels/&#34; + channelUUID + &#34;/conversations/&#34; + conversationUUID + &#34;/messages/&#34; + uuid()" target="url" />
+          <zeebe:input source="={&#34;senderUsername&#34;:&#34;Camunda&#34;,&#34;parts&#34;:[{&#34;type&#34;: messageType, &#34;content&#34;: content, &#34;position&#34;: 0}]}" target="body" />
+          <zeebe:input source="=false" target="storeResponse" />
+          <zeebe:input source="=false" target="ignoreNullValues" />
+          <zeebe:input source="=20" target="connectionTimeoutInSeconds" />
+          <zeebe:input source="=20" target="readTimeoutInSeconds" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="retryBackoff" value="PT0S" />
+        </zeebe:taskHeaders>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_1996dj8</bpmn:incoming>
       <bpmn:outgoing>Flow_1l70yuw</bpmn:outgoing>
@@ -137,13 +151,18 @@
     <bpmn:endEvent id="Event_0arwsmo" name="Information retrieved via phone">
       <bpmn:extensionElements>
         <zeebe:ioMapping>
-          <zeebe:output source="={&#10;  &#34;status&#34;: &#34;success&#34;,  &#10;  &#34;text&#34;: clerkResponse&#10;}" target="response" />
+          <zeebe:output source="={&#10;  &#34;status&#34;: &#34;success&#34;,  &#10;  &#34;text&#34;: clerkResponse&#10;}" target="communicationResult" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0ibbtmp</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0ibbtmp" sourceRef="Activity_0ndgmi5" targetRef="Event_0arwsmo" />
     <bpmn:endEvent id="Event_1ia32kg" name="Information retrieved via chat">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="={&#10;  status: &#34;success&#34;,&#10;  chat: message,&#10;  text: message.parts[count(message.parts)-1].content&#10;}" target="communicationResult" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_1rc65b3</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1rc65b3" sourceRef="Event_1po9h9l" targetRef="Event_1ia32kg" />
@@ -164,6 +183,12 @@
       </bpmn:endEvent>
       <bpmn:sequenceFlow id="Flow_0jr6kf4" sourceRef="Event_1x8wk5r" targetRef="Event_1n38pub" />
     </bpmn:subProcess>
+    <bpmn:intermediateCatchEvent id="Event_1po9h9l" name="Customer response received" zeebe:modelerTemplate="io.camunda.chat.messageCatch.8814bbef-fba9-41fb-a59c-dcdcf5e44afe.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIKICAgICBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIxLjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIKICAgICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iQ2hhdCI+CiAgPCEtLSBidWJibGUgLS0+CiAgPHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE0IiByeD0iNCIgLz4KICA8IS0tIHRhaWwgLS0+CiAgPHBhdGggZD0iTTggMTdMNCAyMVYxNyIgLz4KICA8IS0tIGRvdHMgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjEwIiByPSIxLjIiIC8+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMS4yIiAvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMTAiIHI9IjEuMiIgLz4KPC9zdmc+">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_0wkuaim</bpmn:incoming>
+      <bpmn:outgoing>Flow_1rc65b3</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1f01yxv" messageRef="Message_0775ttq" />
+    </bpmn:intermediateCatchEvent>
   </bpmn:process>
   <bpmn:message id="Message_13dbg1w" name="1eb5b730-9ee5-4a89-9b93-f0a49323841e" zeebe:modelerTemplate="io.camunda.connectors.inbound.EmailIntermediate.v1">
     <bpmn:extensionElements>
@@ -176,8 +201,13 @@
     </bpmn:extensionElements>
   </bpmn:message>
   <bpmn:error id="Error_07xvk80" name="ERROR_CHAT" errorCode="ERROR_CHAT" />
+  <bpmn:message id="Message_0775ttq" name="io.camunda.chat.message.8814bbef-fba9-41fb-a59c-dcdcf5e44afe" zeebe:modelerTemplate="io.camunda.chat.messageCatch.8814bbef-fba9-41fb-a59c-dcdcf5e44afe.v1">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=communicationContext.conversationId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="customer-communication">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="customer-communication-question">
       <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
         <dc:Bounds x="152" y="122" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -209,12 +239,6 @@
       <bpmndi:BPMNShape id="Gateway_0pdraov_di" bpmnElement="Gateway_1jk4paz">
         <dc:Bounds x="665" y="115" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1po9h9l_di" bpmnElement="Event_1po9h9l">
-        <dc:Bounds x="772" y="122" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="745" y="166" width="90" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1rpgkfs_di" bpmnElement="Event_1rpgkfs">
         <dc:Bounds x="672" y="192" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -241,6 +265,12 @@
         <dc:Bounds x="872" y="122" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="848" y="165" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1qxqyw5_di" bpmnElement="Event_1po9h9l">
+        <dc:Bounds x="772" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="745" y="166" width="90" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0x3jjpo_di" bpmnElement="Activity_1g8y74n" isExpanded="true">

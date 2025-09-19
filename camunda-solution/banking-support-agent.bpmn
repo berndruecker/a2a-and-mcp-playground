@@ -11,7 +11,7 @@
           <zeebe:input source="{{secrets.OPEN_API_ORG}}" target="provider.openai.authentication.organizationId" />
           <zeebe:input source="{{secrets.OPEN_API_PROJ}}" target="provider.openai.authentication.projectId" />
           <zeebe:input source="gpt-4o" target="provider.openai.model.model" />
-          <zeebe:input source="=&#34;You are the routing agent for Camunda Bank’s shared inbox (info@democompany.com). Your job: read each inbound email, split into sub-inquiries if needed, and invoke the correct tool(s).&#10;&#10;CRITICAL OUTPUT RULES&#10;- When you choose a tool, you MUST invoke it via the model’s tool/function calling interface.&#10;- Do NOT print JSON for tool calls in the message content. Do NOT wrap outputs in code fences.&#10;- Keep the assistant text brief; prefer calling tools. Only write text when no tool fits or after tools have run.&#10;&#10;TOOL SELECTION&#10;- Inspect the available tools for every sub-inquiry.&#10;- Choose the best tool; call multiple tools if needed.&#10;- If none fit, call UserTask_HandleOtherInquiries.&#10;- If even that cannot resolve it, reply with: ERROR: Unable to resolve (reason).&#10;&#10;PARAMETERS&#10;- Always pass:&#10;  - userInquiry: the minimal excerpt relevant to that sub-inquiry.&#10;  - currentEmail: the full original email content.&#10;&#10;PRIVACY&#10;- Treat the sender as a customer. Never invent PII.&#10;- Only reveal PII if authenticated and the tool allows it.&#10;&#10;STYLE&#10;- No chain-of-thought, no XML tags, no internal notes in content.&#10;- Your content should be either:&#10;  - a short confirmation, or&#10;  - the final answer when no tool is needed.&#34;" target="data.systemPrompt.prompt" />
+          <zeebe:input source="=&#34;You are the routing agent for Camunda Bank’s shared inbox (info@democompany.com). Your job: read each inbound email, split into sub-inquiries if needed, and invoke the correct tool(s). &#10;When finished invoke Tool_InformCustomer to send the case resolution information to the customer - but only if that make sense in this context (not if the case got aborted).&#10;&#10;CRITICAL OUTPUT RULES&#10;- When you choose a tool, you MUST invoke it via the model’s tool/function calling interface.&#10;- Do NOT print JSON for tool calls in the message content. Do NOT wrap outputs in code fences.&#10;- Keep the assistant text brief; prefer calling tools. Only write text when no tool fits or after tools have run.&#10;&#10;TOOL SELECTION&#10;- Inspect the available tools for every sub-inquiry.&#10;- Choose the best tool; call multiple tools if needed.&#10;- If none fit, call UserTask_HandleOtherInquiries.&#10;- If even that cannot resolve it, reply with: ERROR: Unable to resolve (reason).&#10;&#10;PARAMETERS&#10;- Always pass:&#10;  - userInquiry: the minimal excerpt relevant to that sub-inquiry.&#10;  - currentEmail: the full original email content.&#10;&#10;PRIVACY&#10;- Treat the sender as a customer. Never invent PII.&#10;- Only reveal PII if authenticated and the tool allows it.&#10;&#10;STYLE&#10;- No chain-of-thought, no XML tags, no internal notes in content.&#10;- Your content should be either:&#10;  - a short confirmation, or&#10;  - the final answer when no tool is needed.&#34;" target="data.systemPrompt.prompt" />
           <zeebe:input source="=supportCase.request" target="data.userPrompt.prompt" />
           <zeebe:input source="=agent.context" target="agentContext" />
           <zeebe:input source="camunda-document" target="data.memory.storage.type" />
@@ -41,6 +41,7 @@
           <zeebe:calledElement processId="account-support-agent" propagateAllChildVariables="false" propagateAllParentVariables="false" />
           <zeebe:ioMapping>
             <zeebe:input source="=put(supportCase, &#34;request&#34;, fromAi(toolCall.userInquiry, &#34;The relevant user request as extracted from the email for this agent using the original customer wording&#34;))" target="supportCase" />
+            <zeebe:output source="=response" target="toolCallResult" />
           </zeebe:ioMapping>
         </bpmn:extensionElements>
       </bpmn:callActivity>
@@ -67,7 +68,7 @@
         <bpmn:extensionElements>
           <zeebe:taskDefinition type="dev.example:a2a:1" />
           <zeebe:ioMapping>
-            <zeebe:input source="http://localhost:8000/a2a/" target="baseUrl" />
+            <zeebe:input source="https://demo-credit-card-support-a2a-56019549721.europe-west1.run.app/a2a/" target="baseUrl" />
             <zeebe:input source="A2A" target="mode" />
             <zeebe:input target="inputText" />
             <zeebe:input target="intent" />
@@ -82,10 +83,20 @@
       </bpmn:serviceTask>
       <bpmn:callActivity id="Tool_AskCustomer" name="Ask customer">
         <bpmn:extensionElements>
-          <zeebe:calledElement processId="customer-communication" propagateAllChildVariables="false" propagateAllParentVariables="false" />
+          <zeebe:calledElement processId="customer-communication-question" propagateAllChildVariables="false" propagateAllParentVariables="false" />
           <zeebe:ioMapping>
             <zeebe:input source="=supportCase.communicationContext" target="communicationContext" />
             <zeebe:input source="={&#10;  &#34;subject&#34;: &#34;RE: &#34; + supportCase.subject,&#10;  &#34;text&#34;: fromAi(toolCall.response, &#34;The text response to reply to the customer&#34;)&#10;}" target="communicationContent" />
+            <zeebe:output source="=communicationResult" target="toolCallResult" />
+          </zeebe:ioMapping>
+        </bpmn:extensionElements>
+      </bpmn:callActivity>
+      <bpmn:callActivity id="Tool_InformCustomer" name="Inform&#10;customer">
+        <bpmn:extensionElements>
+          <zeebe:calledElement processId="customer-communication-information" propagateAllChildVariables="false" propagateAllParentVariables="false" />
+          <zeebe:ioMapping>
+            <zeebe:input source="=supportCase.communicationContext" target="communicationContext" />
+            <zeebe:input source="={&#10;  &#34;subject&#34;: &#34;RE: &#34; + supportCase.subject,&#10;  &#34;text&#34;: fromAi(toolCall.response, &#34;The text information for the customer, probably the case resolution&#34;)&#10;}" target="communicationContent" />
             <zeebe:output source="=communicationResult" target="toolCallResult" />
           </zeebe:ioMapping>
         </bpmn:extensionElements>
@@ -118,7 +129,7 @@
       <bpmn:incoming>Flow_0g2kbqn</bpmn:incoming>
       <bpmn:outgoing>Flow_1w8zj7s</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:startEvent id="Event_1ilqnpc" name="Customer email received" zeebe:modelerTemplate="io.camunda.connectors.inbound.EmailMessageStart.v1" zeebe:modelerTemplateVersion="2" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzkwXzI0MjApIj4KPHBhdGggZD0iTTguMzM4MzUgOS45NTM2NUwxMC4zODk0IDEyLjAxMDRMOC4zMzI2MiAxNC4wNjcyTDkuMTQ2MTYgMTQuODc1TDEyLjAxMDcgMTIuMDEwNEw5LjE0NjE2IDkuMTQ1ODNMOC4zMzgzNSA5Ljk1MzY1WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEyLjM0ODggOS45NTM2NUwxNC4zOTk4IDEyLjAxMDRMMTIuMzQzIDE0LjA2NzJMMTMuMTU2NiAxNC44NzVMMTYuMDIxMiAxMi4wMTA0TDEzLjE1NjYgOS4xNDU4M0wxMi4zNDg4IDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMy45NzIgMTEuNDM3NUgxLjEyNTMzVjIuNzkyMTlMNy42NzM3NiA3LjMyMzk2QzcuNzY5NjcgNy4zOTA0OSA3Ljg4MzYgNy40MjYxNCA4LjAwMDMyIDcuNDI2MTRDOC4xMTcwNSA3LjQyNjE0IDguMjMwOTggNy4zOTA0OSA4LjMyNjg5IDcuMzIzOTZMMTQuODc1MyAyLjc5MjE5VjhIMTYuMDIxMlYyLjI3MDgzQzE2LjAyMTIgMS45NjY5NCAxNS45MDA0IDEuNjc1NDkgMTUuNjg1NiAxLjQ2MDYxQzE1LjQ3MDcgMS4yNDU3MiAxNS4xNzkyIDEuMTI1IDE0Ljg3NTMgMS4xMjVIMS4xMjUzM0MwLjgyMTQzMiAxLjEyNSAwLjUyOTk4NCAxLjI0NTcyIDAuMzE1MDk5IDEuNDYwNjFDMC4xMDAyMTQgMS42NzU0OSAtMC4wMjA1MDc4IDEuOTY2OTQgLTAuMDIwNTA3OCAyLjI3MDgzVjExLjQzNzVDLTAuMDIwNTA3OCAxMS43NDE0IDAuMTAwMjE0IDEyLjAzMjggMC4zMTUwOTkgMTIuMjQ3N0MwLjUyOTk4NCAxMi40NjI2IDAuODIxNDMyIDEyLjU4MzMgMS4xMjUzMyAxMi41ODMzSDMuOTcyVjExLjQzNzVaTTEzLjYxNDkgMi4yNzA4M0w4LjAwMDMyIDYuMTU1MjFMMi4zODU3NCAyLjI3MDgzSDEzLjYxNDlaIiBmaWxsPSIjRkM1RDBEIi8+CjxwYXRoIGQ9Ik00LjI4MjEgOS45NTM2NUw2LjMzMzE0IDEyLjAxMDRMNC4yNzYzNyAxNC4wNjcyTDUuMDg5OTEgMTQuODc1TDcuOTU0NDkgMTIuMDEwNEw1LjA4OTkxIDkuMTQ1ODNMNC4yODIxIDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzkwXzI0MjAiPgo8cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==">
+    <bpmn:startEvent id="StartEvent_Email" name="Customer email received" zeebe:modelerTemplate="io.camunda.connectors.inbound.EmailMessageStart.v1" zeebe:modelerTemplateVersion="2" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzkwXzI0MjApIj4KPHBhdGggZD0iTTguMzM4MzUgOS45NTM2NUwxMC4zODk0IDEyLjAxMDRMOC4zMzI2MiAxNC4wNjcyTDkuMTQ2MTYgMTQuODc1TDEyLjAxMDcgMTIuMDEwNEw5LjE0NjE2IDkuMTQ1ODNMOC4zMzgzNSA5Ljk1MzY1WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEyLjM0ODggOS45NTM2NUwxNC4zOTk4IDEyLjAxMDRMMTIuMzQzIDE0LjA2NzJMMTMuMTU2NiAxNC44NzVMMTYuMDIxMiAxMi4wMTA0TDEzLjE1NjYgOS4xNDU4M0wxMi4zNDg4IDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMy45NzIgMTEuNDM3NUgxLjEyNTMzVjIuNzkyMTlMNy42NzM3NiA3LjMyMzk2QzcuNzY5NjcgNy4zOTA0OSA3Ljg4MzYgNy40MjYxNCA4LjAwMDMyIDcuNDI2MTRDOC4xMTcwNSA3LjQyNjE0IDguMjMwOTggNy4zOTA0OSA4LjMyNjg5IDcuMzIzOTZMMTQuODc1MyAyLjc5MjE5VjhIMTYuMDIxMlYyLjI3MDgzQzE2LjAyMTIgMS45NjY5NCAxNS45MDA0IDEuNjc1NDkgMTUuNjg1NiAxLjQ2MDYxQzE1LjQ3MDcgMS4yNDU3MiAxNS4xNzkyIDEuMTI1IDE0Ljg3NTMgMS4xMjVIMS4xMjUzM0MwLjgyMTQzMiAxLjEyNSAwLjUyOTk4NCAxLjI0NTcyIDAuMzE1MDk5IDEuNDYwNjFDMC4xMDAyMTQgMS42NzU0OSAtMC4wMjA1MDc4IDEuOTY2OTQgLTAuMDIwNTA3OCAyLjI3MDgzVjExLjQzNzVDLTAuMDIwNTA3OCAxMS43NDE0IDAuMTAwMjE0IDEyLjAzMjggMC4zMTUwOTkgMTIuMjQ3N0MwLjUyOTk4NCAxMi40NjI2IDAuODIxNDMyIDEyLjU4MzMgMS4xMjUzMyAxMi41ODMzSDMuOTcyVjExLjQzNzVaTTEzLjYxNDkgMi4yNzA4M0w4LjAwMDMyIDYuMTU1MjFMMi4zODU3NCAyLjI3MDgzSDEzLjYxNDlaIiBmaWxsPSIjRkM1RDBEIi8+CjxwYXRoIGQ9Ik00LjI4MjEgOS45NTM2NUw2LjMzMzE0IDEyLjAxMDRMNC4yNzYzNyAxNC4wNjcyTDUuMDg5OTEgMTQuODc1TDcuOTU0NDkgMTIuMDEwNEw1LjA4OTkxIDkuMTQ1ODNMNC4yODIxIDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzkwXzI0MjAiPgo8cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==">
       <bpmn:extensionElements>
         <zeebe:properties>
           <zeebe:property name="inbound.type" value="io.camunda:connector-email-inbound:1" />
@@ -149,7 +160,7 @@
       <bpmn:outgoing>Flow_17hp3tr</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1ygmb0p" messageRef="Message_16m9y1n" />
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_17hp3tr" sourceRef="Event_1ilqnpc" targetRef="AI_CustomerSupportAgent" />
+    <bpmn:sequenceFlow id="Flow_17hp3tr" sourceRef="StartEvent_Email" targetRef="AI_CustomerSupportAgent" />
     <bpmn:serviceTask id="Activity_1mu0kb7" name="Send customer information and survey">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="noop" />
@@ -157,27 +168,40 @@
       <bpmn:incoming>Flow_1nojswc</bpmn:incoming>
       <bpmn:outgoing>Flow_0xnx5gq</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:startEvent id="Event_1q6r91a" name="Customer support request received (other channels)">
+    <bpmn:startEvent id="StartEvent_Blank" name="Customer support request received (other channels)">
       <bpmn:extensionElements>
         <zeebe:ioMapping>
-          <zeebe:output source="={&#10;    &#34;subject&#34;: &#34;Help&#34;,&#10;    &#34;request&#34;: &#34;I need to get my bank details to receive money internationally. My customer id = ACC123456789&#34;,&#10;    &#34;originalMessageInFull&#34;: &#34;&#34;,&#10;    &#34;communicationContext&#34;: {&#10;        &#34;channel&#34; : &#34;email&#34;,&#10;        &#34;channelId&#34;: &#34;&#60;UUID of the channel&#62;&#34;,&#10;        &#34;emailAddress&#34;: &#34;bernd.ruecker@amunda.com&#34;,&#10;        &#34;conversationId&#34;: &#34;1&#34;&#10;    }&#10;}" target="supportCase" />
+          <zeebe:output source="={&#10;    &#34;subject&#34;: &#34;Help&#34;,&#10;    &#34;request&#34;: &#34;I need to get my bank details to receive money internationally. My customer id = ACC123456789&#34;,&#10;    &#34;originalMessageInFull&#34;: &#34;&#34;,&#10;    &#34;communicationContext&#34;: {&#10;        &#34;channel&#34; : &#34;email&#34;,&#10;        &#34;channelId&#34;: &#34;&#60;UUID of the channel&#62;&#34;,&#10;        &#34;emailAddress&#34;: &#34;schallrauch11@gmail.com&#34;,&#10;        &#34;conversationId&#34;: null&#10;    }&#10;}" target="supportCase" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_04dj9kf</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_04dj9kf" sourceRef="Event_1q6r91a" targetRef="AI_CustomerSupportAgent" />
-    <bpmn:startEvent id="Event_07n4ztj" name="Customer support chat started">
+    <bpmn:sequenceFlow id="Flow_04dj9kf" sourceRef="StartEvent_Blank" targetRef="AI_CustomerSupportAgent" />
+    <bpmn:sequenceFlow id="Flow_1i0kcwv" sourceRef="StartEvent_Chat" targetRef="AI_CustomerSupportAgent" />
+    <bpmn:startEvent id="StartEvent_Chat" name="Customer support chat started" zeebe:modelerTemplate="io.camunda.chat.messageStart.8814bbef-fba9-41fb-a59c-dcdcf5e44afe.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIKICAgICBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIxLjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIKICAgICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iQ2hhdCI+CiAgPCEtLSBidWJibGUgLS0+CiAgPHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE0IiByeD0iNCIgLz4KICA8IS0tIHRhaWwgLS0+CiAgPHBhdGggZD0iTTggMTdMNCAyMVYxNyIgLz4KICA8IS0tIGRvdHMgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjEwIiByPSIxLjIiIC8+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMS4yIiAvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMTAiIHI9IjEuMiIgLz4KPC9zdmc+">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="={&#10;    &#34;subject&#34;: &#34;Chat Request&#34;,&#10;    &#34;request&#34;: message.parts[count(message.parts)].content,&#10;    &#34;originalMessageInFull&#34;: string join(message.parts.content, &#34;; &#34;),&#10;    &#34;communicationContext&#34;: {&#10;        &#34;channel&#34; : &#34;chat&#34;,&#10;        &#34;channelId&#34;: channelUUID,&#10;        &#34;emailAddress&#34;: &#34;schallrauch11@gmail.com&#34;,&#10;        &#34;conversationId&#34;: conversationUUID&#10;    }&#10;}" target="supportCase" />
+          <zeebe:output source="=message" target="chatMessage" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_1i0kcwv</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_0nxd3w4" messageRef="Message_0pug44t" />
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1aclmwe" messageRef="Message_036amr0" />
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_1i0kcwv" sourceRef="Event_07n4ztj" targetRef="AI_CustomerSupportAgent" />
   </bpmn:process>
   <bpmn:message id="Message_16m9y1n" name="a79db208-bf8e-49fb-ba29-3748eab2954a" zeebe:modelerTemplate="io.camunda.connectors.inbound.EmailMessageStart.v1" />
   <bpmn:message id="Message_0pug44t" name="Chat" />
+  <bpmn:message id="Message_036amr0" name="io.camunda.chat.message.8814bbef-fba9-41fb-a59c-dcdcf5e44afe" zeebe:modelerTemplate="io.camunda.chat.messageStart.8814bbef-fba9-41fb-a59c-dcdcf5e44afe.v1" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="banking-support-agent">
+      <bpmndi:BPMNShape id="Event_0gx5age_di" bpmnElement="StartEvent_Chat">
+        <dc:Bounds x="182" y="362" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="157" y="405" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0qhv81v_di" bpmnElement="AI_CustomerSupportAgent" isExpanded="true">
-        <dc:Bounds x="360" y="80" width="320" height="380" />
+        <dc:Bounds x="360" y="80" width="320" height="460" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_04qwkmr_di" bpmnElement="CallActivity_AccountSupportAgent">
@@ -204,6 +228,10 @@
         <dc:Bounds x="540" y="340" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0jhfldm" bpmnElement="Tool_InformCustomer">
+        <dc:Bounds x="540" y="440" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1sbtuh2_di" bpmnElement="Gateway_1sbtuh2" isMarkerVisible="true">
         <dc:Bounds x="905" y="155" width="50" height="50" />
         <bpmndi:BPMNLabel>
@@ -219,7 +247,7 @@
       <bpmndi:BPMNShape id="Activity_1hwucx3_di" bpmnElement="Activity_04lvuy1">
         <dc:Bounds x="880" y="240" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0bgxirs_di" bpmnElement="Event_1ilqnpc">
+      <bpmndi:BPMNShape id="Event_0bgxirs_di" bpmnElement="StartEvent_Email">
         <dc:Bounds x="182" y="162" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="161" y="205" width="78" height="27" />
@@ -228,16 +256,10 @@
       <bpmndi:BPMNShape id="Activity_1vc8nnq_di" bpmnElement="Activity_1mu0kb7">
         <dc:Bounds x="740" y="140" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1q6r91a_di" bpmnElement="Event_1q6r91a">
+      <bpmndi:BPMNShape id="Event_1q6r91a_di" bpmnElement="StartEvent_Blank">
         <dc:Bounds x="182" y="252" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="156" y="295" width="88" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0qi8efp_di" bpmnElement="Event_07n4ztj">
-        <dc:Bounds x="182" y="362" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="156" y="405" width="89" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1nojswc_di" bpmnElement="Flow_1nojswc">

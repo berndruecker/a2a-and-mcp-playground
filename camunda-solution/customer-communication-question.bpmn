@@ -168,6 +168,7 @@
     <bpmn:sequenceFlow id="Flow_1rc65b3" sourceRef="Event_1po9h9l" targetRef="Event_1ia32kg" />
     <bpmn:subProcess id="Activity_1g8y74n" triggeredByEvent="true">
       <bpmn:startEvent id="Event_1x8wk5r" name="Timeout">
+        <bpmn:extensionElements />
         <bpmn:outgoing>Flow_0jr6kf4</bpmn:outgoing>
         <bpmn:timerEventDefinition id="TimerEventDefinition_0qbporm">
           <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">P1D</bpmn:timeDuration>
@@ -176,7 +177,7 @@
       <bpmn:endEvent id="Event_1n38pub" name="Information could not be retrieved">
         <bpmn:extensionElements>
           <zeebe:ioMapping>
-            <zeebe:output source="={&#10;  status: &#34;timeout&#34;&#10;}" target="response" />
+            <zeebe:output source="={&#10;  status: &#34;timeout&#34;&#10;}" target="communicationResult" />
           </zeebe:ioMapping>
         </bpmn:extensionElements>
         <bpmn:incoming>Flow_0jr6kf4</bpmn:incoming>

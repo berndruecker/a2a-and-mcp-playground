@@ -1,0 +1,65 @@
+{
+  "components": [
+    {
+      "text": "## Please handle support request",
+      "type": "text",
+      "id": "Heading_0",
+      "layout": {
+        "row": "Row_16pdden"
+      }
+    },
+    {
+      "label": "Request Details",
+      "type": "textarea",
+      "id": "Textarea_2",
+      "validate": {
+        "required": true
+      },
+      "key": "requestDetails",
+      "readonly": true,
+      "layout": {
+        "row": "Row_1m8bwtn"
+      }
+    },
+    {
+      "label": "Resolution remarks",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_0dh7uki",
+        "columns": null
+      },
+      "id": "Field_02d64t6",
+      "key": "resolutionRemarks",
+      "description": "Please note what you did in order to resolve this."
+    },
+    {
+      "text": "Please note, that **no customer communication** is done by the support agent itself, so you need to handle that **yourself**.",
+      "type": "text",
+      "layout": {
+        "row": "Row_1rzsx00",
+        "columns": null
+      },
+      "id": "Field_0z1pr1a"
+    },
+    {
+      "label": "I am done",
+      "action": "submit",
+      "type": "button",
+      "layout": {
+        "row": "Row_1vfx72u",
+        "columns": null
+      },
+      "id": "Field_0tuly6o"
+    }
+  ],
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.8.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.39.0"
+  },
+  "schemaVersion": 19,
+  "id": "Form_HumanHandling",
+  "generated": true,
+  "type": "default"
+}

@@ -111,7 +111,9 @@
       <bpmn:outgoing>Flow_08jfued</bpmn:outgoing>
       <bpmn:errorEventDefinition id="ErrorEventDefinition_0fp2thv" errorRef="Error_07xvk80" />
     </bpmn:boundaryEvent>
-    <bpmn:sequenceFlow id="Flow_1fysgkr" sourceRef="Gateway_1y5hfxn" targetRef="Activity_1kncj4w" />
+    <bpmn:sequenceFlow id="Flow_1fysgkr" sourceRef="Gateway_1y5hfxn" targetRef="Activity_1kncj4w">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=communicationContext.channel = "chat"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_18r5tt7" sourceRef="Activity_1kncj4w" targetRef="Event_1lmlzbf" />
     <bpmn:sequenceFlow id="Flow_08jfued" sourceRef="Event_0f3fppe" targetRef="Reply_with_email_to_customer" />
   </bpmn:process>

@@ -32,8 +32,8 @@
         <zeebe:adHoc outputCollection="toolCallResults" outputElement="={&#10;  id: toolCall._meta.id,&#10;  name: toolCall._meta.name,&#10;  content: toolCallResult&#10;}" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_17hp3tr</bpmn:incoming>
-      <bpmn:incoming>Flow_04dj9kf</bpmn:incoming>
       <bpmn:incoming>Flow_1i0kcwv</bpmn:incoming>
+      <bpmn:incoming>Flow_04dj9kf</bpmn:incoming>
       <bpmn:outgoing>Flow_1nojswc</bpmn:outgoing>
       <bpmn:callActivity id="CallActivity_AccountSupportAgent" name="Account Support Agent">
         <bpmn:documentation>Handle all account related inquiries</bpmn:documentation>
@@ -56,11 +56,16 @@
       <bpmn:userTask id="UserTask_HandleLegalQuestions" name="Handle legal questions">
         <bpmn:extensionElements>
           <zeebe:userTask />
+          <zeebe:formDefinition formId="Form_HumanHandling" />
+          <zeebe:ioMapping>
+            <zeebe:input source="=fromAi(toolCall.requestToHuman, &#34;Describe what the specialist needs to do for the customer. Summarize in your own words - ideally easy to get bullet points, but attach the original customer request below for reference&#34;, &#34;string&#34;)" target="requestDetails" />
+          </zeebe:ioMapping>
         </bpmn:extensionElements>
       </bpmn:userTask>
       <bpmn:userTask id="UserTask_HandleOtherInquiries" name="Handle other inquiries">
         <bpmn:extensionElements>
           <zeebe:userTask />
+          <zeebe:formDefinition formId="Form_HumanHandling" />
         </bpmn:extensionElements>
       </bpmn:userTask>
       <bpmn:serviceTask id="Tool_A2A_CreditCardAgent" name="Card Support Agent&#10;(A2A Client)" zeebe:modelerTemplate="dev.example.a2a.connector.outbound" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iMTIwMHB0IiBoZWlnaHQ9IjEyMDBwdCIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMTIwMCAxMjAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogPHBhdGggZD0ibTEwMjAgMzExLjQ4Yy03Mi41MTYgMC0xMzEuNDgtNTkuMDE2LTEzMS40OC0xMzEuNDggMC0xMy41LTExLjAxNi0yNC45ODQtMjQuOTg0LTI0Ljk4NC0xMy41IDAtMjQuOTg0IDExLjQ4NC0yNC45ODQgMjQuOTg0IDAgOC40ODQ0LTAuOTg0MzggMTcuMDE2LTIuNDg0NCAyNC45ODQtMC41MTU2MiAzLjk4NDQtMS41IDguMDE1Ni0zIDEyLTAuOTg0MzggMy45ODQ0LTIuNDg0NCA4LjAxNTYtMy45ODQ0IDExLjQ4NC02IDE1Ljk4NC0xNS41MTYgMzAuNTE2LTI3IDQyLjUxNi0xMi41MTYgMTMuNS0yNy45ODQgMjQtNDUuNTE2IDMwLjk4NC0zIDEuNS02LjUxNTYgMi40ODQ0LTkuOTg0NCAzLjUxNTYtMS41IDAuNTE1NjItMyAwLjk4NDM4LTQuNSAxLjUtNi41MTU2IDIuMDE1Ni0xMy41IDMtMjEgMy45ODQ0LTQuNSAwLjUxNTYyLTkgMC41MTU2Mi0xMy41IDAuNTE1NjItMTQuMDE2IDAtMjQuOTg0IDExLjAxNi0yNC45ODQgMjQuOTg0IDAgMTMuNSAxMS4wMTYgMjQuOTg0IDI0Ljk4NCAyNC45ODQgNzIuNTE2IDAgMTMxLjAyIDU4LjUgMTMxLjAyIDEzMS4wMiAwIDE0LjAxNiAxMS40ODQgMjQuOTg0IDI0Ljk4NCAyNC45ODQgMTQuMDE2IDAgMjQuOTg0LTExLjAxNiAyNC45ODQtMjQuOTg0IDAtNC41IDAtOSAwLjUxNTYyLTEzLjUgMC45ODQzOC03LjUgMi4wMTU2LTE0LjQ4NCAzLjk4NDQtMjEgMC41MTU2Mi0xLjUgMC45ODQzOC0zIDEuNS00LjUgMC45ODQzOC0zLjUxNTYgMi4wMTU2LTYuOTg0NCAzLjk4NDQtOS45ODQ0IDYuNTE1Ni0xNy40ODQgMTcuMDE2LTMzIDMwLjUxNi00NS41MTYgMTItMTEuNDg0IDI2LjQ4NC0yMSA0Mi41MTYtMjcgMy41MTU2LTEuNSA3LjUtMyAxMS40ODQtMy45ODQ0IDMuOTg0NC0xLjUgOC4wMTU2LTIuNDg0NCAxMi0zIDguMDE1Ni0xLjUgMTYuNS0yLjQ4NDQgMjQuOTg0LTIuNDg0NCAxMy41IDAgMjQuOTg0LTExLjQ4NCAyNC45ODQtMjQuOTg0LTAuMDQ2ODc1LTE0LjAxNi0xMS41MzEtMjUuMDMxLTI1LjAzMS0yNS4wMzF6IiBmaWxsPSIjNGMyNWUwIi8+CiA8cGF0aCBkPSJtOTU0IDQ0NS41Yy05Ljk4NDQgMTMuNS0xNS41MTYgMjkuNDg0LTE1LjUxNiA0Ny4wMTYgMCA0MS40ODQtMzMuNTE2IDc1LTc1IDc1LTQxLjAxNiAwLTc1LTMzLjUxNi03NS03NSAwLTQ0LjQ4NC0zNi41MTYtODEtODEtODEtNDEuNDg0IDAtNzUtMzMuOTg0LTc1LTc1IDAtNDEuNDg0IDMzLjUxNi03NSA3NS03NSAxNy40ODQgMCAzMy41MTYtNS40ODQ0IDQ3LjAxNi0xNS41MTYgMTQuMDE2LTkuOTg0NCAyNC45ODQtMjQuNTE2IDMwLTQxLjQ4NC01Ni4wMTYtMjYuNTMxLTExOC41LTQxLjAxNi0xODQuNS00MS4wMTYtMjQwLjUyIDAtNDM2LjUgMTk1Ljk4LTQzNi41IDQzNi41czE5NS45OCA0MzYuNSA0MzYuNSA0MzYuNSA0MzYuNS0xOTUuOTggNDM2LjUtNDM2LjVjMC02Ni0xNC40ODQtMTI4LjQ4LTQxLjAxNi0xODQuNS0xNi45NjkgNS4wMTU2LTMxLjUgMTUuOTg0LTQxLjQ4NCAzMHptLTExNy45OCAxMzMuNWMxNC4wMTYgMCAyNC45ODQgMTEuNDg0IDI0Ljk4NCAyNC45ODQgMCAxNC4wMTYtMTEuMDE2IDI0Ljk4NC0yNC45ODQgMjQuOTg0LTExOC41IDAtMjE1LjAyIDk2LjUxNi0yMTUuMDIgMjE1LjQ4IDAgMTMuNS0xMS40ODQgMjQuOTg0LTI0Ljk4NCAyNC45ODQtMTQuMDE2IDAtMjQuOTg0LTExLjQ4NC0yNC45ODQtMjQuOTg0IDAtMTE5LjAyLTk2LjUxNi0yMTUuNDgtMjE1LjQ4LTIxNS40OC0xMy41IDAtMjQuOTg0LTExLjAxNi0yNC45ODQtMjQuOTg0IDAtMTMuNSAxMS40ODQtMjQuOTg0IDI0Ljk4NC0yNC45ODQgMTE5LjAyIDAgMjE1LjQ4LTk2LjUxNiAyMTUuNDgtMjE1LjAyIDAtMTQuMDE2IDExLjAxNi0yNC45ODQgMjQuOTg0LTI0Ljk4NCAxMy41IDAgMjQuOTg0IDExLjAxNiAyNC45ODQgMjQuOTg0IDAgMTE4LjUgOTYuNTE2IDIxNS4wMiAyMTUuMDIgMjE1LjAyeiIgZmlsbD0iIzRjMjVlMCIvPgogPHBhdGggZD0ibTQ2OCA2MDMuOThjNTYuMDE2IDI2LjQ4NCAxMDEuNDggNzIgMTI4LjAyIDEyOC4wMiAyNi4wMTYtNTYuMDE2IDcxLjQ4NC0xMDEuNDggMTI3LjUtMTI4LjAyLTU2LjAxNi0yNi4wMTYtMTAxLjQ4LTcxLjQ4NC0xMjcuNS0xMjcuNS0yNi41MzEgNTYuMDE2LTcyIDEwMS41My0xMjguMDIgMTI3LjV6IiBmaWxsPSIjNGMyNWUwIi8+Cjwvc3ZnPgo=">
@@ -194,10 +199,16 @@
   <bpmn:message id="Message_036amr0" name="io.camunda.chat.message.8814bbef-fba9-41fb-a59c-dcdcf5e44afe" zeebe:modelerTemplate="io.camunda.chat.messageStart.8814bbef-fba9-41fb-a59c-dcdcf5e44afe.v1" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="banking-support-agent">
-      <bpmndi:BPMNShape id="Event_0gx5age_di" bpmnElement="StartEvent_Chat">
-        <dc:Bounds x="182" y="362" width="36" height="36" />
+      <bpmndi:BPMNShape id="Event_1q6r91a_di" bpmnElement="StartEvent_Blank">
+        <dc:Bounds x="182" y="402" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="157" y="405" width="88" height="27" />
+          <dc:Bounds x="156" y="445" width="88" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0gx5age_di" bpmnElement="StartEvent_Chat">
+        <dc:Bounds x="182" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="157" y="285" width="88" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0qhv81v_di" bpmnElement="AI_CustomerSupportAgent" isExpanded="true">
@@ -256,12 +267,6 @@
       <bpmndi:BPMNShape id="Activity_1vc8nnq_di" bpmnElement="Activity_1mu0kb7">
         <dc:Bounds x="740" y="140" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1q6r91a_di" bpmnElement="StartEvent_Blank">
-        <dc:Bounds x="182" y="252" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="156" y="295" width="88" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1nojswc_di" bpmnElement="Flow_1nojswc">
         <di:waypoint x="680" y="180" />
         <di:waypoint x="740" y="180" />
@@ -293,12 +298,12 @@
         <di:waypoint x="360" y="180" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_04dj9kf_di" bpmnElement="Flow_04dj9kf">
-        <di:waypoint x="218" y="270" />
-        <di:waypoint x="360" y="270" />
+        <di:waypoint x="218" y="420" />
+        <di:waypoint x="360" y="420" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1i0kcwv_di" bpmnElement="Flow_1i0kcwv">
-        <di:waypoint x="218" y="380" />
-        <di:waypoint x="360" y="380" />
+        <di:waypoint x="218" y="260" />
+        <di:waypoint x="360" y="260" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

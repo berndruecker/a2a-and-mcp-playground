@@ -13,8 +13,8 @@
     <maven.compiler.release>17</maven.compiler.release>
   
     <spring-boot.version>3.3.2</spring-boot.version>
-    <version.connectors>8.8.0-alpha7</version.connectors>
-    <version.camunda>8.8.0-alpha7</version.camunda>
+    <version.connectors>8.8.0-alpha8</version.connectors>
+    <version.camunda>8.8.0-alpha8</version.camunda>
   </properties>
 
   <dependencyManagement>
@@ -48,6 +48,12 @@
       <groupId>io.camunda.connector</groupId>
       <artifactId>connector-validation</artifactId>
       <version>${version.connectors}</version>
+    </dependency>
+
+    <!-- Spring Boot Actuator for health checks -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
   </dependencies>
 

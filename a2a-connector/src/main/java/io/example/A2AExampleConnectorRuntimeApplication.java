@@ -1,13 +1,13 @@
 
-package io.example.a2a;
+package io.example;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class A2AConnectorRuntimeApplication {
+public class A2AExampleConnectorRuntimeApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(A2AConnectorRuntimeApplication.class, args);
+    SpringApplication.run(A2AExampleConnectorRuntimeApplication.class, args);
   }
 }

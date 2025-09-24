@@ -1,5 +1,5 @@
 # Use multi-stage build for optimal image size
-FROM maven:3.9-openjdk-17 AS build
+FROM maven:3.9.9-openjdk-17 AS build
 
 # Set working directory
 WORKDIR /app

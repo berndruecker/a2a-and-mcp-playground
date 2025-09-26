@@ -1,0 +1,83 @@
+{
+  "components": [
+    {
+      "text": "# Loan underwriting",
+      "type": "text",
+      "layout": {
+        "row": "Row_04xdgu4",
+        "columns": null
+      },
+      "id": "Field_1wpesvw"
+    },
+    {
+      "text": "### Customer\n\n### Loan\n\n### Risk assesment",
+      "type": "text",
+      "layout": {
+        "row": "Row_1xfilus",
+        "columns": null
+      },
+      "id": "Field_1y01ls0"
+    },
+    {
+      "label": "Risk class",
+      "type": "textfield",
+      "layout": {
+        "row": "Row_0z2zqt5",
+        "columns": null
+      },
+      "id": "Field_046b2yj",
+      "key": "riskAssesmentResult.riskClass",
+      "readonly": true
+    },
+    {
+      "label": "Risk assesment",
+      "type": "textarea",
+      "layout": {
+        "row": "Row_1gdlmv4",
+        "columns": null
+      },
+      "id": "Field_0dt9bep",
+      "key": "riskAssesmentResult.riskAssesment",
+      "disabled": false,
+      "readonly": true
+    },
+    {
+      "text": "{{#if riskAssesmentResult.approval}}\nThis loan is recommended to be approved\n{{/if}}\n{{#if not(riskAssesmentResult.approval)}}\nThis loan is recommended to be **rejected**\n{{/if}}",
+      "type": "text",
+      "layout": {
+        "row": "Row_04jhzak",
+        "columns": null
+      },
+      "id": "Field_0z2nd2w"
+    },
+    {
+      "label": "Your decision for this loan",
+      "values": [
+        {
+          "label": "Approve",
+          "value": "true"
+        },
+        {
+          "label": "Reject",
+          "value": "false"
+        }
+      ],
+      "type": "select",
+      "layout": {
+        "row": "Row_0m8wg2f",
+        "columns": null
+      },
+      "id": "Field_0vusntr",
+      "key": "approvalDecision"
+    }
+  ],
+  "type": "default",
+  "id": "loan-underwriting",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.7.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.39.0"
+  },
+  "schemaVersion": 19
+}

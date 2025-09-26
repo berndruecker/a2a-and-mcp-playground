@@ -22,7 +22,7 @@
           <zeebe:input source="Response" target="data.response.format.schemaName" />
           <zeebe:input source="=false" target="data.response.includeAssistantMessage" />
           <zeebe:input source="=false" target="data.response.includeAgentContext" />
-          <zeebe:output source="=agent" target="agent" />
+          <zeebe:output source="=agent" target="agentResult" />
         </zeebe:ioMapping>
         <zeebe:taskHeaders>
           <zeebe:header key="elementTemplateVersion" value="3" />
@@ -32,8 +32,9 @@
         <zeebe:adHoc outputCollection="toolCallResults" outputElement="={&#10;  id: toolCall._meta.id,&#10;  name: toolCall._meta.name,&#10;  content: toolCallResult&#10;}" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_17hp3tr</bpmn:incoming>
-      <bpmn:incoming>Flow_1i0kcwv</bpmn:incoming>
       <bpmn:incoming>Flow_04dj9kf</bpmn:incoming>
+      <bpmn:incoming>Flow_18e2jyj</bpmn:incoming>
+      <bpmn:incoming>Flow_1i0kcwv</bpmn:incoming>
       <bpmn:outgoing>Flow_1nojswc</bpmn:outgoing>
       <bpmn:callActivity id="CallActivity_AccountSupportAgent" name="Account Support Agent">
         <bpmn:documentation>Handle all account related inquiries</bpmn:documentation>
@@ -176,7 +177,7 @@
     <bpmn:startEvent id="StartEvent_Blank" name="Customer support request received (other channels)">
       <bpmn:extensionElements>
         <zeebe:ioMapping>
-          <zeebe:output source="={&#10;    &#34;subject&#34;: &#34;Help&#34;,&#10;    &#34;request&#34;: &#34;I need to get my bank details to receive money internationally. My customer id = ACC123456789&#34;,&#10;    &#34;originalMessageInFull&#34;: &#34;&#34;,&#10;    &#34;communicationContext&#34;: {&#10;        &#34;channel&#34; : &#34;email&#34;,&#10;        &#34;channelId&#34;: &#34;&#60;UUID of the channel&#62;&#34;,&#10;        &#34;emailAddress&#34;: &#34;schallrauch11@gmail.com&#34;,&#10;        &#34;conversationId&#34;: null&#10;    }&#10;}" target="supportCase" />
+          <zeebe:output source="={&#10;    &#34;subject&#34;: &#34;Help&#34;,&#10;    &#34;request&#34;: &#34;I need to get my bank details to receive money internationally. My customer id = ACC123456789&#34;,&#10;    &#34;originalMessageInFull&#34;: &#34;&#34;,&#10;    &#34;communicationContext&#34;: {&#10;        &#34;channel&#34; : &#34;email&#34;,&#10;        &#34;channelId&#34;: &#34;&#60;UUID of the channel&#62;&#34;,&#10;        &#34;emailAddress&#34;: &#34;bernd.it.depends.ruecker@gmail.com&#34;,&#10;        &#34;conversationId&#34;: null&#10;    }&#10;}" target="supportCase" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_04dj9kf</bpmn:outgoing>
@@ -186,31 +187,30 @@
     <bpmn:startEvent id="StartEvent_Chat" name="Customer support chat started" zeebe:modelerTemplate="io.camunda.chat.messageStart.8814bbef-fba9-41fb-a59c-dcdcf5e44afe.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIKICAgICBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIxLjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIKICAgICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iQ2hhdCI+CiAgPCEtLSBidWJibGUgLS0+CiAgPHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE0IiByeD0iNCIgLz4KICA8IS0tIHRhaWwgLS0+CiAgPHBhdGggZD0iTTggMTdMNCAyMVYxNyIgLz4KICA8IS0tIGRvdHMgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjEwIiByPSIxLjIiIC8+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMS4yIiAvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMTAiIHI9IjEuMiIgLz4KPC9zdmc+">
       <bpmn:extensionElements>
         <zeebe:ioMapping>
-          <zeebe:output source="={&#10;    &#34;subject&#34;: &#34;Chat Request&#34;,&#10;    &#34;request&#34;: message.parts[count(message.parts)].content,&#10;    &#34;originalMessageInFull&#34;: string join(message.parts.content, &#34;; &#34;),&#10;    &#34;communicationContext&#34;: {&#10;        &#34;channel&#34; : &#34;chat&#34;,&#10;        &#34;channelId&#34;: channelUUID,&#10;        &#34;emailAddress&#34;: &#34;schallrauch11@gmail.com&#34;,&#10;        &#34;conversationId&#34;: conversationUUID&#10;    }&#10;}" target="supportCase" />
+          <zeebe:output source="={&#10;    &#34;subject&#34;: &#34;Chat Request&#34;,&#10;    &#34;request&#34;: message.parts[count(message.parts)].content,&#10;    &#34;originalMessageInFull&#34;: string join(message.parts.content, &#34;; &#34;),&#10;    &#34;communicationContext&#34;: {&#10;        &#34;channel&#34; : &#34;chat&#34;,&#10;        &#34;channelId&#34;: channelUUID,&#10;        &#34;emailAddress&#34;: &#34;bernd.it.depends.ruecker@gmail.com&#34;,&#10;        &#34;conversationId&#34;: conversationUUID,&#10;        &#34;lastMessageId&#34;: message.id&#10;    }&#10;}" target="supportCase" />
           <zeebe:output source="=message" target="chatMessage" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:outgoing>Flow_1i0kcwv</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1aclmwe" messageRef="Message_036amr0" />
     </bpmn:startEvent>
+    <bpmn:startEvent id="Event_0nn09te" name="Customer phoned in">
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="={&#10;    &#34;subject&#34;: &#34;Chat Request&#34;,&#10;    &#34;request&#34;: customerRequest,&#10;    &#34;originalMessageInFull&#34;: customerRequest,&#10;    &#34;communicationContext&#34;: {&#10;        &#34;channel&#34; : &#34;email&#34;,&#10;        &#34;emailAddress&#34;: &#34;bernd.it.depends.ruecker@gmail.com&#34;,&#10;        &#34;conversationId&#34;: conversationId&#10;    }&#10;}" target="supportCase" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_18e2jyj</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1p5ydf6" messageRef="Message_3hatd6n" />
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_18e2jyj" sourceRef="Event_0nn09te" targetRef="AI_CustomerSupportAgent" />
   </bpmn:process>
   <bpmn:message id="Message_16m9y1n" name="a79db208-bf8e-49fb-ba29-3748eab2954a" zeebe:modelerTemplate="io.camunda.connectors.inbound.EmailMessageStart.v1" />
   <bpmn:message id="Message_0pug44t" name="Chat" />
   <bpmn:message id="Message_036amr0" name="io.camunda.chat.message.8814bbef-fba9-41fb-a59c-dcdcf5e44afe" zeebe:modelerTemplate="io.camunda.chat.messageStart.8814bbef-fba9-41fb-a59c-dcdcf5e44afe.v1" />
+  <bpmn:message id="Message_3hatd6n" name="MSG_GetVocal" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="banking-support-agent">
-      <bpmndi:BPMNShape id="Event_1q6r91a_di" bpmnElement="StartEvent_Blank">
-        <dc:Bounds x="182" y="402" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="156" y="445" width="88" height="40" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0gx5age_di" bpmnElement="StartEvent_Chat">
-        <dc:Bounds x="182" y="242" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="157" y="285" width="88" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0qhv81v_di" bpmnElement="AI_CustomerSupportAgent" isExpanded="true">
         <dc:Bounds x="360" y="80" width="320" height="460" />
         <bpmndi:BPMNLabel />
@@ -267,6 +267,24 @@
       <bpmndi:BPMNShape id="Activity_1vc8nnq_di" bpmnElement="Activity_1mu0kb7">
         <dc:Bounds x="740" y="140" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1q6r91a_di" bpmnElement="StartEvent_Blank">
+        <dc:Bounds x="182" y="442" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="156" y="485" width="89" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0gx5age_di" bpmnElement="StartEvent_Chat">
+        <dc:Bounds x="182" y="242" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="157" y="285" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0xy24su_di" bpmnElement="Event_0nn09te">
+        <dc:Bounds x="182" y="342" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="156" y="385" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1nojswc_di" bpmnElement="Flow_1nojswc">
         <di:waypoint x="680" y="180" />
         <di:waypoint x="740" y="180" />
@@ -298,12 +316,16 @@
         <di:waypoint x="360" y="180" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_04dj9kf_di" bpmnElement="Flow_04dj9kf">
-        <di:waypoint x="218" y="420" />
-        <di:waypoint x="360" y="420" />
+        <di:waypoint x="218" y="460" />
+        <di:waypoint x="360" y="460" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1i0kcwv_di" bpmnElement="Flow_1i0kcwv">
         <di:waypoint x="218" y="260" />
         <di:waypoint x="360" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18e2jyj_di" bpmnElement="Flow_18e2jyj">
+        <di:waypoint x="218" y="360" />
+        <di:waypoint x="360" y="360" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

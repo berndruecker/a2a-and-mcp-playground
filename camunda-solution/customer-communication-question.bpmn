@@ -84,12 +84,6 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=communicationContext.channel = "chat"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_1l70yuw" sourceRef="Activity_1e8hun9" targetRef="Gateway_1jk4paz" />
-    <bpmn:eventBasedGateway id="Gateway_1jk4paz">
-      <bpmn:incoming>Flow_1l70yuw</bpmn:incoming>
-      <bpmn:outgoing>Flow_0wkuaim</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0xqvsdn</bpmn:outgoing>
-    </bpmn:eventBasedGateway>
-    <bpmn:sequenceFlow id="Flow_0wkuaim" sourceRef="Gateway_1jk4paz" targetRef="Event_1po9h9l" />
     <bpmn:intermediateCatchEvent id="Event_1rpgkfs" name="Chat timeout">
       <bpmn:incoming>Flow_0xqvsdn</bpmn:incoming>
       <bpmn:outgoing>Flow_1s3wsgo</bpmn:outgoing>
@@ -97,7 +91,6 @@
         <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT15M</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_0xqvsdn" sourceRef="Gateway_1jk4paz" targetRef="Event_1rpgkfs" />
     <bpmn:sequenceFlow id="Flow_1s3wsgo" sourceRef="Event_1rpgkfs" targetRef="Gateway_07tayzc" />
     <bpmn:serviceTask id="Activity_1e8hun9" name="Ask customer via chat" zeebe:modelerTemplate="io.camunda.chat.rest.reply.camunda-chat-admin-986421179728.europe-west1.run.app.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIKICAgICBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIxLjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIKICAgICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iQ2hhdCI+CiAgPCEtLSBidWJibGUgLS0+CiAgPHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE0IiByeD0iNCIgLz4KICA8IS0tIHRhaWwgLS0+CiAgPHBhdGggZD0iTTggMTdMNCAyMVYxNyIgLz4KICA8IS0tIGRvdHMgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjEwIiByPSIxLjIiIC8+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMS4yIiAvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMTAiIHI9IjEuMiIgLz4KPC9zdmc+">
       <bpmn:extensionElements>
@@ -163,9 +156,9 @@
           <zeebe:output source="={&#10;  status: &#34;success&#34;,&#10;  chat: message,&#10;  text: message.parts[count(message.parts)-1].content&#10;}" target="communicationResult" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1rc65b3</bpmn:incoming>
+      <bpmn:incoming>Flow_08arbij</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1rc65b3" sourceRef="Event_1po9h9l" targetRef="Event_1ia32kg" />
+    <bpmn:sequenceFlow id="Flow_1rc65b3" sourceRef="Event_1po9h9l" targetRef="Gateway_0jiq8zo" />
     <bpmn:subProcess id="Activity_1g8y74n" triggeredByEvent="true">
       <bpmn:startEvent id="Event_1x8wk5r" name="Timeout">
         <bpmn:extensionElements />
@@ -190,6 +183,25 @@
       <bpmn:outgoing>Flow_1rc65b3</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1f01yxv" messageRef="Message_0775ttq" />
     </bpmn:intermediateCatchEvent>
+    <bpmn:eventBasedGateway id="Gateway_1jk4paz">
+      <bpmn:incoming>Flow_1l70yuw</bpmn:incoming>
+      <bpmn:incoming>Flow_0k6evab</bpmn:incoming>
+      <bpmn:outgoing>Flow_0xqvsdn</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0wkuaim</bpmn:outgoing>
+    </bpmn:eventBasedGateway>
+    <bpmn:sequenceFlow id="Flow_0xqvsdn" sourceRef="Gateway_1jk4paz" targetRef="Event_1rpgkfs" />
+    <bpmn:sequenceFlow id="Flow_0wkuaim" sourceRef="Gateway_1jk4paz" targetRef="Event_1po9h9l" />
+    <bpmn:exclusiveGateway id="Gateway_0jiq8zo" name="Message completed?">
+      <bpmn:incoming>Flow_1rc65b3</bpmn:incoming>
+      <bpmn:outgoing>Flow_08arbij</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0k6evab</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_08arbij" name="yes" sourceRef="Gateway_0jiq8zo" targetRef="Event_1ia32kg">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=not(communicationContext.lastMessageId = message.id)</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0k6evab" name="no" sourceRef="Gateway_0jiq8zo" targetRef="Gateway_1jk4paz">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=communicationContext.lastMessageId = message.id</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmn:message id="Message_13dbg1w" name="1eb5b730-9ee5-4a89-9b93-f0a49323841e" zeebe:modelerTemplate="io.camunda.connectors.inbound.EmailIntermediate.v1">
     <bpmn:extensionElements>
@@ -263,15 +275,15 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1ia32kg_di" bpmnElement="Event_1ia32kg">
-        <dc:Bounds x="872" y="122" width="36" height="36" />
+        <dc:Bounds x="992" y="122" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="848" y="165" width="85" height="27" />
+          <dc:Bounds x="968" y="165" width="85" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1qxqyw5_di" bpmnElement="Event_1po9h9l">
-        <dc:Bounds x="772" y="122" width="36" height="36" />
+      <bpmndi:BPMNShape id="Gateway_0jiq8zo_di" bpmnElement="Gateway_0jiq8zo" isMarkerVisible="true">
+        <dc:Bounds x="865" y="115" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="745" y="166" width="90" height="27" />
+          <dc:Bounds x="862" y="172" width="57" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0x3jjpo_di" bpmnElement="Activity_1g8y74n" isExpanded="true">
@@ -293,6 +305,12 @@
         <di:waypoint x="716" y="690" />
         <di:waypoint x="772" y="690" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1qxqyw5_di" bpmnElement="Event_1po9h9l">
+        <dc:Bounds x="772" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="745" y="166" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0cugllz_di" bpmnElement="Event_0jyyu07">
         <dc:Bounds x="562" y="162" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -371,7 +389,23 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1rc65b3_di" bpmnElement="Flow_1rc65b3">
         <di:waypoint x="808" y="140" />
-        <di:waypoint x="872" y="140" />
+        <di:waypoint x="865" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08arbij_di" bpmnElement="Flow_08arbij">
+        <di:waypoint x="915" y="140" />
+        <di:waypoint x="992" y="140" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="945" y="122" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0k6evab_di" bpmnElement="Flow_0k6evab">
+        <di:waypoint x="890" y="115" />
+        <di:waypoint x="890" y="60" />
+        <di:waypoint x="690" y="60" />
+        <di:waypoint x="690" y="115" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="784" y="42" width="13" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

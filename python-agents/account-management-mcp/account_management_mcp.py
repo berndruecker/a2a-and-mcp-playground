@@ -278,7 +278,8 @@ MOCK_PRODUCTS = {
             "type": "mortgage", 
             "status": "active", 
             "principal": 250000.00
-        },
+        }
+    ],
     "CUST42": [
         {
             "product_id": "CHK042", 

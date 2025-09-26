@@ -165,6 +165,15 @@ MOCK_CUSTOMERS = {
         "address": "789 Pine St, Chicago, IL 60601",
         "kyc_status": "VERIFIED",
         "date_created": "2019-07-10"
+    },
+    "CUST42": {
+        "customer_id": "CUST42",
+        "name": "Bernd Ruecker",
+        "email": "bernd.it.depends.ruecker@gmail.com", 
+        "phone": "+1-555-0789",
+        "address": "789 Pine St, Chicago, IL 60601",
+        "kyc_status": "VERIFIED",
+        "date_created": "2019-07-10"
     }
 }
 
@@ -173,6 +182,7 @@ MOCK_IDENTIFIERS = {
     "ACC123456789": "CUST001",
     "ACC987654321": "CUST002", 
     "ACC555666777": "CUST003",
+    "ACC555666778": "CUST42",
     # Card numbers (last 4 digits for security)
     "****1234": "CUST001",
     "****5678": "CUST002",
@@ -180,7 +190,8 @@ MOCK_IDENTIFIERS = {
     # SWIFT/BIC codes (for international transfers)
     "CHASUS33": "CUST001",  # Chase Bank
     "BOFAUS3N": "CUST002",  # Bank of America
-    "CITIUS33": "CUST003"   # Citibank
+    "CITIUS33": "CUST003",  # Citibank
+    "BOFAUS3N": "CUST42"    # Bank of America
 }
 
 MOCK_PRODUCTS = {
@@ -267,6 +278,41 @@ MOCK_PRODUCTS = {
             "type": "mortgage", 
             "status": "active", 
             "principal": 250000.00
+        },
+    "CUST42": [
+        {
+            "product_id": "CHK042", 
+            "type": "checking_account", 
+            "status": "active", 
+            "balance": 5000.00,
+            "swift_code": "BOFAUS3N",
+            "bic_code": "BOFAUS3N",
+            "bank_name": "Bank of America",
+            "routing_number": "026009593",
+            "account_number": "ACC555666778"
+        },
+        {
+            "product_id": "CC042", 
+            "type": "credit_card", 
+            "status": "active", 
+            "limit": 15000.00
+        },
+        {
+            "product_id": "SAV042", 
+            "type": "savings_account", 
+            "status": "active", 
+            "balance": 50000.00,
+            "swift_code": "BOFAUS3N",
+            "bic_code": "BOFAUS3N",
+            "bank_name": "Bank of America",
+            "routing_number": "026009593",
+            "account_number": "SAV555666778"
+        },
+        {
+            "product_id": "MTG042", 
+            "type": "mortgage", 
+            "status": "active", 
+            "principal": 400000.00
         }
     ]
 }
@@ -276,12 +322,16 @@ ACCOUNT_STATUS = {
     "CHK001": "active",
     "CHK002": "active", 
     "CHK003": "frozen",
+    "CHK042": "active",
     "CC001": "active",
     "CC003": "active",
+    "CC042": "active",
     "SAV001": "active",
     "SAV003": "active",
+    "SAV042": "active",
     "LON001": "active",
-    "MTG001": "active"
+    "MTG001": "active",
+    "MTG042": "active"
 }
 
 # -----------------------------------------------------------------------------

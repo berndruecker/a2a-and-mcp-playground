@@ -82,7 +82,7 @@
         <zeebe:ioMapping>
           <zeebe:input source="b2c-credit-underwriting" target="taktileFlowSlug" />
           <zeebe:input source="" target="taktileFlowVersion" />
-          <zeebe:input source="={&#10;  &#34;data&#34;: {&#10;    &#34;uuid&#34;: &#34;282a839e-d68d-473a-8af0-8c234d6cf6b8&#34;,&#10;    &#34;last_name&#34;: loanApplication.lastName,&#10;    &#34;employment&#34;: &#34;Full-Time Employed&#34;,&#10;    &#34;first_name&#34;: loanApplication.firstName,&#10;    &#34;address_city&#34;: &#34;Anytown&#34;,&#10;    &#34;new_customer&#34;: loanApplication.newCustomer,&#10;    &#34;phone_number&#34;: &#34;(555) 010-2648&#34;,&#10;    &#34;address_state&#34;: &#34;OH&#34;,&#10;    &#34;date_of_birth&#34;: &#34;1988-03-14&#34;,&#10;    &#34;email_address&#34;: loanApplication.emailAddress,&#10;    &#34;yearly_income&#34;: 150000,&#10;    &#34;address_street&#34;: &#34;Pine Harbor Way&#34;,&#10;    &#34;requested_term&#34;: loanApplication.requestedTerm,&#10;    &#34;address_country&#34;: &#34;US&#34;,&#10;    &#34;amount_requested&#34;: loanApplication.amountRequested,&#10;    &#34;address_postal_code&#34;: &#34;43001&#34;,&#10;    &#34;address_street_number&#34;: &#34;4821&#34;,&#10;    &#34;social_security_number&#34;: &#34;000-00-0000&#34;&#10;  },&#10;    &#34;metadata&#34;: {&#10;    &#34;version&#34;: &#34;v1.0&#34;,&#10;    &#34;entity_id&#34;: &#34;11111&#34;&#10;  },&#10;  &#34;control&#34;: {&#10;    &#34;execution_mode&#34;: &#34;sync&#34;&#10;  }&#10;}" target="taktileFlowPayload" />
+          <zeebe:input source="={&#10;  data: {&#10;    uuid: &#34;282a839e-d68d-473a-8af0-8c234d6cf6b8&#34;,&#10;    last_name: loanApplication.lastName,&#10;    employment: &#34;Full-Time Employed&#34;,&#10;    first_name: loanApplication.firstName,&#10;    address_city: &#34;Anytown&#34;,&#10;    new_customer: loanApplication.newCustomer,&#10;    phone_number: &#34;(555) 010-2648&#34;,&#10;    address_state: &#34;OH&#34;,&#10;    date_of_birth: date(&#34;1988-03-14&#34;),&#10;    email_address: loanApplication.emailAddress,&#10;    yearly_income: 150000,&#10;    address_street: &#34;Pine Harbor Way&#34;,&#10;    requested_term: number(loanApplication.requestedTerm),&#10;    address_country: &#34;US&#34;,&#10;    amount_requested: number(loanApplication.amountRequested),&#10;    address_postal_code: &#34;43001&#34;,&#10;    address_street_number: &#34;4821&#34;,&#10;    social_security_number: &#34;000-00-0000&#34;&#10;  },&#10;  mock_data: {&#10;    Financial Insights Report: {&#10;      report: {&#10;        items: [&#10;          {&#10;            accounts: [&#10;              {&#10;                balances: { current: 1500 },&#10;                account_insights: {&#10;                  affordability: {&#10;                    income: {&#10;                      total_income: { amount: 3500 },&#10;                      transfers_in: { amount: 500 },&#10;                      income_excluding_transfers: { amount: 3000 }&#10;                    },&#10;                    expenditure: {&#10;                      cash_flow: { amount: 2800 },&#10;                      essential_expenditure: { amount: 2000 },&#10;                      non_essential_expenditure: { amount: 800 }&#10;                    }&#10;                  }&#10;                }&#10;              },&#10;              {&#10;                balances: { current: 2500 },&#10;                account_insights: {&#10;                  affordability: {&#10;                    income: {&#10;                      total_income: { amount: 4500 },&#10;                      transfers_in: { amount: 500 },&#10;                      income_excluding_transfers: { amount: 4000 }&#10;                    },&#10;                    expenditure: {&#10;                      cash_flow: { amount: 3500 },&#10;                      essential_expenditure: { amount: 2500 },&#10;                      non_essential_expenditure: { amount: 1000 }&#10;                    }&#10;                  }&#10;                }&#10;              }&#10;            ]&#10;          }&#10;        ],&#10;        days_requested: 90&#10;      }&#10;    },&#10;    Get Experian Consumer Credit Report: {&#10;      insights: {&#10;        fico_8_score: &#34;900&#34;,&#10;        fico_9_score: &#34;900&#34;,&#10;        vantage_4_score: &#34;600&#34;,&#10;        custom_attributes: {&#10;          mortgage_payments: 8,&#10;          bankruptcies_on_file: 2,&#10;          months_since_last_bankruptcy: 3,&#10;          outstanding_credit_card_balance: 7,&#10;          total_monthly_payment_on_all_trades: 6,&#10;          credit_card_inquiries_in_last_three_months: 1,&#10;          non_medical_collections_outstanding_balance: 4,&#10;          delinquent_or_derogatory_thirty_days_in_last_6_months: 5&#10;        },&#10;        provider_entity_id: null,&#10;        retrieval_datetime: date and time(&#34;2025-05-28T16:43:41.637+00:00&#34;),&#10;        number_of_inquiries: 4,&#10;        provider_request_id: &#34;string&#34;,&#10;        number_of_tradelines: 21,&#10;        clear_early_risk_score: &#34;400&#34;&#10;      }&#10;    }&#10;  },&#10;  metadata: {&#10;    version: &#34;v1.0&#34;,&#10;    entity_id: &#34;11111&#34;&#10;  },&#10;  control: {&#10;    execution_mode: &#34;sync&#34;&#10;  }&#10;}" target="taktileFlowPayload" />
           <zeebe:input target="taktileFlowEntityId" />
           <zeebe:input source="=false" target="taktileFlowExecutionModeAsync" />
           <zeebe:input source="sync" target="taktileFlowExecutionMode" />
@@ -123,6 +123,12 @@
   <bpmn:error id="Error_0hfnbee" name="TAKTILE_DECISION_PENDING" errorCode="TAKTILE_DECISION_PENDING" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="loan-application">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_ApplicationReceived">
+        <dc:Bounds x="182" y="112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="160" y="155" width="81" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1bd12u1_di" bpmnElement="Gateway_Approved" isMarkerVisible="true">
         <dc:Bounds x="855" y="105" width="50" height="50" />
         <bpmndi:BPMNLabel>
@@ -164,18 +170,24 @@
         <dc:Bounds x="530" y="240" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_ApplicationReceived">
-        <dc:Bounds x="182" y="112" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="160" y="155" width="81" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1ome58y_di" bpmnElement="Gateway_1oodnge">
         <dc:Bounds x="275" y="105" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1wbjxkq_di" bpmnElement="Event_1wbjxkq">
         <dc:Bounds x="692" y="262" width="36" height="36" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0dkro90_di" bpmnElement="Flow_0dkro90">
+        <di:waypoint x="218" y="130" />
+        <di:waypoint x="275" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qy3wod_di" bpmnElement="Flow_1qy3wod">
+        <di:waypoint x="470" y="130" />
+        <di:waypoint x="530" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04ewa7t_di" bpmnElement="Flow_04ewa7t">
+        <di:waypoint x="630" y="130" />
+        <di:waypoint x="690" y="130" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1oe26jq_di" bpmnElement="Flow_1oe26jq">
         <di:waypoint x="790" y="130" />
         <di:waypoint x="855" y="130" />
@@ -187,13 +199,9 @@
           <dc:Bounds x="929" y="112" width="18" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1f8qnem_di" bpmnElement="Flow_NotApproved">
-        <di:waypoint x="880" y="155" />
-        <di:waypoint x="880" y="240" />
-        <di:waypoint x="972" y="240" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="889" y="195" width="13" height="14" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNEdge id="Flow_09ppakv_di" bpmnElement="Flow_09ppakv">
+        <di:waypoint x="1070" y="130" />
+        <di:waypoint x="1140" y="130" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0vqriwu_di" bpmnElement="Flow_0vqriwu">
         <di:waypoint x="1240" y="130" />
@@ -203,21 +211,17 @@
         <di:waypoint x="1410" y="130" />
         <di:waypoint x="1482" y="130" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_09ppakv_di" bpmnElement="Flow_09ppakv">
-        <di:waypoint x="1070" y="130" />
-        <di:waypoint x="1140" y="130" />
+      <bpmndi:BPMNEdge id="Flow_1f8qnem_di" bpmnElement="Flow_NotApproved">
+        <di:waypoint x="880" y="155" />
+        <di:waypoint x="880" y="240" />
+        <di:waypoint x="972" y="240" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="889" y="195" width="13" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1msojg8_di" bpmnElement="Flow_1msojg8">
         <di:waypoint x="325" y="130" />
         <di:waypoint x="370" y="130" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1qy3wod_di" bpmnElement="Flow_1qy3wod">
-        <di:waypoint x="470" y="130" />
-        <di:waypoint x="530" y="130" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_04ewa7t_di" bpmnElement="Flow_04ewa7t">
-        <di:waypoint x="630" y="130" />
-        <di:waypoint x="690" y="130" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_007b2k7_di" bpmnElement="Flow_007b2k7">
         <di:waypoint x="300" y="155" />
@@ -227,10 +231,6 @@
       <bpmndi:BPMNEdge id="Flow_1owzmd3_di" bpmnElement="Flow_1owzmd3">
         <di:waypoint x="630" y="280" />
         <di:waypoint x="692" y="280" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0dkro90_di" bpmnElement="Flow_0dkro90">
-        <di:waypoint x="218" y="130" />
-        <di:waypoint x="275" y="130" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

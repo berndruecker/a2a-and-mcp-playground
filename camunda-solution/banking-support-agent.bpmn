@@ -235,7 +235,12 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=false</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:startEvent id="StartEvent_Chat" name="Customer support chat started" zeebe:modelerTemplate="io.camunda.chat.messageStart.2afef382-db76-4151-a6a3-079b58f0205f.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIKICAgICBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIxLjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIKICAgICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iQ2hhdCI+CiAgPCEtLSBidWJibGUgLS0+CiAgPHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE0IiByeD0iNCIgLz4KICA8IS0tIHRhaWwgLS0+CiAgPHBhdGggZD0iTTggMTdMNCAyMVYxNyIgLz4KICA8IS0tIGRvdHMgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjEwIiByPSIxLjIiIC8+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMS4yIiAvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMTAiIHI9IjEuMiIgLz4KPC9zdmc+">
-      <bpmn:extensionElements />
+      <bpmn:extensionElements>
+        <zeebe:ioMapping>
+          <zeebe:output source="={&#10;    &#34;subject&#34;: &#34;Chat Request&#34;,&#10;    &#34;request&#34;: message.parts[count(message.parts)].content,&#10;    &#34;originalMessageInFull&#34;: string join(message.parts.content, &#34;; &#34;),&#10;    &#34;communicationContext&#34;: {&#10;        &#34;channel&#34; : &#34;chat&#34;,&#10;        &#34;channelId&#34;: channelUUID,&#10;        &#34;emailAddress&#34;: &#34;bernd.it.depends.ruecker@gmail.com&#34;,&#10;        &#34;conversationId&#34;: conversationUUID,&#10;        &#34;lastMessageId&#34;: message.id&#10;    }&#10;}" target="supportCase" />
+          <zeebe:output source="=message" target="chatMessage" />
+        </zeebe:ioMapping>
+      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_1i0kcwv</bpmn:outgoing>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1tghb2x" messageRef="Message_026jxye" />
     </bpmn:startEvent>

@@ -77,7 +77,7 @@
         "columns": null
       },
       "id": "Field_0vusntr",
-      "key": "approvalDecision"
+      "key": "approved"
     }
   ],
   "type": "default",

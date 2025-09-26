@@ -10,13 +10,22 @@
       "id": "Field_1wpesvw"
     },
     {
-      "text": "### Customer\n\n### Loan\n\n### Risk assesment",
+      "text": "### Customer\n\n* ID: {{loanApplication.customerId}} \n* Name: {{loanApplication.firstName}} {{loanApplication.lastName}}\n* Email: {{loanApplication.emailAddress}}\n\n### Loan\n\n* Amount: {{loanApplication.amountRequested}}\n* Terms: {{loanApplication.requestedTerm}}",
       "type": "text",
       "layout": {
         "row": "Row_1xfilus",
         "columns": null
       },
       "id": "Field_1y01ls0"
+    },
+    {
+      "text": "### Risk assesment",
+      "type": "text",
+      "layout": {
+        "row": "Row_0maet2g",
+        "columns": null
+      },
+      "id": "Field_0jxn557"
     },
     {
       "label": "Risk class",
@@ -42,7 +51,7 @@
       "readonly": true
     },
     {
-      "text": "{{#if riskAssesmentResult.approval}}\nThis loan is recommended to be approved\n{{/if}}\n{{#if not(riskAssesmentResult.approval)}}\nThis loan is recommended to be **rejected**\n{{/if}}",
+      "text": "{{#if riskAssesmentResult.approval}}\nThis loan is recommended to be **approved**\n{{/if}}\n{{#if not(riskAssesmentResult.approval)}}\nThis loan is recommended to be **rejected**\n{{/if}}",
       "type": "text",
       "layout": {
         "row": "Row_04jhzak",

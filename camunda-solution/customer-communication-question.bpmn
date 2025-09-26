@@ -129,7 +129,7 @@
       <bpmn:outgoing>Flow_135fga9</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_135fga9" name="fallback to email" sourceRef="Gateway_07tayzc" targetRef="Reply_with_email_to_customer" />
-    <bpmn:sequenceFlow id="Flow_0hkpmky" name="Phone" sourceRef="Gateway_1y5hfxn" targetRef="Activity_0ndgmi5" />
+    <bpmn:sequenceFlow id="Flow_0hkpmky" name="Voice" sourceRef="Gateway_1y5hfxn" targetRef="Activity_0ndgmi5" />
     <bpmn:userTask id="Activity_0ndgmi5" name="Ask customer via phone">
       <bpmn:extensionElements>
         <zeebe:userTask />
@@ -177,12 +177,6 @@
       </bpmn:endEvent>
       <bpmn:sequenceFlow id="Flow_0jr6kf4" sourceRef="Event_1x8wk5r" targetRef="Event_1n38pub" />
     </bpmn:subProcess>
-    <bpmn:intermediateCatchEvent id="Event_1po9h9l" name="Customer response received" zeebe:modelerTemplate="io.camunda.chat.messageCatch.8814bbef-fba9-41fb-a59c-dcdcf5e44afe.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIKICAgICBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIxLjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIKICAgICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iQ2hhdCI+CiAgPCEtLSBidWJibGUgLS0+CiAgPHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE0IiByeD0iNCIgLz4KICA8IS0tIHRhaWwgLS0+CiAgPHBhdGggZD0iTTggMTdMNCAyMVYxNyIgLz4KICA8IS0tIGRvdHMgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjEwIiByPSIxLjIiIC8+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMS4yIiAvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMTAiIHI9IjEuMiIgLz4KPC9zdmc+">
-      <bpmn:extensionElements />
-      <bpmn:incoming>Flow_0wkuaim</bpmn:incoming>
-      <bpmn:outgoing>Flow_1rc65b3</bpmn:outgoing>
-      <bpmn:messageEventDefinition id="MessageEventDefinition_1f01yxv" messageRef="Message_0775ttq" />
-    </bpmn:intermediateCatchEvent>
     <bpmn:eventBasedGateway id="Gateway_1jk4paz">
       <bpmn:incoming>Flow_1l70yuw</bpmn:incoming>
       <bpmn:incoming>Flow_0k6evab</bpmn:incoming>
@@ -202,6 +196,12 @@
     <bpmn:sequenceFlow id="Flow_0k6evab" name="no" sourceRef="Gateway_0jiq8zo" targetRef="Gateway_1jk4paz">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=communicationContext.lastMessageId = message.id</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:intermediateCatchEvent id="Event_1po9h9l" name="Customer response received" zeebe:modelerTemplate="io.camunda.chat.messageCatch.2afef382-db76-4151-a6a3-079b58f0205f.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIKICAgICBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIxLjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIKICAgICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iQ2hhdCI+CiAgPCEtLSBidWJibGUgLS0+CiAgPHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE0IiByeD0iNCIgLz4KICA8IS0tIHRhaWwgLS0+CiAgPHBhdGggZD0iTTggMTdMNCAyMVYxNyIgLz4KICA8IS0tIGRvdHMgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjEwIiByPSIxLjIiIC8+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMS4yIiAvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMTAiIHI9IjEuMiIgLz4KPC9zdmc+">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_0wkuaim</bpmn:incoming>
+      <bpmn:outgoing>Flow_1rc65b3</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_143ufa7" messageRef="Message_1lwucfp" />
+    </bpmn:intermediateCatchEvent>
   </bpmn:process>
   <bpmn:message id="Message_13dbg1w" name="1eb5b730-9ee5-4a89-9b93-f0a49323841e" zeebe:modelerTemplate="io.camunda.connectors.inbound.EmailIntermediate.v1">
     <bpmn:extensionElements>
@@ -214,7 +214,12 @@
     </bpmn:extensionElements>
   </bpmn:message>
   <bpmn:error id="Error_07xvk80" name="ERROR_CHAT" errorCode="ERROR_CHAT" />
-  <bpmn:message id="Message_0775ttq" name="io.camunda.chat.message.8814bbef-fba9-41fb-a59c-dcdcf5e44afe" zeebe:modelerTemplate="io.camunda.chat.messageCatch.8814bbef-fba9-41fb-a59c-dcdcf5e44afe.v1">
+  <bpmn:message id="Message_0775ttq" name="io.camunda.chat.message.8814bbef-fba9-41fb-a59c-dcdcf5e44afe">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=communicationContext.conversationId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:message id="Message_1lwucfp" name="io.camunda.chat.message.2afef382-db76-4151-a6a3-079b58f0205f" zeebe:modelerTemplate="io.camunda.chat.messageCatch.2afef382-db76-4151-a6a3-079b58f0205f.v1">
     <bpmn:extensionElements>
       <zeebe:subscription correlationKey="=communicationContext.conversationId" />
     </bpmn:extensionElements>
@@ -249,9 +254,6 @@
           <dc:Bounds x="845" y="435" width="90" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0pdraov_di" bpmnElement="Gateway_1jk4paz">
-        <dc:Bounds x="665" y="115" width="50" height="50" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1rpgkfs_di" bpmnElement="Event_1rpgkfs">
         <dc:Bounds x="672" y="192" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -280,10 +282,10 @@
           <dc:Bounds x="968" y="165" width="85" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0jiq8zo_di" bpmnElement="Gateway_0jiq8zo" isMarkerVisible="true">
-        <dc:Bounds x="865" y="115" width="50" height="50" />
+      <bpmndi:BPMNShape id="Event_14672sj_di" bpmnElement="Event_1po9h9l">
+        <dc:Bounds x="772" y="122" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="862" y="172" width="57" height="27" />
+          <dc:Bounds x="745" y="166" width="90" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0x3jjpo_di" bpmnElement="Activity_1g8y74n" isExpanded="true">
@@ -305,10 +307,13 @@
         <di:waypoint x="716" y="690" />
         <di:waypoint x="772" y="690" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_1qxqyw5_di" bpmnElement="Event_1po9h9l">
-        <dc:Bounds x="772" y="122" width="36" height="36" />
+      <bpmndi:BPMNShape id="Gateway_0pdraov_di" bpmnElement="Gateway_1jk4paz">
+        <dc:Bounds x="665" y="115" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0jiq8zo_di" bpmnElement="Gateway_0jiq8zo" isMarkerVisible="true">
+        <dc:Bounds x="865" y="115" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="745" y="166" width="90" height="27" />
+          <dc:Bounds x="862" y="172" width="57" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0cugllz_di" bpmnElement="Event_0jyyu07">
@@ -348,14 +353,6 @@
         <di:waypoint x="610" y="140" />
         <di:waypoint x="665" y="140" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0wkuaim_di" bpmnElement="Flow_0wkuaim">
-        <di:waypoint x="715" y="140" />
-        <di:waypoint x="772" y="140" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0xqvsdn_di" bpmnElement="Flow_0xqvsdn">
-        <di:waypoint x="690" y="165" />
-        <di:waypoint x="690" y="192" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1s3wsgo_di" bpmnElement="Flow_1s3wsgo">
         <di:waypoint x="690" y="228" />
         <di:waypoint x="690" y="268" />
@@ -380,7 +377,7 @@
         <di:waypoint x="300" y="550" />
         <di:waypoint x="510" y="550" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="314" y="523" width="32" height="14" />
+          <dc:Bounds x="317" y="523" width="27" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0ibbtmp_di" bpmnElement="Flow_0ibbtmp">
@@ -390,6 +387,14 @@
       <bpmndi:BPMNEdge id="Flow_1rc65b3_di" bpmnElement="Flow_1rc65b3">
         <di:waypoint x="808" y="140" />
         <di:waypoint x="865" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0xqvsdn_di" bpmnElement="Flow_0xqvsdn">
+        <di:waypoint x="690" y="165" />
+        <di:waypoint x="690" y="192" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0wkuaim_di" bpmnElement="Flow_0wkuaim">
+        <di:waypoint x="715" y="140" />
+        <di:waypoint x="772" y="140" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_08arbij_di" bpmnElement="Flow_08arbij">
         <di:waypoint x="915" y="140" />

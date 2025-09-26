@@ -1,0 +1,507 @@
+{
+  "$schema": "https://unpkg.com/@camunda/zeebe-element-templates-json-schema/resources/schema.json",
+  "name": "Taktile Outbound Connector",
+  "id": "Template_0bg8owh",
+  "version": 125,
+  "description": "Invoke a Taktile DecisionFlow",
+  "metadata": {
+    "keywords": []
+  },
+  "documentationRef": "https://docs.camunda.io/docs/components/connectors/protocol/rest/",
+  "category": {
+    "id": "connectors",
+    "name": "Connectors"
+  },
+  "appliesTo": [
+    "bpmn:Task"
+  ],
+  "elementType": {
+    "value": "bpmn:ServiceTask"
+  },
+  "engines": {
+    "camunda": "^8.6"
+  },
+  "groups": [
+    {
+      "id": "taktile",
+      "label": "Taktile Parameters"
+    },
+    {
+      "id": "authentication",
+      "label": "Authentication"
+    },
+    {
+      "id": "endpoint",
+      "label": "HTTP endpoint"
+    },
+    {
+      "id": "timeout",
+      "label": "Connection timeout"
+    },
+    {
+      "id": "payload",
+      "label": "Payload"
+    },
+    {
+      "id": "connector",
+      "label": "Connector"
+    },
+    {
+      "id": "output",
+      "label": "Output mapping"
+    },
+    {
+      "id": "error",
+      "label": "Error handling"
+    },
+    {
+      "id": "retries",
+      "label": "Retries"
+    }
+  ],
+  "properties": [
+    {
+      "id": "taktileFlowSlug",
+      "label": "Flow Slug",
+      "description": "",
+      "type": "String",
+      "feel": "optional",
+      "group": "taktile",
+      "binding": {
+        "name": "taktileFlowSlug",
+        "type": "zeebe:input"
+      },
+      "optional": false,
+      "constraints": {
+        "notEmpty": true
+      }
+    },
+    {
+      "id": "taktileFlowVersion",
+      "label": "Decision Flow Version (Optional)",
+      "description": "If provided the matching version of the decision will be executed.",
+      "value": "",
+      "type": "String",
+      "feel": "optional",
+      "group": "taktile",
+      "binding": {
+        "name": "taktileFlowVersion",
+        "type": "zeebe:input"
+      }
+    },
+    {
+      "id": "taktileFlowPayload",
+      "label": "Payload",
+      "description": "This field represents the Input Schema defined in your specific Decision Flow version.",
+      "type": "Text",
+      "feel": "required",
+      "group": "taktile",
+      "binding": {
+        "name": "taktileFlowPayload",
+        "type": "zeebe:input"
+      },
+      "optional": false,
+      "constraints": {
+        "notEmpty": true
+      }
+    },
+    {
+      "id": "taktileFlowEntityId",
+      "label": "Entity Id (Optional)",
+      "description": "This field represents the Entity Id the decision will link to.",
+      "type": "String",
+      "feel": "optional",
+      "group": "taktile",
+      "binding": {
+        "name": "taktileFlowEntityId",
+        "type": "zeebe:input"
+      }
+    },
+    {
+      "id": "taktileFlowExecutionModeAsync",
+      "label": "Asynchronous Execution Mode",
+      "description": "Check for async execution. Either configure a loop to check the result or use a webhook after this activity.",
+      "type": "Boolean",
+      "group": "taktile",
+      "binding": {
+        "name": "taktileFlowExecutionModeAsync",
+        "type": "zeebe:input"
+      },
+      "value": false
+    },
+    {
+      "type": "Hidden",
+      "group": "taktile",
+      "binding": {
+        "name": "taktileFlowExecutionMode",
+        "type": "zeebe:input"
+      },
+      "condition": {
+        "property": "taktileFlowExecutionModeAsync",
+        "oneOf": [
+          "true"
+        ]
+      },
+      "value": "async"
+    },
+    {
+      "type": "Hidden",
+      "group": "taktile",
+      "binding": {
+        "name": "taktileFlowExecutionMode",
+        "type": "zeebe:input"
+      },
+      "condition": {
+        "property": "taktileFlowExecutionModeAsync",
+        "oneOf": [
+          "false"
+        ]
+      },
+      "value": "sync"
+    },
+    {
+      "value": "io.camunda:http-json:1",
+      "binding": {
+        "property": "type",
+        "type": "zeebe:taskDefinition"
+      },
+      "type": "Hidden"
+    },
+    {
+      "id": "authentication.type",
+      "label": "Type",
+      "description": "Choose the authentication type. Select 'None' if no authentication is necessary",
+      "value": "apiKey",
+      "group": "authentication",
+      "binding": {
+        "name": "authentication.type",
+        "type": "zeebe:input"
+      },
+      "type": "Hidden"
+    },
+    {
+      "id": "authentication.apiKeyLocation",
+      "label": "Api key location",
+      "description": "Choose type: Send API key in header or as query parameter.",
+      "value": "headers",
+      "group": "authentication",
+      "binding": {
+        "name": "authentication.apiKeyLocation",
+        "type": "zeebe:input"
+      },
+      "type": "Hidden"
+    },
+    {
+      "id": "authentication.name",
+      "label": "API key name",
+      "group": "authentication",
+      "binding": {
+        "name": "authentication.name",
+        "type": "zeebe:input"
+      },
+      "type": "Hidden",
+      "value": "x-api-key"
+    },
+    {
+      "id": "authentication.value",
+      "label": "API key value",
+      "group": "authentication",
+      "binding": {
+        "name": "authentication.value",
+        "type": "zeebe:input"
+      },
+      "type": "Hidden",
+      "value": "{{secrets.TAKTILE_API_KEY}}"
+    },
+    {
+      "id": "authentication.username",
+      "label": "Username",
+      "optional": false,
+      "constraints": {
+        "notEmpty": true
+      },
+      "feel": "optional",
+      "group": "authentication",
+      "binding": {
+        "name": "authentication.username",
+        "type": "zeebe:input"
+      },
+      "condition": {
+        "property": "authentication.type",
+        "equals": "basic",
+        "type": "simple"
+      },
+      "type": "String"
+    },
+    {
+      "id": "method",
+      "label": "Method",
+      "optional": false,
+      "value": "POST",
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "endpoint",
+      "binding": {
+        "name": "method",
+        "type": "zeebe:input"
+      },
+      "type": "Hidden",
+      "choices": [
+        {
+          "name": "POST",
+          "value": "POST"
+        },
+        {
+          "name": "GET",
+          "value": "GET"
+        },
+        {
+          "name": "DELETE",
+          "value": "DELETE"
+        },
+        {
+          "name": "PATCH",
+          "value": "PATCH"
+        },
+        {
+          "name": "PUT",
+          "value": "PUT"
+        }
+      ]
+    },
+    {
+      "id": "url",
+      "label": "URL",
+      "optional": false,
+      "constraints": {
+        "notEmpty": true,
+        "pattern": {
+          "value": "^(=|(http://|https://|secrets|\\{\\{).*$)",
+          "message": "Must be a http(s) URL"
+        }
+      },
+      "group": "endpoint",
+      "binding": {
+        "name": "url",
+        "type": "zeebe:input"
+      },
+      "type": "Hidden",
+      "value": "=\"{{secrets.TAKTILE_API_ROOT_URL}}\" + taktileFlowSlug + \"{{secrets.TAKTILE_ENVIRONMENT_URL_PART}}\""
+    },
+    {
+      "id": "headers",
+      "label": "Headers",
+      "description": "Map of HTTP headers to add to the request",
+      "optional": true,
+      "group": "endpoint",
+      "binding": {
+        "name": "headers",
+        "type": "zeebe:input"
+      },
+      "type": "Hidden"
+    },
+    {
+      "id": "queryParameters",
+      "label": "Query parameters",
+      "description": "Map of query parameters to add to the request URL",
+      "optional": true,
+      "group": "endpoint",
+      "binding": {
+        "name": "queryParameters",
+        "type": "zeebe:input"
+      },
+      "type": "Hidden"
+    },
+    {
+      "id": "storeResponse",
+      "label": "Store response",
+      "description": "Store the response as a document in the document store",
+      "optional": false,
+      "value": "=false",
+      "group": "endpoint",
+      "binding": {
+        "name": "storeResponse",
+        "type": "zeebe:input"
+      },
+      "type": "Hidden"
+    },
+    {
+      "id": "skipEncoding",
+      "label": "Skip URL encoding",
+      "description": "Skip the default URL decoding and encoding behavior",
+      "optional": true,
+      "group": "endpoint",
+      "binding": {
+        "name": "skipEncoding",
+        "type": "zeebe:input"
+      },
+      "type": "Hidden"
+    },
+    {
+      "id": "connectionTimeoutInSeconds",
+      "label": "Connection timeout in seconds",
+      "description": "Defines the connection timeout in seconds, or 0 for an infinite timeout",
+      "optional": false,
+      "value": "=20",
+      "constraints": {
+        "notEmpty": true,
+        "pattern": {
+          "value": "^\\d+$",
+          "message": "Must be a number"
+        }
+      },
+      "feel": "static",
+      "group": "timeout",
+      "binding": {
+        "name": "connectionTimeoutInSeconds",
+        "type": "zeebe:input"
+      },
+      "type": "Number"
+    },
+    {
+      "id": "readTimeoutInSeconds",
+      "label": "Read timeout in seconds",
+      "description": "Timeout in seconds to read data from an established connection or 0 for an infinite timeout",
+      "optional": false,
+      "value": "=20",
+      "constraints": {
+        "notEmpty": true,
+        "pattern": {
+          "value": "^\\d+$",
+          "message": "Must be a number"
+        }
+      },
+      "feel": "static",
+      "group": "timeout",
+      "binding": {
+        "name": "readTimeoutInSeconds",
+        "type": "zeebe:input"
+      },
+      "type": "Number"
+    },
+    {
+      "id": "body",
+      "label": "Request body",
+      "description": "Payload to send with the request",
+      "optional": true,
+      "group": "payload",
+      "binding": {
+        "name": "body",
+        "type": "zeebe:input"
+      },
+      "condition": {
+        "property": "method",
+        "oneOf": [
+          "POST",
+          "PUT",
+          "PATCH"
+        ],
+        "type": "simple"
+      },
+      "type": "Hidden",
+      "value": "={\n  data: taktileFlowPayload,\n  version: if taktileFlowVersion != \"\" then {\n    version: taktileFlowVersion\n    } else {},\n  entityId: \n  if taktileFlowEntityId != \"\" then {\n    entity_id: taktileFlowEntityId\n    } else {},\n  control: {\n    control:{\n    execution_mode: taktileFlowExecutionMode\n    }\n  },\n  metadata: {\n    metadata: context merge(version, entityId)\n    },\n  taktilePayload: context merge(data, metadata, control)\n}.taktilePayload"
+    },
+    {
+      "id": "ignoreNullValues",
+      "label": "Ignore null values",
+      "optional": false,
+      "value": "=false",
+      "group": "payload",
+      "binding": {
+        "name": "ignoreNullValues",
+        "type": "zeebe:input"
+      },
+      "tooltip": "Null values will not be sent",
+      "type": "Hidden"
+    },
+    {
+      "id": "version",
+      "label": "Version",
+      "description": "Version of the element template",
+      "value": "11",
+      "group": "connector",
+      "binding": {
+        "key": "elementTemplateVersion",
+        "type": "zeebe:taskHeader"
+      },
+      "type": "Hidden"
+    },
+    {
+      "id": "id",
+      "label": "ID",
+      "description": "ID of the element template",
+      "value": "io.camunda.connectors.HttpJson.v2",
+      "group": "connector",
+      "binding": {
+        "key": "elementTemplateId",
+        "type": "zeebe:taskHeader"
+      },
+      "type": "Hidden"
+    },
+    {
+      "id": "resultVariable",
+      "label": "Result variable",
+      "description": "Name of variable to store the Taktile response in",
+      "group": "output",
+      "binding": {
+        "key": "resultVariable",
+        "type": "zeebe:taskHeader"
+      },
+      "type": "String",
+      "value": "taktileResult"
+    },
+    {
+      "id": "resultExpression",
+      "label": "Result expression",
+      "description": "Expression to map the response into process variables\r\ne.g. {decision: response.body.data.decision}",
+      "feel": "required",
+      "group": "output",
+      "binding": {
+        "key": "resultExpression",
+        "type": "zeebe:taskHeader"
+      },
+      "type": "Text"
+    },
+    {
+      "id": "errorExpression",
+      "label": "Error expression",
+      "description": "Expression to handle errors. Details in the <a href=\"https://docs.camunda.io/docs/components/connectors/use-connectors/\" target=\"_blank\">documentation</a>.",
+      "feel": "required",
+      "group": "error",
+      "binding": {
+        "key": "errorExpression",
+        "type": "zeebe:taskHeader"
+      },
+      "type": "Text"
+    },
+    {
+      "id": "retryCount",
+      "label": "Retries",
+      "description": "Number of retries",
+      "value": "3",
+      "feel": "optional",
+      "group": "retries",
+      "binding": {
+        "property": "retries",
+        "type": "zeebe:taskDefinition"
+      },
+      "type": "String"
+    },
+    {
+      "id": "retryBackoff",
+      "label": "Retry backoff",
+      "description": "ISO-8601 duration to wait between retries",
+      "value": "PT0S",
+      "group": "retries",
+      "binding": {
+        "key": "retryBackoff",
+        "type": "zeebe:taskHeader"
+      },
+      "type": "String"
+    }
+  ],
+  "icon": {
+    "contents": "data:image/png;base64,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"
+  }
+}

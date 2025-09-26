@@ -1,0 +1,29 @@
+{
+  "$schema": "https://unpkg.com/@camunda/zeebe-element-templates-json-schema/resources/schema.json",
+  "name": "Camunda Chat • Message Start (Channel 2afef382-db76-4151-a6a3-079b58f0205f)",
+  "id": "io.camunda.chat.messageStart.2afef382-db76-4151-a6a3-079b58f0205f.v1",
+  "version": 1,
+  "description": "Starts when a chat message for this Channel arrives.",
+  "appliesTo": [
+    "bpmn:StartEvent"
+  ],
+  "elementType": {
+    "value": "bpmn:StartEvent",
+    "eventDefinition": "bpmn:MessageEventDefinition"
+  },
+  "entriesVisible": true,
+  "properties": [
+    {
+      "id": "msgName",
+      "type": "Hidden",
+      "value": "io.camunda.chat.message.2afef382-db76-4151-a6a3-079b58f0205f",
+      "binding": {
+        "type": "bpmn:Message#property",
+        "name": "name"
+      }
+    }
+  ],
+  "icon": {
+    "contents": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIKICAgICBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIxLjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIKICAgICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iQ2hhdCI+CiAgPCEtLSBidWJibGUgLS0+CiAgPHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE0IiByeD0iNCIgLz4KICA8IS0tIHRhaWwgLS0+CiAgPHBhdGggZD0iTTggMTdMNCAyMVYxNyIgLz4KICA8IS0tIGRvdHMgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjEwIiByPSIxLjIiIC8+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMS4yIiAvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMTAiIHI9IjEuMiIgLz4KPC9zdmc+"
+  }
+}

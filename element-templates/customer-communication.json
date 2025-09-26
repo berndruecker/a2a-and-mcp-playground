@@ -1,0 +1,59 @@
+{
+  "$schema": "https://unpkg.com/@camunda/zeebe-element-templates-json-schema/resources/schema.json",
+  "name": "Customer Communication",
+  "id": "CustomerCommunication",
+  "version": 1,
+  "description": "",
+  "category": {
+    "id": "templates",
+    "name": "Templates"
+  },
+  "icon": {
+    "contents": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iMTIwMHB0IiBoZWlnaHQ9IjEyMDBwdCIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMTIwMCAxMjAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogPHBhdGggZD0ibTExMTYuOSA2NTQuNjEtMjgxLjc2IDI4MS44MWMtMTEuMjAzIDExLjI1LTI5LjU3OCAxMS4yOTctNDAuODI4IDBsLTE0My4xNi0xNDMuMTEgMTg1LjY4LTYxLjU0N2MzNi41MTYtMTIuMDk0IDYzLjM3NS0zOC45NTMgNzUuNTE2LTc1LjUxNmw2MS41NDctMTg1LjYzIDE0My4wMiAxNDMuMTZjMTEuMzQ0IDExLjI1IDExLjM0NCAyOS41NzggMCA0MC44Mjh6bS03OTguMS00MDguNDJjNDEuNTc4IDAgNjIuNTMxIDUwLjUzMSAzMy4wOTQgNzkuOTIyLTI5LjQzOCAyOS40MzgtNzkuOTIyIDguNDM3NS03OS45MjItMzMuMDk0LTAuMDQ2ODc2LTI1Ljg3NSAyMC45NTMtNDYuODI4IDQ2LjgyOC00Ni44Mjh6bTI0My43NCAwYzQxLjU3OCAwIDYyLjUzMSA1MC41MzEgMzMuMDk0IDc5LjkyMi0yOS40MzggMjkuNDM4LTc5LjkyMiA4LjQzNzUtNzkuOTIyLTMzLjA5NC0wLjA0Njg3NS0yNS44NzUgMjAuOTUzLTQ2LjgyOCA0Ni44MjgtNDYuODI4em0tMTIxLjg3IDBjNDEuNTc4IDAgNjIuNTMxIDUwLjUzMSAzMy4wOTQgNzkuOTIyLTI5LjQzOCAyOS40MzgtNzkuOTIyIDguNDg0NC03OS45MjItMzMuMDk0LTAuMDQ2ODc1LTI1Ljg3NSAyMC45NTMtNDYuODI4IDQ2LjgyOC00Ni44Mjh6bTcyMy4xNCAzOTMuNTJ2LTExLjAxNmMtMS4yNjU2LTE1LjQyMi03LjczNDQtMzAuNTE2LTE5LjUtNDIuMjgxbC0xOTMuOTItMTkzLjkyYy0yNi4zOTEtMjYuMzQ0LTY5LjI4MS0yNi4zNDQtOTUuNjcyIDBsLTI4MS44MSAyODEuNzZjLTI2LjI5NyAyNi4zNDQtMjYuMjk3IDY5LjIzNCAwIDk1LjU3OGwxOTMuOTIgMTkzLjkyYzI2LjQzOCAyNi4zNDQgNjkuMjM0IDI2LjM0NCA5NS42NzIgMGwyODEuODEtMjgxLjc2YzExLjc2Ni0xMS43NjYgMTguMjgxLTI2Ljg1OSAxOS41LTQyLjI4MXptLTU2My40NCA2MS45MjJjLTExLjIwMyAxMS4yNS0xMS4yMDMgMjkuNjI1IDAgNDAuODc1bDIwLjE1NiAyMC4yMDMgMjA0LjA1LTY3LjY4OGMyNS4wMzEtOC4yOTY5IDQyLjYwOS0yNS45MjIgNTAuOTA2LTUwLjkwNmw2Ny42ODgtMjA0LjA1LTIwLjE1Ni0yMC4yMDNjLTExLjE1Ni0xMS4yNS0yOS42MjUtMTEuMjUtNDAuODI4IDB6bS05MC41NjIgMTcyLjIyIDk0Ljg3NSA5NC44MjhjMTkuNzM0IDE5LjczNCAxOS43MzQgNTEuODQ0IDAgNzEuNTc4bC00MC4yMTkgNDAuMjY2LTEuOTIxOSAxLjE3MTljLTUwLjYyNSAzMS4xNzItMTE3LjA1IDIzLjgxMi0xNzUuNjkgMi44NTk0LTEzOS44Ny00OS45MjItMjgyLjcxLTE5Mi43NC0zMzIuNjMtMzMyLjU4LTI1LjAzMS03MC4zMTItMjQuMDQ3LTEzMi42NiAyLjk1MzEtMTc1LjY5bDEuMTI1LTEuODI4MSA0MC4yMTktNDAuMzEyYzE5LjgyOC0xOS43MzQgNTEuOTM4LTE5LjczNCA3MS42MjUgMGw5NC43ODEgOTQuODI4YzE5LjgyOCAxOS43MzQgMTkuODI4IDUxLjg0NCAwIDcxLjU3OGwtMzYuMzc1IDM2LjQyMmMtOS4xODc1IDIyLjE3MiA4LjM5MDYgNzIuNDIyIDU0LjY1NiAxMTguNjQgNDYuMTI1IDQ2LjE3MiA5Ni40NjkgNjMuODQ0IDExOC41NSA1NC42MDlsMzYuNTE2LTM2LjQyMmMxOS43ODEtMTkuNzM0IDUxLjg0NC0xOS42NDEgNzEuNTMxIDAuMDQ2ODc1em0tMjc5Ljc0LTY4Ny4yOHYyMDkuNzJjMCAyNy44OTEgMjIuNzgxIDUwLjU3OCA1MC42NzIgNTAuNTc4aDU0LjE4OGMxMC42NDEgMCAxOS4yNjYgOC42NzE5IDE5LjI2NiAxOS4zNTl2ODIuNjQxYzAgOS44OTA2IDExLjA2MiAxNS40NjkgMTkuMDMxIDkuNzAzMWwxNDguOTItMTA4LjA1YzMuMjgxMi0yLjM5MDYgNy4yNjU2LTMuNjU2MiAxMS4zNDQtMy42NTYyaDY3LjIxOWMyNy44OTEgMCA1MC41NzgtMjIuNjg4IDUwLjU3OC01MC41NzhsLTAuMDQ2ODc1LTIwOS43MmMwLTI3Ljg5MS0yMi42ODgtNTAuNTMxLTUwLjU3OC01MC41MzFoLTMxOS45N2MtMjcuODQ0IDAtNTAuNjI1IDIyLjY0MS01MC42MjUgNTAuNTMxem01MC42MjUgMjk5LjAyaDM0Ljc4MXY2My4yODFjMCA0MS41NzggNDcuMDE2IDY1LjI5NyA4MC40ODQgNDEuMDE2bDE0My43Mi0xMDQuM2g2MC45ODRjNDkuMTcyIDAgODkuMjAzLTQwLjA3OCA4OS4yMDMtODkuMjk3bDAuMDQ2ODc1LTIwOS43MmMwLTQ5LjIxOS00MC4wMzEtODkuMjUtODkuMjAzLTg5LjI1aC0zMjAuMDJjLTQ5LjMxMiAwLTg5LjM0NCA0MC4wMzEtODkuMzQ0IDg5LjI1djIwOS43MmMwLjA0Njg3NSA0OS4yMTkgNDAuMDc4IDg5LjI5NyA4OS4zNDQgODkuMjk3eiIgZmlsbD0iIzAwNDQ5ZSIgZmlsbC1ydWxlPSJldmVub2RkIi8+Cjwvc3ZnPgo="
+  },
+  "appliesTo": [
+    "bpmn:CallActivity"
+  ],
+"properties": [
+    {
+      "label": "Called process (processId)",
+      "type": "Hidden",
+      "binding": {
+        "type": "zeebe:calledElement",
+        "property": "processId"
+      },
+      "value": "customer-communication"
+    },
+    {
+      "label": "Communication Context",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "communicationContext"
+      },
+      "optional": true,
+      "feel": "optional",
+      "value": ""
+    },
+    {
+      "label": "Communication Content",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "communicationContent"
+      },
+      "optional": true,
+      "feel": "optional"
+    },
+    {
+      "label": "Response variable name",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:output",
+        "source": "=response"
+      },
+      "feel": "optional",
+      "value": "communicationResponse"
+    }
+  ]  
+}

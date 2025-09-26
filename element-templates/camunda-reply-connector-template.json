@@ -1,0 +1,243 @@
+{
+  "$schema": "https://unpkg.com/@camunda/zeebe-element-templates-json-schema/resources/schema.json",
+  "name": "Camunda Chat • Reply",
+  "id": "io.camunda.chat.rest.reply.camunda-chat-admin-986421179728.europe-west1.run.app.v1",
+  "description": "Sends a reply message to a conversation in the Camunda chat.",
+  "version": 1,
+  "category": {
+    "id": "connectors",
+    "name": "Connectors"
+  },
+  "appliesTo": [
+    "bpmn:ServiceTask"
+  ],
+  "elementType": {
+    "value": "bpmn:ServiceTask"
+  },
+  "groups": [
+    {
+      "id": "endpoint",
+      "label": "Endpoint",
+      "openByDefault": true
+    },
+    {
+      "id": "ids",
+      "label": "Identifiers"
+    },
+    {
+      "id": "auth",
+      "label": "Authentication"
+    },
+    {
+      "id": "payload",
+      "label": "Payload"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced"
+    }
+  ],
+  "properties": [
+    {
+      "type": "Hidden",
+      "binding": {
+        "type": "zeebe:taskDefinition",
+        "property": "type"
+      },
+      "value": "io.camunda:http-json:1"
+    },
+    {
+      "type": "Hidden",
+      "binding": {
+        "type": "zeebe:taskDefinition",
+        "property": "retries"
+      },
+      "value": "3"
+    },
+    {
+      "id": "apiBaseUrl",
+      "label": "API base URL",
+      "group": "endpoint",
+      "type": "String",
+      "value": "https://camunda-chat-admin-986421179728.europe-west1.run.app/api/",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "apiBaseUrl"
+      },
+      "constraints": {
+        "notEmpty": true,
+        "pattern": {
+          "value": "^https?://.*",
+          "message": "Must start with http(s)://"
+        }
+      }
+    },
+    {
+      "id": "channelUUID",
+      "label": "Channel UUID",
+      "group": "ids",
+      "type": "String",
+      "feel": "optional",
+      "value": "=channelUUID",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "channelUUID"
+      },
+      "constraints": {
+        "notEmpty": true
+      }
+    },
+    {
+      "id": "conversationUUID",
+      "label": "Conversation UUID",
+      "group": "ids",
+      "type": "String",
+      "feel": "required",
+      "value": "=conversationUUID",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "conversationUUID"
+      },
+      "constraints": {
+        "notEmpty": true
+      }
+    },
+    {
+      "id": "authToken",
+      "label": "Bearer token",
+      "description": "Tip: prefer secrets, e.g. {{secrets.CHAT_BACKEND_TOKEN}}",
+      "group": "auth",
+      "type": "String",
+      "feel": "optional",
+      "value": "{{secrets.CHAT_BACKEND_SERVICE_TOKEN}}",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "authToken"
+      },
+      "constraints": {
+        "notEmpty": true
+      }
+    },
+    {
+      "id": "messageType",
+      "label": "Message type",
+      "group": "payload",
+      "type": "Dropdown",
+      "value": "text",
+      "choices": [
+        {
+          "name": "Reply",
+          "value": "text"
+        },
+        {
+          "name": "Thinking update",
+          "value": "thinking"
+        }
+      ],
+      "binding": {
+        "type": "zeebe:input",
+        "name": "messageType"
+      }
+    },
+    {
+      "id": "content",
+      "label": "Content",
+      "group": "payload",
+      "type": "Text",
+      "placeholder": "Write the text to send…",
+      "feel": "optional",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "content"
+      },
+      "constraints": {
+        "notEmpty": true
+      }
+    },
+    {
+      "id": "authentication",
+      "type": "Hidden",
+      "group": "auth",
+      "value": "={\"type\": \"bearer\", \"token\": authToken}",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "authentication"
+      }
+    },
+    {
+      "id": "method",
+      "type": "Hidden",
+      "value": "PUT",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "method"
+      }
+    },
+    {
+      "id": "url",
+      "type": "Hidden",
+      "value": "=apiBaseUrl + \"channels/\" + channelUUID + \"/conversations/\" + conversationUUID + \"/messages/\" + uuid()",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "url"
+      }
+    },
+    {
+      "id": "body",
+      "type": "Hidden",
+      "value": "={\"senderUsername\":\"Camunda\",\"parts\":[{\"type\": messageType, \"content\": content, \"position\": 0}]}",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "body"
+      }
+    },
+    {
+      "id": "storeResponse",
+      "type": "Hidden",
+      "value": "=false",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "storeResponse"
+      }
+    },
+    {
+      "id": "ignoreNullValues",
+      "type": "Hidden",
+      "value": "=false",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "ignoreNullValues"
+      }
+    },
+    {
+      "id": "connectionTimeoutInSeconds",
+      "type": "Hidden",
+      "value": "=20",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "connectionTimeoutInSeconds"
+      }
+    },
+    {
+      "id": "readTimeoutInSeconds",
+      "type": "Hidden",
+      "value": "=20",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "readTimeoutInSeconds"
+      }
+    },
+    {
+      "id": "retryBackoff",
+      "type": "Hidden",
+      "binding": {
+        "type": "zeebe:taskHeader",
+        "key": "retryBackoff"
+      },
+      "value": "PT0S"
+    }
+  ],
+  "icon": {
+    "contents": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIKICAgICBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIxLjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIKICAgICB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iQ2hhdCI+CiAgPCEtLSBidWJibGUgLS0+CiAgPHJlY3QgeD0iMyIgeT0iMyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE0IiByeD0iNCIgLz4KICA8IS0tIHRhaWwgLS0+CiAgPHBhdGggZD0iTTggMTdMNCAyMVYxNyIgLz4KICA8IS0tIGRvdHMgLS0+CiAgPGNpcmNsZSBjeD0iOCIgY3k9IjEwIiByPSIxLjIiIC8+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMS4yIiAvPgogIDxjaXJjbGUgY3g9IjE2IiBjeT0iMTAiIHI9IjEuMiIgLz4KPC9zdmc+"
+  }
+}

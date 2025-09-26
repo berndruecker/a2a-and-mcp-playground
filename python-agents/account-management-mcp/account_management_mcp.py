@@ -166,8 +166,8 @@ MOCK_CUSTOMERS = {
         "kyc_status": "VERIFIED",
         "date_created": "2019-07-10"
     },
-    "CUST42": {
-        "customer_id": "CUST42",
+    "42": {
+        "customer_id": "42",
         "name": "Bernd Ruecker",
         "email": "bernd.it.depends.ruecker@gmail.com", 
         "phone": "+1-555-0789",
@@ -182,7 +182,7 @@ MOCK_IDENTIFIERS = {
     "ACC123456789": "CUST001",
     "ACC987654321": "CUST002", 
     "ACC555666777": "CUST003",
-    "ACC555666778": "CUST42",
+    "ACC555666778": "42",
     # Card numbers (last 4 digits for security)
     "****1234": "CUST001",
     "****5678": "CUST002",
@@ -280,7 +280,7 @@ MOCK_PRODUCTS = {
             "principal": 250000.00
         }
     ],
-    "CUST42": [
+    "42": [
         {
             "product_id": "CHK042", 
             "type": "checking_account", 

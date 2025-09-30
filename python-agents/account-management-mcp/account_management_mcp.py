@@ -15,8 +15,18 @@ from urllib.parse import urljoin
 # -----------------------------------------------------------------------------
 # Logging
 # -----------------------------------------------------------------------------
-logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
+logging.basicConfig(level=logging.WARNING, format="%(asctime)s | %(levelname)s | %(name)s | %(message)s")
 log = logging.getLogger("account-support-mcp")
+
+# Demo-specific logger for business operations
+demo_log = logging.getLogger("account-support-demo")
+demo_log.setLevel(logging.INFO)
+
+# Create separate handler for demo logs with clean format
+demo_handler = logging.StreamHandler()
+demo_handler.setFormatter(logging.Formatter("🏦 DEMO | %(message)s"))
+demo_log.addHandler(demo_handler)
+demo_log.propagate = False  # Don't propagate to root logger
 
 def _short(obj: Any, maxlen: int = 500) -> str:
     try:
@@ -191,7 +201,9 @@ MOCK_IDENTIFIERS = {
     "CHASUS33": "CUST001",  # Chase Bank
     "BOFAUS3N": "CUST002",  # Bank of America
     "CITIUS33": "CUST003",  # Citibank
-    "BOFAUS3N": "CUST42"    # Bank of America
+    "BOFAUS3N": "CUST42",    # Bank of America
+    # Special demo identifier for customer 42
+    "42": "42"
 }
 
 MOCK_PRODUCTS = {
@@ -340,57 +352,78 @@ ACCOUNT_STATUS = {
 # -----------------------------------------------------------------------------
 def search_customer(identifier: str) -> Dict[str, Any]:
     """Search for customer by account number, card number, or SWIFT/BIC code"""
+    demo_log.info("🔍 Searching customer with identifier: %s", identifier)
+    
     customer_id = MOCK_IDENTIFIERS.get(identifier)
     if not customer_id:
-        return {
+        result = {
             "success": False,
             "error": "Customer not found",
             "identifier": identifier
         }
+        demo_log.info("❌ Customer search failed: %s", result["error"])
+        return result
     
-    return {
+    result = {
         "success": True,
         "customer_id": customer_id,
         "identifier": identifier,
         "timestamp": datetime.now().isoformat()
     }
+    demo_log.info("✅ Customer found: ID=%s", customer_id)
+    return result
 
 def get_customer_profile(customer_id: str) -> Dict[str, Any]:
     """Get customer profile information"""
+    demo_log.info("👤 Getting profile for customer: %s", customer_id)
+    
     customer = MOCK_CUSTOMERS.get(customer_id)
     if not customer:
-        return {
+        result = {
             "success": False,
             "error": "Customer not found",
             "customer_id": customer_id
         }
+        demo_log.info("❌ Profile lookup failed: %s", result["error"])
+        return result
     
-    return {
+    result = {
         "success": True,
         **customer,
         "timestamp": datetime.now().isoformat()
     }
+    demo_log.info("✅ Profile retrieved: %s (%s)", customer["name"], customer["email"])
+    return result
 
 def get_active_products(customer_id: str) -> Dict[str, Any]:
     """Get list of active products for customer"""
+    demo_log.info("🏦 Getting products for customer: %s", customer_id)
+    
     products = MOCK_PRODUCTS.get(customer_id, [])
     if not products:
-        return {
+        result = {
             "success": False,
             "error": "No products found for customer",
             "customer_id": customer_id
         }
+        demo_log.info("❌ No products found for customer: %s", customer_id)
+        return result
     
-    return {
+    result = {
         "success": True,
         "customer_id": customer_id,
         "products": products,
         "total_products": len(products),
         "timestamp": datetime.now().isoformat()
     }
+    product_types = [p["type"] for p in products]
+    demo_log.info("✅ Found %d products: %s", len(products), ", ".join(product_types))
+    return result
 
 def get_banking_details(account_id: str) -> Dict[str, Any]:
     """Get banking details including SWIFT/BIC codes for an account"""
+    demo_log.info("🏦 Getting banking details for account: %s", account_id)
+    
     # Find the account across all customers
     for customer_id, products in MOCK_PRODUCTS.items():
         for product in products:
@@ -408,27 +441,36 @@ def get_banking_details(account_id: str) -> Dict[str, Any]:
                         "account_number": product.get("account_number"),
                         "balance": product.get("balance", 0.00)
                     }
-                    return {
+                    result = {
                         "success": True,
                         "banking_details": banking_details,
                         "timestamp": datetime.now().isoformat()
                     }
+                    demo_log.info("✅ Banking details retrieved: %s at %s (SWIFT: %s)", 
+                                account_id, banking_details["bank_name"], banking_details["swift_code"])
+                    return result
                 else:
-                    return {
+                    result = {
                         "success": False,
                         "error": "Account type does not support international transfers",
                         "account_id": account_id,
                         "account_type": product["type"]
                     }
+                    demo_log.info("❌ Banking details failed: %s", result["error"])
+                    return result
     
-    return {
+    result = {
         "success": False,
         "error": "Account not found",
         "account_id": account_id
     }
+    demo_log.info("❌ Banking details failed: %s", result["error"])
+    return result
 
 def search_by_swift_bic(swift_bic_code: str) -> Dict[str, Any]:
     """Search for accounts by SWIFT or BIC code"""
+    demo_log.info("🔍 Searching accounts by SWIFT/BIC code: %s", swift_bic_code)
+    
     matching_accounts = []
     
     for customer_id, products in MOCK_PRODUCTS.items():
@@ -450,19 +492,25 @@ def search_by_swift_bic(swift_bic_code: str) -> Dict[str, Any]:
                 matching_accounts.append(account_info)
     
     if not matching_accounts:
-        return {
+        result = {
             "success": False,
             "error": "No accounts found for SWIFT/BIC code",
             "swift_bic_code": swift_bic_code
         }
+        demo_log.info("❌ No accounts found for SWIFT/BIC: %s", swift_bic_code)
+        return result
     
-    return {
+    result = {
         "success": True,
         "swift_bic_code": swift_bic_code,
         "matching_accounts": matching_accounts,
         "total_accounts": len(matching_accounts),
         "timestamp": datetime.now().isoformat()
     }
+    customer_names = [acc["customer_name"] for acc in matching_accounts]
+    demo_log.info("✅ Found %d accounts for SWIFT/BIC %s: %s", 
+                len(matching_accounts), swift_bic_code, ", ".join(customer_names))
+    return result
 
 
 
@@ -471,12 +519,16 @@ def search_by_swift_bic(swift_bic_code: str) -> Dict[str, Any]:
 # -----------------------------------------------------------------------------
 def freeze_account(account_id: str) -> Dict[str, Any]:
     """Freeze a customer account"""
+    demo_log.info("🧊 Freezing account: %s", account_id)
+    
     if account_id not in ACCOUNT_STATUS:
-        return {
+        result = {
             "success": False,
             "error": "Account not found",
             "account_id": account_id
         }
+        demo_log.info("❌ Account freeze failed: %s", result["error"])
+        return result
     
     ACCOUNT_STATUS[account_id] = "frozen"
     
@@ -487,7 +539,7 @@ def freeze_account(account_id: str) -> Dict[str, Any]:
                 product["status"] = "frozen"
                 break
     
-    return {
+    result = {
         "success": True,
         "account_id": account_id,
         "action": "freeze",
@@ -495,15 +547,21 @@ def freeze_account(account_id: str) -> Dict[str, Any]:
         "timestamp": datetime.now().isoformat(),
         "reference_id": f"FRZ-{uuid.uuid4().hex[:8].upper()}"
     }
+    demo_log.info("✅ Account frozen successfully: %s (Reference: %s)", account_id, result["reference_id"])
+    return result
 
 def unfreeze_account(account_id: str) -> Dict[str, Any]:
     """Unfreeze a customer account"""
+    demo_log.info("🔓 Unfreezing account: %s", account_id)
+    
     if account_id not in ACCOUNT_STATUS:
-        return {
+        result = {
             "success": False,
             "error": "Account not found", 
             "account_id": account_id
         }
+        demo_log.info("❌ Account unfreeze failed: %s", result["error"])
+        return result
     
     ACCOUNT_STATUS[account_id] = "active"
     
@@ -514,7 +572,7 @@ def unfreeze_account(account_id: str) -> Dict[str, Any]:
                 product["status"] = "active"
                 break
     
-    return {
+    result = {
         "success": True,
         "account_id": account_id,
         "action": "unfreeze",
@@ -522,21 +580,27 @@ def unfreeze_account(account_id: str) -> Dict[str, Any]:
         "timestamp": datetime.now().isoformat(),
         "reference_id": f"UFZ-{uuid.uuid4().hex[:8].upper()}"
     }
+    demo_log.info("✅ Account unfrozen successfully: %s (Reference: %s)", account_id, result["reference_id"])
+    return result
 
 def reset_password(customer_id: str) -> Dict[str, Any]:
     """Reset customer password"""
+    demo_log.info("🔑 Resetting password for customer: %s", customer_id)
+    
     customer = MOCK_CUSTOMERS.get(customer_id)
     if not customer:
-        return {
+        result = {
             "success": False,
             "error": "Customer not found",
             "customer_id": customer_id
         }
+        demo_log.info("❌ Password reset failed: %s", result["error"])
+        return result
     
     # Generate temporary password
     temp_password = f"TEMP-{uuid.uuid4().hex[:8].upper()}"
     
-    return {
+    result = {
         "success": True,
         "customer_id": customer_id,
         "action": "password_reset",
@@ -545,21 +609,27 @@ def reset_password(customer_id: str) -> Dict[str, Any]:
         "timestamp": datetime.now().isoformat(),
         "reference_id": f"PWD-{uuid.uuid4().hex[:8].upper()}"
     }
+    demo_log.info("✅ Password reset successfully: %s (Reference: %s)", customer_id, result["reference_id"])
+    return result
 
 def update_address(customer_id: str, new_address: str) -> Dict[str, Any]:
     """Update customer address"""
+    demo_log.info("🏠 Updating address for customer: %s", customer_id)
+    
     customer = MOCK_CUSTOMERS.get(customer_id)
     if not customer:
-        return {
+        result = {
             "success": False,
             "error": "Customer not found",
             "customer_id": customer_id
         }
+        demo_log.info("❌ Address update failed: %s", result["error"])
+        return result
     
     old_address = customer["address"]
     customer["address"] = new_address
     
-    return {
+    result = {
         "success": True,
         "customer_id": customer_id,
         "action": "address_update",
@@ -568,6 +638,8 @@ def update_address(customer_id: str, new_address: str) -> Dict[str, Any]:
         "timestamp": datetime.now().isoformat(),
         "reference_id": f"ADR-{uuid.uuid4().hex[:8].upper()}"
     }
+    demo_log.info("✅ Address updated successfully: %s (Reference: %s)", customer_id, result["reference_id"])
+    return result
 
 # -----------------------------------------------------------------------------
 # MCP Tool Registry
@@ -730,11 +802,13 @@ def tools_call_result(name: Optional[str], arguments: Dict[str, Any]):
         return mcp_tool_error(f"Unknown tool: {name}")
     
     impl, _ = TOOL_REGISTRY[name]
-    log.info("tools/call name=%s args=%s", name, _short(arguments))
+    # Business method execution - logging handled in business methods
+    log.debug("tools/call name=%s args=%s", name, _short(arguments))
     
     try:
         result = impl(arguments or {})
-        log.info("tools/call result name=%s result=%s", name, _short(result))
+        # Business method result - logging handled in business methods
+        log.debug("tools/call result name=%s result=%s", name, _short(result))
         return mcp_tool_success(result)
     except Exception as e:
         log.exception("tools/call failed name=%s args=%s", name, _short(arguments))
@@ -746,7 +820,7 @@ def tools_call_result(name: Optional[str], arguments: Dict[str, Any]):
 def handle_method(method: str, params: Dict[str, Any], id_) -> Optional[Dict[str, Any]]:
     try:
         if method == "initialize":
-            log.info("rpc initialize id=%s params=%s", id_, _short(params))
+            log.debug("rpc initialize id=%s params=%s", id_, _short(params))
             client_version = params.get("protocolVersion") or MCP_PROTOCOL_VERSION
             return jrpc_result(id_, {
                 "protocolVersion": client_version,
@@ -759,23 +833,28 @@ def handle_method(method: str, params: Dict[str, Any], id_) -> Optional[Dict[str
             })
 
         if method == "notifications/initialized":
-            log.info("rpc notification: %s params=%s (no response)", method, _short(params))
+            log.debug("rpc notification: %s params=%s (no response)", method, _short(params))
             return None
 
         if method == "ping":
-            log.info("rpc ping id=%s", id_)
+            log.debug("rpc ping id=%s", id_)
             return jrpc_result(id_, {})
 
         if method == "tools/list":
-            log.info("rpc tools/list id=%s", id_)
+            log.debug("rpc tools/list id=%s", id_)
             result = tools_list_result(params.get("cursor"))
-            log.info("rpc tools/list result=%s", _short(result))
+            
+            # Demo logging: Show available tools
+            tool_names = [tool["name"] for tool in result["tools"]]
+            demo_log.info("Available tools: %s", ", ".join(tool_names))
+            
+            log.debug("rpc tools/list result=%s", _short(result))
             return jrpc_result(id_, result)
 
         if method == "tools/call":
             tool_name = params.get("name")
             arguments = params.get("arguments", {})
-            log.info("rpc tools/call id=%s name=%s args=%s", id_, tool_name, _short(arguments))
+            log.debug("rpc tools/call id=%s name=%s args=%s", id_, tool_name, _short(arguments))
             result = tools_call_result(tool_name, arguments)
             return jrpc_result(id_, result)
 
@@ -808,7 +887,7 @@ async def notify_tools_refresh(session_id: str):
         raise HTTPException(404, "Unknown session")
     note = {"jsonrpc": "2.0", "method": "tools/list_changed"}
     await q.put(("message", json.dumps(note)))
-    log.info("sent tools/list_changed to session=%s", session_id)
+    log.debug("sent tools/list_changed to session=%s", session_id)
     return {"ok": True}
 
 # -----------------------------------------------------------------------------
@@ -823,7 +902,7 @@ async def sse_stream(request: Request, origin: Optional[str] = Header(None)):
     base = external_base_url(request)
     inbox_abs = urljoin(base, f"inbox/{session_id}")
     await queue.put(("endpoint", inbox_abs))
-    log.info("SSE connected session=%s endpoint=%s origin=%s", session_id, inbox_abs, origin)
+    log.debug("SSE connected session=%s endpoint=%s origin=%s", session_id, inbox_abs, origin)
 
     async def event_generator():
         try:
@@ -833,7 +912,7 @@ async def sse_stream(request: Request, origin: Optional[str] = Header(None)):
                 yield {"event": event, "data": data}
         finally:
             SESSIONS.pop(session_id, None)
-            log.info("SSE closed session=%s", session_id)
+            log.debug("SSE closed session=%s", session_id)
 
     return EventSourceResponse(event_generator(), ping=SSE_PING_SECONDS)
 
@@ -861,7 +940,7 @@ async def inbox(session_id: str, request: Request, origin: Optional[str] = Heade
     params = body.get("params", {})
     is_notification = msg_id is None
 
-    log.info("inbox recv session=%s id=%s method=%s params=%s", session_id, msg_id, method, _short(params))
+    log.debug("inbox recv session=%s id=%s method=%s params=%s", session_id, msg_id, method, _short(params))
 
     response = handle_method(method, params, msg_id)
 
@@ -871,7 +950,7 @@ async def inbox(session_id: str, request: Request, origin: Optional[str] = Heade
     try:
         payload = json.dumps(response)
         await SESSIONS[session_id].put(("message", payload))
-        log.info("inbox ack->sse session=%s id=%s method=%s result=%s", session_id, msg_id, method, _short(response, 600))
+        log.debug("inbox ack->sse session=%s id=%s method=%s result=%s", session_id, msg_id, method, _short(response, 600))
     except asyncio.QueueFull:
         log.warning("inbox queue-full session=%s dropping one message", session_id)
         try:

@@ -60,32 +60,6 @@
         <bpmn:incoming>Flow_0j63wm9</bpmn:incoming>
         <bpmn:incoming>Flow_0lexqwn</bpmn:incoming>
       </bpmn:intermediateThrowEvent>
-      <bpmn:serviceTask id="Task_Final_answer_to_customer_and_close_support" name="Send final&#10;answer to customer (before case closing)" zeebe:modelerTemplate="io.camunda.connectors.email.v1" zeebe:modelerTemplateVersion="2" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzkwXzI0MjApIj4KPHBhdGggZD0iTTguMzM4MzUgOS45NTM2NUwxMC4zODk0IDEyLjAxMDRMOC4zMzI2MiAxNC4wNjcyTDkuMTQ2MTYgMTQuODc1TDEyLjAxMDcgMTIuMDEwNEw5LjE0NjE2IDkuMTQ1ODNMOC4zMzgzNSA5Ljk1MzY1WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEyLjM0ODggOS45NTM2NUwxNC4zOTk4IDEyLjAxMDRMMTIuMzQzIDE0LjA2NzJMMTMuMTU2NiAxNC44NzVMMTYuMDIxMiAxMi4wMTA0TDEzLjE1NjYgOS4xNDU4M0wxMi4zNDg4IDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMy45NzIgMTEuNDM3NUgxLjEyNTMzVjIuNzkyMTlMNy42NzM3NiA3LjMyMzk2QzcuNzY5NjcgNy4zOTA0OSA3Ljg4MzYgNy40MjYxNCA4LjAwMDMyIDcuNDI2MTRDOC4xMTcwNSA3LjQyNjE0IDguMjMwOTggNy4zOTA0OSA4LjMyNjg5IDcuMzIzOTZMMTQuODc1MyAyLjc5MjE5VjhIMTYuMDIxMlYyLjI3MDgzQzE2LjAyMTIgMS45NjY5NCAxNS45MDA0IDEuNjc1NDkgMTUuNjg1NiAxLjQ2MDYxQzE1LjQ3MDcgMS4yNDU3MiAxNS4xNzkyIDEuMTI1IDE0Ljg3NTMgMS4xMjVIMS4xMjUzM0MwLjgyMTQzMiAxLjEyNSAwLjUyOTk4NCAxLjI0NTcyIDAuMzE1MDk5IDEuNDYwNjFDMC4xMDAyMTQgMS42NzU0OSAtMC4wMjA1MDc4IDEuOTY2OTQgLTAuMDIwNTA3OCAyLjI3MDgzVjExLjQzNzVDLTAuMDIwNTA3OCAxMS43NDE0IDAuMTAwMjE0IDEyLjAzMjggMC4zMTUwOTkgMTIuMjQ3N0MwLjUyOTk4NCAxMi40NjI2IDAuODIxNDMyIDEyLjU4MzMgMS4xMjUzMyAxMi41ODMzSDMuOTcyVjExLjQzNzVaTTEzLjYxNDkgMi4yNzA4M0w4LjAwMDMyIDYuMTU1MjFMMi4zODU3NCAyLjI3MDgzSDEzLjYxNDlaIiBmaWxsPSIjRkM1RDBEIi8+CjxwYXRoIGQ9Ik00LjI4MjEgOS45NTM2NUw2LjMzMzE0IDEyLjAxMDRMNC4yNzYzNyAxNC4wNjcyTDUuMDg5OTEgMTQuODc1TDcuOTU0NDkgMTIuMDEwNEw1LjA4OTkxIDkuMTQ1ODNMNC4yODIxIDkuOTUzNjVaIiBmaWxsPSJibGFjayIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzkwXzI0MjAiPgo8cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==">
-        <bpmn:documentation>Use this activity always to reply with a final email to customer before closing the request</bpmn:documentation>
-        <bpmn:extensionElements>
-          <zeebe:taskDefinition type="io.camunda:email:1" retries="3" />
-          <zeebe:ioMapping>
-            <zeebe:input source="simple" target="authentication.type" />
-            <zeebe:input source="demo.agent.camunda@gmail.com" target="authentication.username" />
-            <zeebe:input source="{{secrets.CCON_KEYNOTE_AGENT_GMAIL}}" target="authentication.password" />
-            <zeebe:input source="smtp" target="protocol" />
-            <zeebe:input source="smtp.gmail.com" target="data.smtpConfig.smtpHost" />
-            <zeebe:input source="=587" target="data.smtpConfig.smtpPort" />
-            <zeebe:input source="TLS" target="data.smtpConfig.smtpCryptographicProtocol" />
-            <zeebe:input source="sendEmailSmtp" target="data.smtpActionDiscriminator" />
-            <zeebe:input source="demo.agent.camunda@gmail.com" target="data.smtpAction.from" />
-            <zeebe:input source="=currentEmail.fromAddress" target="data.smtpAction.to" />
-            <zeebe:input source="={&#10;  &#34;In-Reply-To&#34;: currentEmail.messageId&#10;}" target="data.smtpAction.headers" />
-            <zeebe:input source="=&#34;RE: &#34; + currentEmail.subject" target="data.smtpAction.subject" />
-            <zeebe:input source="PLAIN" target="data.smtpAction.contentType" />
-            <zeebe:input source="=fromAi(toolCall.emailContent, &#34;The email text content to reply the customer&#34;)" target="data.smtpAction.body" />
-          </zeebe:ioMapping>
-          <zeebe:taskHeaders>
-            <zeebe:header key="resultVariable" value="ourReplyEmail" />
-            <zeebe:header key="retryBackoff" value="PT0S" />
-          </zeebe:taskHeaders>
-        </bpmn:extensionElements>
-      </bpmn:serviceTask>
       <bpmn:exclusiveGateway id="Gateway_1g2difp" name="Who keeps control?">
         <bpmn:incoming>Flow_1aaxb1w</bpmn:incoming>
         <bpmn:outgoing>Flow_0acq6om</bpmn:outgoing>
@@ -530,7 +504,7 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="loan-support-agent">
       <bpmndi:BPMNShape id="Activity_0icwfki_di" bpmnElement="Subprocess_AvailableTools" isExpanded="true">
-        <dc:Bounds x="510" y="140" width="960" height="740" />
+        <dc:Bounds x="510" y="140" width="960" height="640" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1338851_di" bpmnElement="UserTask_Ask_a_specialist">
         <dc:Bounds x="555" y="410" width="100" height="80" />
@@ -554,10 +528,6 @@
           <dc:Bounds x="1091" y="395" width="49" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0brhpp8" bpmnElement="Task_Final_answer_to_customer_and_close_support">
-        <dc:Bounds x="965" y="240" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_0x6ayre" bpmnElement="Gateway_1g2difp" isMarkerVisible="true">
         <dc:Bounds x="690" y="425" width="50" height="50" />
         <bpmndi:BPMNLabel>
@@ -569,10 +539,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="679" y="588" width="73" height="27" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1e6qfq0" bpmnElement="UserTask_book_loan_appointment">
-        <dc:Bounds x="1205" y="240" width="100" height="80" />
-        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_068tr1l_di" bpmnElement="Task_LoadAvailableHomeLoanProducts">
         <dc:Bounds x="555" y="650" width="100" height="80" />
@@ -610,15 +576,19 @@
         <dc:Bounds x="710" y="240" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1donvs6_di" bpmnElement="CallActivity_LoanApplication">
-        <dc:Bounds x="555" y="760" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0atu2xn_di" bpmnElement="Task_AdjustLoanScheduleInSAP">
         <dc:Bounds x="980" y="650" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_1l2y53l" bpmnElement="Task_LoadAvailableConsumerLoanProducts">
         <dc:Bounds x="690" y="650" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1e6qfq0" bpmnElement="UserTask_book_loan_appointment">
+        <dc:Bounds x="920" y="240" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1donvs6_di" bpmnElement="CallActivity_LoanApplication">
+        <dc:Bounds x="1170" y="240" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_0obdo5z" bpmnElement="Event_1wezv96">

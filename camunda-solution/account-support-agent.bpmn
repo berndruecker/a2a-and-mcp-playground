@@ -9,23 +9,26 @@
         <zeebe:taskDefinition type="io.camunda.agenticai:aiagent-job-worker:1" retries="3" />
         <zeebe:ioMapping>
           <zeebe:input target="toolCallResults" />
-          <zeebe:input source="openai" target="provider.type" />
-          <zeebe:input source="{{secrets.OPEN_API_KEY}}" target="provider.openai.authentication.apiKey" />
-          <zeebe:input source="{{secrets.OPEN_API_ORG}}" target="provider.openai.authentication.organizationId" />
-          <zeebe:input source="{{secrets.OPEN_API_PROJ}}" target="provider.openai.authentication.projectId" />
-          <zeebe:input source="gpt-5" target="provider.openai.model.model" />
-          <zeebe:input source="=10000" target="provider.openai.model.parameters.maxCompletionTokens" />
-          <zeebe:input source="=&#34;You are TaskAgent, a helpful chat agent that handles customer conversations using domain knowledge and the tools provided at runtime.&#10;&#10;CRITICAL INTERFACE RULES&#10;- When you choose a tool, you MUST invoke it via the model’s tool/function calling interface.&#10;- Do NOT print JSON for tool calls in your message content. Do NOT wrap outputs in code fences.&#10;- Use tools to fetch/act. Write the final reply to the customer as normal assistant text (not via a tool).&#10;&#10;WHEN TO USE TOOLS&#10;- Prefer tools for facts/actions they cover. You may call the same tool multiple times with different inputs.&#10;- If no tool matches, answer directly. If you cannot answer, say why.&#10;- Invoke Tool_InformCustomer when finished to send the case resolution to the customer before it gets completed.&#10;&#10;PARAMETERS TO PASS (when tools exist)&#10;- Always pass:&#10;  - userInquiry: the minimal excerpt relevant to that sub-inquiry&#10;  - currentEmail: the full original email&#10;&#10;THINKING FORMAT&#10;Wrap minimal, inspectable reasoning in exactly this JSON (keep it short):&#10;{&#10;\&#34;thinking\&#34;: {&#10;  \&#34;context\&#34;: briefly state the customer’s need and current state,&#10;  \&#34;reflection\&#34;: list candidate tools, justify which to call next and why&#10;  },&#10;  \&#34;resolution\&#34;: When you resolved the inquiry, provide a human readable answer or explanation which can be sent to the customer&#10;}&#10;&#10;Do not reveal any other private reasoning outside these tags. Keep the rest of your assistant text concise.&#10;&#34;" target="data.systemPrompt.prompt" />
+          <zeebe:input source="bedrock" target="provider.type" />
+          <zeebe:input source="us-east-1" target="provider.bedrock.region" />
+          <zeebe:input source="credentials" target="provider.bedrock.authentication.type" />
+          <zeebe:input source="{{secrets.AWS_BEDROCK_ACCESS_KEY}}" target="provider.bedrock.authentication.accessKey" />
+          <zeebe:input source="{{secrets.AWS_BEDROCK_SECRET_KEY}}" target="provider.bedrock.authentication.secretKey" />
+          <zeebe:input source="anthropic.claude-3-5-sonnet-20240620-v1:0" target="provider.bedrock.model.model" />
+          <zeebe:input source="=5000" target="provider.bedrock.model.parameters.maxTokens" />
+          <zeebe:input source="=0.2" target="provider.bedrock.model.parameters.temperature" />
+          <zeebe:input source="=0.1" target="provider.bedrock.model.parameters.topP" />
+          <zeebe:input source="=&#34;You are TaskAgent, a helpful chat agent that handles customer conversations using domain knowledge and the tools provided at runtime.&#10;&#10;CRITICAL INTERFACE RULES&#10;- When you choose a tool, you MUST invoke it via the model’s tool/function calling interface.&#10;- Do NOT print JSON for tool calls in your message content. Do NOT wrap outputs in code fences.&#10;- Use tools to fetch/act. Write the final reply to the customer via Tool_InformCustomer.&#10;&#10;WHEN TO USE TOOLS&#10;- Prefer tools for facts/actions they cover. You may call the same tool multiple times with different inputs.&#10;- If no tool matches, answer directly. If you cannot answer, say why.&#10;- Invoke Tool_InformCustomer when finished to send the case resolution to the customer before it gets completed.&#10;&#10;THINKING FORMAT&#10;Wrap minimal, inspectable reasoning in exactly this JSON (keep it short):&#10;{&#10;\&#34;thinking\&#34;: {&#10;  \&#34;context\&#34;: briefly state the customer’s need and current state,&#10;  \&#34;reflection\&#34;: list candidate tools, justify which to call next and why&#10;  },&#10;  \&#34;resolution\&#34;: When you resolved the inquiry, provide a human readable answer or explanation which can be sent to the customer&#10;}&#10;&#10;Do not reveal any other private reasoning outside these tags. Keep the rest of your assistant text concise.&#10;&#34;" target="data.systemPrompt.prompt" />
           <zeebe:input source="=supportCase.request" target="data.userPrompt.prompt" />
           <zeebe:input source="=agent.context" target="agentContext" />
           <zeebe:input source="camunda-document" target="data.memory.storage.type" />
           <zeebe:input source="=100" target="data.memory.contextWindowSize" />
           <zeebe:input source="=100" target="data.limits.maxModelCalls" />
           <zeebe:input source="WAIT_FOR_TOOL_CALL_RESULTS" target="data.events.behavior" />
-          <zeebe:input source="json" target="data.response.format.type" />
-          <zeebe:input source="Response" target="data.response.format.schemaName" />
-          <zeebe:input source="=false" target="data.response.includeAssistantMessage" />
-          <zeebe:input source="=false" target="data.response.includeAgentContext" />
+          <zeebe:input source="text" target="data.response.format.type" />
+          <zeebe:input source="=false" target="data.response.format.parseJson" />
+          <zeebe:input source="=true" target="data.response.includeAssistantMessage" />
+          <zeebe:input source="=true" target="data.response.includeAgentContext" />
           <zeebe:output source="=agent" target="agent" />
         </zeebe:ioMapping>
         <zeebe:taskHeaders>
@@ -75,7 +78,7 @@
           <zeebe:calledElement processId="customer-communication-question" propagateAllChildVariables="false" propagateAllParentVariables="false" />
           <zeebe:ioMapping>
             <zeebe:input source="=supportCase.communicationContext" target="communicationContext" />
-            <zeebe:input source="={&#10;  &#34;subject&#34;: &#34;RE: &#34; + supportCase.subject,&#10;  &#34;text&#34;: fromAi(toolCall.response, &#34;The text response to reply to the customer&#34;)&#10;}" target="communicationContent" />
+            <zeebe:input source="={&#10;  &#34;subject&#34;: &#34;RE: &#34; + supportCase.subject,&#10;  &#34;text&#34;: fromAi(toolCall.emailText, &#34;The text to ask the customer as plain text&#34;)&#10;}" target="communicationContent" />
             <zeebe:output source="=communicationResult" target="toolCallResult" />
           </zeebe:ioMapping>
         </bpmn:extensionElements>
@@ -90,12 +93,22 @@
           </zeebe:ioMapping>
         </bpmn:extensionElements>
       </bpmn:callActivity>
+      <bpmn:serviceTask id="Activity_1fuir51">
+        <bpmn:documentation>never call this tool</bpmn:documentation>
+        <bpmn:extensionElements>
+          <zeebe:taskDefinition type="noop" />
+        </bpmn:extensionElements>
+      </bpmn:serviceTask>
+      <bpmn:task id="Activity_078zm78" zeebe:modelerTemplate="SAP_ODATA_CONNECTOR" zeebe:modelerTemplateVersion="3" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEzIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMyA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHg9IjEuMjM0MzgiIHk9IjIiIHdpZHRoPSIxNDQiIGhlaWdodD0iNDAiIGZpbGw9IiNGRjhDMDAiLz4KPHJlY3QgeD0iMS4yMzQzOCIgeT0iNzgiIHdpZHRoPSIxNDQiIGhlaWdodD0iNDAiIGZpbGw9IiNGRjhDMDAiLz4KPHJlY3QgeD0iMS4yMzQzOCIgeT0iMTU0IiB3aWR0aD0iMTQ0IiBoZWlnaHQ9IjQwIiBmaWxsPSIjRkY4QzAwIi8+CjxyZWN0IHg9IjE3Ny4yMzQiIHk9IjIiIHdpZHRoPSIxNDQiIGhlaWdodD0iNDAiIGZpbGw9IiNGRjhDMDAiLz4KPHJlY3QgeD0iMTc3LjIzNCIgeT0iNzgiIHdpZHRoPSIxNDQiIGhlaWdodD0iNDAiIGZpbGw9IiNGRjhDMDAiLz4KPHJlY3QgeD0iMTc3LjIzNCIgeT0iMTU0IiB3aWR0aD0iMTQ0IiBoZWlnaHQ9IjQwIiBmaWxsPSIjRkY4QzAwIi8+CjxyZWN0IHg9IjE3Ny4yMzQiIHk9IjIzMCIgd2lkdGg9IjE0NCIgaGVpZ2h0PSI0MCIgZmlsbD0iI0ZGOEMwMCIvPgo8Y2lyY2xlIGN4PSI3My45NTI2IiBjeT0iMjg4IiByPSI2NSIgZmlsbD0iI0ZGOEMwMCIvPgo8ZyBjbGlwLXBhdGg9InVybCgjY2xpcDBfOThfNDQ3KSI+CjxwYXRoIGQ9Ik01MTIgMzIwSDE3OVY0ODVIMzQ3LjMzIiBmaWxsPSJ1cmwoI3BhaW50MF9saW5lYXJfOThfNDQ3KSIvPgo8cGF0aCBkPSJNMzQzLjY3IDM1M1Y0MzAuNzMzTDMxNS4xMjcgMzUzSDI4Ni41ODVMMjYyLjQzMyA0MTcuNTMzQzI1OS41MDUgNDAxLjQgMjQyLjY3MiAzOTUuNTMzIDIyOS40OTkgMzkxLjEzM0MyMjAuNzE2IDM4OC4yIDIxMS4yMDIgMzg0LjUzMyAyMTEuMjAyIDM3OS40QzIxMS4yMDIgMzc1LjczMyAyMTYuMzI1IDM3Mi4wNjcgMjI1LjgzOSAzNzIuOEMyMzIuNDI2IDM3My41MzMgMjM4LjI4MSAzNzMuNTMzIDI0OS45OTEgMzc5LjRMMjYxLjcwMSAzNTkuNkMyNTAuNzIzIDM1My43MzMgMjM2LjA4NiAzNTAuOCAyMjQuMzc2IDM1MC44QzIxMC40NyAzNTAuOCAxOTguNzYgMzU1LjIgMTkxLjQ0MiAzNjIuNTMzQzE4Ni4zMTkgMzY3LjY2NyAxODQuMTIzIDM3NC4yNjcgMTgzLjM5MSAzODEuNkMxODMuMzkxIDM5MS44NjcgMTg3LjA1IDM5OS4yIDE5NS4xMDEgNDA1LjA2N0MyMDEuNjg4IDQwOS40NjcgMjA5LjczOCA0MTIuNCAyMTcuMDU3IDQxNC42QzIyNi41NzEgNDE3LjUzMyAyMzMuODkgNDIwLjQ2NyAyMzMuODkgNDI1LjZDMjMzLjE1OCA0MzIuMiAyMjUuODM5IDQzMy42NjcgMjIwLjcxNiA0MzMuNjY3QzIxMS45MzQgNDM0LjQgMjA0LjYxNSA0MzIuOTMzIDE5My42MzcgNDI2LjMzM0wxODMuMzkxIDQ0Ni4xMzNDMTk0LjM2OSA0NTIuNzMzIDIwNi4wNzkgNDU1LjY2NyAyMTkuOTg1IDQ1NS42NjdDMjI5LjQ5OSA0NTUuNjY3IDI0NC4xMzYgNDUyLjczMyAyNTIuMTg3IDQ0NS40TDI1MC43MjMgNDUySDI3OC41MzRMMjgzLjY1NyA0MzkuNTMzQzI5NC42MzUgNDQyLjQ2NyAzMDcuMDc3IDQ0My4yIDMxOC4wNTUgNDM5LjUzM0wzMjEuNzE0IDQ1MkgzNzEuNDgxVjQyMi42NjdIMzgxLjcyN0M0MDcuMzQzIDQyMi42NjcgNDIyLjcxMiA0MTAuMiA0MjIuNzEyIDM4OC4yQzQyMi43MTIgMzYzLjI2NyA0MDguMDc1IDM1MyAzNzYuNjA0IDM1M0gzNDMuNjdaTTI5MC4yNDQgNDE3LjUzM0wzMDAuNDkgMzg0LjUzM0gzMDEuMjIyTDMxMS40NjggNDE3LjUzM0MzMDQuMTQ5IDQxOS43MzMgMjk2LjgzMSA0MTkuNzMzIDI5MC4yNDQgNDE3LjUzM1pNMzcxLjQ4MSA0MDAuNjY3VjM3NC4yNjdIMzc4LjhDMzg4LjMxNCAzNzQuMjY3IDM5NS42MzMgMzc3LjIgMzk1LjYzMyAzODYuNzMzQzM5NS42MzMgMzk3IDM4OC4zMTQgNDAwLjY2NyAzNzguOCA0MDAuNjY3SDM3MS40ODFaIiBmaWxsPSJ3aGl0ZSIvPgo8L2c+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MF9saW5lYXJfOThfNDQ3IiB4MT0iMTc5IiB5MT0iMzIwIiB4Mj0iMTc5IiB5Mj0iNDg1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiMwMEFBRUUiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMDA1NUFBIi8+CjwvbGluZWFyR3JhZGllbnQ+CjxjbGlwUGF0aCBpZD0iY2xpcDBfOThfNDQ3Ij4KPHJlY3Qgd2lkdGg9IjMzMyIgaGVpZ2h0PSIxNjUiIGZpbGw9IndoaXRlIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxNzkgMzIwKSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=">
+        <bpmn:documentation>never call this tool</bpmn:documentation>
+        <bpmn:extensionElements />
+      </bpmn:task>
     </bpmn:adHocSubProcess>
     <bpmn:sequenceFlow id="Flow_0syzscg" sourceRef="StartEvent_1" targetRef="AI_AccountSupport" />
     <bpmn:endEvent id="Event_1v5xnnr" name="Request&#10;resolved">
       <bpmn:extensionElements>
         <zeebe:ioMapping>
-          <zeebe:output source="={&#10;  &#34;resolution&#34;: agent.responseJson.resolution,&#10;  &#34;thinking&#34;: agent.responseJson.thinking&#10;}" target="response" />
+          <zeebe:output source="={&#10;  &#34;responseText&#34;: agent.responseText&#10;}" target="response" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_17qvxan</bpmn:incoming>
@@ -111,7 +124,7 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_04wzcos_di" bpmnElement="AI_AccountSupport" isExpanded="true">
-        <dc:Bounds x="290" y="110" width="310" height="260" />
+        <dc:Bounds x="290" y="110" width="310" height="370" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0nt8y5o_di" bpmnElement="Task_MCP_AccountManagementTools">
@@ -129,6 +142,12 @@
       <bpmndi:BPMNShape id="BPMNShape_031hlbh" bpmnElement="Tool_InformCustomer">
         <dc:Bounds x="330" y="250" width="100" height="80" />
         <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ihcgp7_di" bpmnElement="Activity_1fuir51">
+        <dc:Bounds x="330" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_078zm78_di" bpmnElement="Activity_078zm78">
+        <dc:Bounds x="460" y="360" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1v5xnnr_di" bpmnElement="Event_1v5xnnr">
         <dc:Bounds x="662" y="212" width="36" height="36" />

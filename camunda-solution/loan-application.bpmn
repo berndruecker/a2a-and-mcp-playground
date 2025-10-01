@@ -3,9 +3,8 @@
   <bpmn:process id="loan-application" isExecutable="true">
     <bpmn:startEvent id="StartEvent_ApplicationReceived" name="Loan application received">
       <bpmn:extensionElements />
-      <bpmn:outgoing>Flow_0dkro90</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1c2r2f5</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:sequenceFlow id="Flow_0dkro90" sourceRef="StartEvent_ApplicationReceived" targetRef="Gateway_1oodnge" />
     <bpmn:sequenceFlow id="Flow_1qy3wod" sourceRef="ServiceTask_CreditCheck" targetRef="ServiceTask_RiskAssesment" />
     <bpmn:sequenceFlow id="Flow_04ewa7t" sourceRef="ServiceTask_RiskAssesment" targetRef="UserTask_LoanApproval" />
     <bpmn:exclusiveGateway id="Gateway_Approved" name="Approved?">
@@ -15,7 +14,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_1oe26jq" sourceRef="UserTask_LoanApproval" targetRef="Gateway_Approved" />
     <bpmn:sequenceFlow id="Flow_Approved" name="yes" sourceRef="Gateway_Approved" targetRef="ServiceTask_PrepareOffer">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=approved</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= approved = true or approved = "true"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_09ppakv" sourceRef="ServiceTask_PrepareOffer" targetRef="Tool_InformCustomer" />
     <bpmn:sequenceFlow id="Flow_0vqriwu" sourceRef="CallActivity_Signature" targetRef="CallActivity_LoanDisbursement" />
@@ -34,7 +33,7 @@
       <bpmn:incoming>Flow_NotApproved</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_NotApproved" name="no" sourceRef="Gateway_Approved" targetRef="EndEvent_Rejected">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=not(approved)</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=not( approved = true or approved = "true")</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:callActivity id="CallActivity_Signature" name="Electronic Signature">
       <bpmn:extensionElements>
@@ -47,7 +46,7 @@
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="noop" />
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1msojg8</bpmn:incoming>
+      <bpmn:incoming>Flow_0ju3a2a</bpmn:incoming>
       <bpmn:outgoing>Flow_1qy3wod</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="ServiceTask_RiskAssesment" name="Risk Assesment &#38; Evaluation">
@@ -97,6 +96,10 @@
           <zeebe:input source="=20" target="readTimeoutInSeconds" />
           <zeebe:input source="={&#10;  data: taktileFlowPayload,&#10;  version: if taktileFlowVersion != &#34;&#34; then {&#10;    version: taktileFlowVersion&#10;    } else {},&#10;  entityId: &#10;  if taktileFlowEntityId != &#34;&#34; then {&#10;    entity_id: taktileFlowEntityId&#10;    } else {},&#10;  control: {&#10;    control:{&#10;    execution_mode: taktileFlowExecutionMode&#10;    }&#10;  },&#10;  metadata: {&#10;    metadata: context merge(version, entityId)&#10;    },&#10;  taktilePayload: context merge(data, metadata, control)&#10;}.taktilePayload" target="body" />
           <zeebe:input source="=false" target="ignoreNullValues" />
+          <zeebe:output source="=taktileResult" target="taktileResult" />
+          <zeebe:output source="=taktileResult.body.data.decision" target="taktileDecision" />
+          <zeebe:output source="=taktileResult.body.metadata.decision_url" target="taktileTraceUrl" />
+          <zeebe:output source="=taktileResult.body.data.decision = &#34;Accept&#34;" target="approved" />
         </zeebe:ioMapping>
         <zeebe:taskHeaders>
           <zeebe:header key="elementTemplateVersion" value="11" />
@@ -105,20 +108,9 @@
           <zeebe:header key="retryBackoff" value="PT0S" />
         </zeebe:taskHeaders>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_007b2k7</bpmn:incoming>
-      <bpmn:outgoing>Flow_1owzmd3</bpmn:outgoing>
+      <bpmn:incoming>Flow_16rfxth</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vq3kll</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_1msojg8" sourceRef="Gateway_1oodnge" targetRef="ServiceTask_CreditCheck" />
-    <bpmn:parallelGateway id="Gateway_1oodnge">
-      <bpmn:incoming>Flow_0dkro90</bpmn:incoming>
-      <bpmn:outgoing>Flow_1msojg8</bpmn:outgoing>
-      <bpmn:outgoing>Flow_007b2k7</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:sequenceFlow id="Flow_007b2k7" sourceRef="Gateway_1oodnge" targetRef="Activity_1rdpgfs" />
-    <bpmn:endEvent id="Event_1wbjxkq">
-      <bpmn:incoming>Flow_1owzmd3</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_1owzmd3" sourceRef="Activity_1rdpgfs" targetRef="Event_1wbjxkq" />
     <bpmn:callActivity id="Tool_InformCustomer" name="Inform&#10;customer">
       <bpmn:documentation>Use this activity to reply to the customer to send information without asking something</bpmn:documentation>
       <bpmn:extensionElements>
@@ -126,13 +118,24 @@
         <zeebe:ioMapping>
           <zeebe:input source="=communicationContext" target="communicationContext" />
           <zeebe:input source="={&#10;  &#34;subject&#34;: &#34;Your loan application&#34;,&#10;  &#34;text&#34;: &#34;Good news! Your loan was approved. We will start the eletronic signing via email shortly. Thanks for your trust in Camunda Bank!&#34;&#10;}" target="communicationContent" />
-          <zeebe:output source="=communicationResult" target="toolCallResult" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_09ppakv</bpmn:incoming>
       <bpmn:outgoing>Flow_1fhdk24</bpmn:outgoing>
     </bpmn:callActivity>
     <bpmn:sequenceFlow id="Flow_1fhdk24" sourceRef="Tool_InformCustomer" targetRef="CallActivity_Signature" />
+    <bpmn:sequenceFlow id="Flow_1c2r2f5" sourceRef="StartEvent_ApplicationReceived" targetRef="Gateway_0gnc8kn" />
+    <bpmn:sequenceFlow id="Flow_0ju3a2a" sourceRef="Gateway_0gnc8kn" targetRef="ServiceTask_CreditCheck" />
+    <bpmn:parallelGateway id="Gateway_0gnc8kn">
+      <bpmn:incoming>Flow_1c2r2f5</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ju3a2a</bpmn:outgoing>
+      <bpmn:outgoing>Flow_16rfxth</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_16rfxth" sourceRef="Gateway_0gnc8kn" targetRef="Activity_1rdpgfs" />
+    <bpmn:endEvent id="Event_15a3byf">
+      <bpmn:incoming>Flow_1vq3kll</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1vq3kll" sourceRef="Activity_1rdpgfs" targetRef="Event_15a3byf" />
   </bpmn:process>
   <bpmn:error id="Error_0hfnbee" name="TAKTILE_DECISION_PENDING" errorCode="TAKTILE_DECISION_PENDING" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -149,11 +152,23 @@
           <dc:Bounds x="853" y="83" width="53" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1jx9893_di" bpmnElement="CallActivity_LoanDisbursement">
+        <dc:Bounds x="1420" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0kgslys_di" bpmnElement="EndEvent_Disbursed">
+        <dc:Bounds x="1592" y="112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1572" y="155" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1jm3oun_di" bpmnElement="EndEvent_Rejected">
         <dc:Bounds x="972" y="222" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="957" y="265" width="67" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1otiqci_di" bpmnElement="CallActivity_Signature">
+        <dc:Bounds x="1250" y="90" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0aok6wf_di" bpmnElement="ServiceTask_CreditCheck">
         <dc:Bounds x="370" y="90" width="100" height="80" />
@@ -172,32 +187,16 @@
         <dc:Bounds x="530" y="240" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1ome58y_di" bpmnElement="Gateway_1oodnge">
-        <dc:Bounds x="275" y="105" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1wbjxkq_di" bpmnElement="Event_1wbjxkq">
-        <dc:Bounds x="692" y="262" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1jx9893_di" bpmnElement="CallActivity_LoanDisbursement">
-        <dc:Bounds x="1420" y="90" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0kgslys_di" bpmnElement="EndEvent_Disbursed">
-        <dc:Bounds x="1592" y="112" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1572" y="155" width="76" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1otiqci_di" bpmnElement="CallActivity_Signature">
-        <dc:Bounds x="1250" y="90" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_031hlbh" bpmnElement="Tool_InformCustomer">
         <dc:Bounds x="1110" y="90" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_0dkro90_di" bpmnElement="Flow_0dkro90">
-        <di:waypoint x="218" y="130" />
-        <di:waypoint x="275" y="130" />
-      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Gateway_0buhmw1_di" bpmnElement="Gateway_0gnc8kn">
+        <dc:Bounds x="275" y="105" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_15a3byf_di" bpmnElement="Event_15a3byf">
+        <dc:Bounds x="702" y="262" width="36" height="36" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1qy3wod_di" bpmnElement="Flow_1qy3wod">
         <di:waypoint x="470" y="130" />
         <di:waypoint x="530" y="130" />
@@ -221,27 +220,6 @@
         <di:waypoint x="1070" y="130" />
         <di:waypoint x="1110" y="130" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1f8qnem_di" bpmnElement="Flow_NotApproved">
-        <di:waypoint x="880" y="155" />
-        <di:waypoint x="880" y="240" />
-        <di:waypoint x="972" y="240" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="889" y="195" width="13" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1msojg8_di" bpmnElement="Flow_1msojg8">
-        <di:waypoint x="325" y="130" />
-        <di:waypoint x="370" y="130" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_007b2k7_di" bpmnElement="Flow_007b2k7">
-        <di:waypoint x="300" y="155" />
-        <di:waypoint x="300" y="280" />
-        <di:waypoint x="530" y="280" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1owzmd3_di" bpmnElement="Flow_1owzmd3">
-        <di:waypoint x="630" y="280" />
-        <di:waypoint x="692" y="280" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0vqriwu_di" bpmnElement="Flow_0vqriwu">
         <di:waypoint x="1350" y="130" />
         <di:waypoint x="1420" y="130" />
@@ -250,9 +228,34 @@
         <di:waypoint x="1520" y="130" />
         <di:waypoint x="1592" y="130" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1f8qnem_di" bpmnElement="Flow_NotApproved">
+        <di:waypoint x="880" y="155" />
+        <di:waypoint x="880" y="240" />
+        <di:waypoint x="972" y="240" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="889" y="195" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1fhdk24_di" bpmnElement="Flow_1fhdk24">
         <di:waypoint x="1210" y="130" />
         <di:waypoint x="1250" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1c2r2f5_di" bpmnElement="Flow_1c2r2f5">
+        <di:waypoint x="218" y="130" />
+        <di:waypoint x="275" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ju3a2a_di" bpmnElement="Flow_0ju3a2a">
+        <di:waypoint x="325" y="130" />
+        <di:waypoint x="370" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16rfxth_di" bpmnElement="Flow_16rfxth">
+        <di:waypoint x="300" y="155" />
+        <di:waypoint x="300" y="280" />
+        <di:waypoint x="530" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vq3kll_di" bpmnElement="Flow_1vq3kll">
+        <di:waypoint x="630" y="280" />
+        <di:waypoint x="702" y="280" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

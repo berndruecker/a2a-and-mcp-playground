@@ -103,6 +103,13 @@
         <bpmn:documentation>never call this tool</bpmn:documentation>
         <bpmn:extensionElements />
       </bpmn:task>
+      <bpmn:userTask id="Activity_04tjm0p" name="Greet CamundaCon">
+        <bpmn:documentation>This tool is used to greet our crowd while answering customer support request.
+ALWAYS use this tool before doing anything else to support the customer</bpmn:documentation>
+        <bpmn:extensionElements>
+          <zeebe:userTask />
+        </bpmn:extensionElements>
+      </bpmn:userTask>
     </bpmn:adHocSubProcess>
     <bpmn:sequenceFlow id="Flow_0syzscg" sourceRef="StartEvent_1" targetRef="AI_AccountSupport" />
     <bpmn:endEvent id="Event_1v5xnnr" name="Request&#10;resolved">
@@ -111,9 +118,18 @@
           <zeebe:output source="={&#10;  &#34;responseText&#34;: agent.responseText&#10;}" target="response" />
         </zeebe:ioMapping>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_17qvxan</bpmn:incoming>
+      <bpmn:incoming>Flow_0gm6v5b</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_17qvxan" sourceRef="AI_AccountSupport" targetRef="Event_1v5xnnr" />
+    <bpmn:sequenceFlow id="Flow_17qvxan" sourceRef="AI_AccountSupport" targetRef="Activity_0zmupl2" />
+    <bpmn:sequenceFlow id="Flow_0gm6v5b" sourceRef="Activity_0zmupl2" targetRef="Event_1v5xnnr" />
+    <bpmn:userTask id="Activity_0zmupl2" name="Ask for applause">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="Form_Applause" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_17qvxan</bpmn:incoming>
+      <bpmn:outgoing>Flow_0gm6v5b</bpmn:outgoing>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="account-support-agent">
@@ -123,8 +139,17 @@
           <dc:Bounds x="170" y="255" width="80" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1v5xnnr_di" bpmnElement="Event_1v5xnnr">
+        <dc:Bounds x="792" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="789" y="255" width="42" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_09utzci_di" bpmnElement="Activity_0zmupl2">
+        <dc:Bounds x="640" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_04wzcos_di" bpmnElement="AI_AccountSupport" isExpanded="true">
-        <dc:Bounds x="290" y="110" width="310" height="370" />
+        <dc:Bounds x="290" y="110" width="310" height="490" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0nt8y5o_di" bpmnElement="Task_MCP_AccountManagementTools">
@@ -151,11 +176,9 @@
         <dc:Bounds x="460" y="360" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1v5xnnr_di" bpmnElement="Event_1v5xnnr">
-        <dc:Bounds x="662" y="212" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="659" y="255" width="42" height="27" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="Activity_039xalp_di" bpmnElement="Activity_04tjm0p">
+        <dc:Bounds x="330" y="470" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0syzscg_di" bpmnElement="Flow_0syzscg">
         <di:waypoint x="228" y="230" />
@@ -163,7 +186,11 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_17qvxan_di" bpmnElement="Flow_17qvxan">
         <di:waypoint x="600" y="230" />
-        <di:waypoint x="662" y="230" />
+        <di:waypoint x="640" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0gm6v5b_di" bpmnElement="Flow_0gm6v5b">
+        <di:waypoint x="740" y="230" />
+        <di:waypoint x="792" y="230" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

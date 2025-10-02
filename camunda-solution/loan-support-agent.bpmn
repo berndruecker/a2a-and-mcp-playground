@@ -504,148 +504,148 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="loan-support-agent">
       <bpmndi:BPMNShape id="Activity_0icwfki_di" bpmnElement="Subprocess_AvailableTools" isExpanded="true">
-        <dc:Bounds x="510" y="140" width="960" height="640" />
+        <dc:Bounds x="510" y="140" width="960" height="660" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1338851_di" bpmnElement="UserTask_Ask_a_specialist">
-        <dc:Bounds x="555" y="410" width="100" height="80" />
+        <dc:Bounds x="555" y="360" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0wh5ha7_di" bpmnElement="Event_KnowledgeBaseErrorIgnored">
-        <dc:Bounds x="1332" y="472" width="36" height="36" />
+        <dc:Bounds x="1332" y="422" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1331" y="448" width="37" height="14" />
+          <dc:Bounds x="1331" y="398" width="37" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1whb5u5_di" bpmnElement="Gateway_1whb5u5" isMarkerVisible="true">
-        <dc:Bounds x="820" y="425" width="50" height="50" />
+        <dc:Bounds x="820" y="375" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="804" y="395" width="82" height="27" />
+          <dc:Bounds x="804" y="345" width="82" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1wd6fel_di" bpmnElement="Event_SpecialistAnswered">
-        <dc:Bounds x="1097" y="432" width="36" height="36" />
+        <dc:Bounds x="1097" y="382" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1091" y="395" width="49" height="27" />
+          <dc:Bounds x="1092" y="345" width="48" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_0x6ayre" bpmnElement="Gateway_1g2difp" isMarkerVisible="true">
-        <dc:Bounds x="690" y="425" width="50" height="50" />
+        <dc:Bounds x="690" y="375" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="688" y="388" width="55" height="27" />
+          <dc:Bounds x="688" y="338" width="55" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0fqmlp5_di" bpmnElement="Event_0xzg3s4" bioc:stroke="#5b176d" bioc:fill="#e1bee7" color:background-color="#e1bee7" color:border-color="#5b176d">
-        <dc:Bounds x="697" y="542" width="36" height="36" />
+        <dc:Bounds x="697" y="492" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="679" y="588" width="73" height="27" />
+          <dc:Bounds x="680" y="538" width="72" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1e6qfq0" bpmnElement="UserTask_book_loan_appointment">
+        <dc:Bounds x="920" y="190" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_068tr1l_di" bpmnElement="Task_LoadAvailableHomeLoanProducts">
-        <dc:Bounds x="555" y="650" width="100" height="80" />
+        <dc:Bounds x="555" y="600" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_05cm1ro_di" bpmnElement="Task_LoadLegacyLoanDataRPA">
-        <dc:Bounds x="1255" y="650" width="100" height="80" />
+        <dc:Bounds x="1255" y="600" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0hrmq8k_di" bpmnElement="Task_LoadCustomerLoans">
-        <dc:Bounds x="1125" y="650" width="100" height="80" />
+        <dc:Bounds x="1125" y="600" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0wrjhue_di" bpmnElement="Event_CustomerDataLoaded">
-        <dc:Bounds x="1392" y="672" width="36" height="36" />
+        <dc:Bounds x="1392" y="622" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1369" y="636" width="82" height="27" />
+          <dc:Bounds x="1369" y="586" width="82" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_0efba9k" bpmnElement="Task_CalculateLoanRepaymentsAndAssessAffordability">
-        <dc:Bounds x="860" y="650" width="100" height="80" />
+        <dc:Bounds x="860" y="600" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_1ch0cwg" bpmnElement="Task_SaveInKnowledgeBase">
-        <dc:Bounds x="920" y="410" width="100" height="80" />
+        <dc:Bounds x="920" y="360" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_0ute0v0" bpmnElement="Task_query_knowledge_base2">
-        <dc:Bounds x="1170" y="410" width="100" height="80" />
+        <dc:Bounds x="1170" y="360" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1v0upkw_di" bpmnElement="Tool_AskCustomer">
-        <dc:Bounds x="555" y="240" width="100" height="80" />
+        <dc:Bounds x="555" y="190" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_031hlbh" bpmnElement="Tool_InformCustomer">
-        <dc:Bounds x="710" y="240" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0atu2xn_di" bpmnElement="Task_AdjustLoanScheduleInSAP">
-        <dc:Bounds x="980" y="650" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1l2y53l" bpmnElement="Task_LoadAvailableConsumerLoanProducts">
-        <dc:Bounds x="690" y="650" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1e6qfq0" bpmnElement="UserTask_book_loan_appointment">
-        <dc:Bounds x="920" y="240" width="100" height="80" />
+        <dc:Bounds x="710" y="190" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1donvs6_di" bpmnElement="CallActivity_LoanApplication">
-        <dc:Bounds x="1170" y="240" width="100" height="80" />
+        <dc:Bounds x="690" y="700" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0atu2xn_di" bpmnElement="Task_AdjustLoanScheduleInSAP">
+        <dc:Bounds x="555" y="700" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1l2y53l" bpmnElement="Task_LoadAvailableConsumerLoanProducts">
+        <dc:Bounds x="690" y="600" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_0obdo5z" bpmnElement="Event_1wezv96">
-        <dc:Bounds x="1252" y="472" width="36" height="36" />
+        <dc:Bounds x="1252" y="422" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1235" y="516" width="81" height="27" />
+          <dc:Bounds x="1235" y="466" width="81" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1aaxb1w_di" bpmnElement="Flow_1aaxb1w">
-        <di:waypoint x="655" y="450" />
-        <di:waypoint x="690" y="450" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1mudddl_di" bpmnElement="Flow_1mudddl">
-        <di:waypoint x="870" y="450" />
-        <di:waypoint x="920" y="450" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="881" y="420" width="18" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0j63wm9_di" bpmnElement="Flow_0j63wm9">
-        <di:waypoint x="1020" y="450" />
-        <di:waypoint x="1097" y="450" />
+        <di:waypoint x="655" y="400" />
+        <di:waypoint x="690" y="400" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0d4itte_di" bpmnElement="Flow_0d4itte">
-        <di:waypoint x="1288" y="490" />
-        <di:waypoint x="1332" y="490" />
+        <di:waypoint x="1288" y="440" />
+        <di:waypoint x="1332" y="440" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0acq6om_di" bpmnElement="Flow_0acq6om">
-        <di:waypoint x="740" y="450" />
-        <di:waypoint x="820" y="450" />
+        <di:waypoint x="740" y="400" />
+        <di:waypoint x="820" y="400" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="754" y="428" width="29" height="14" />
+          <dc:Bounds x="755" y="378" width="28" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1mudddl_di" bpmnElement="Flow_1mudddl">
+        <di:waypoint x="870" y="400" />
+        <di:waypoint x="920" y="400" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="881" y="370" width="18" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0lexqwn_di" bpmnElement="Flow_0lexqwn">
-        <di:waypoint x="845" y="475" />
-        <di:waypoint x="845" y="530" />
-        <di:waypoint x="1115" y="530" />
-        <di:waypoint x="1115" y="468" />
+        <di:waypoint x="845" y="425" />
+        <di:waypoint x="845" y="480" />
+        <di:waypoint x="1115" y="480" />
+        <di:waypoint x="1115" y="418" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="868" y="493" width="13" height="14" />
+          <dc:Bounds x="868" y="443" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0j63wm9_di" bpmnElement="Flow_0j63wm9">
+        <di:waypoint x="1020" y="400" />
+        <di:waypoint x="1097" y="400" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0q6oul9_di" bpmnElement="Flow_0q6oul9">
-        <di:waypoint x="715" y="475" />
-        <di:waypoint x="715" y="542" />
+        <di:waypoint x="715" y="425" />
+        <di:waypoint x="715" y="492" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="722" y="502" width="47" height="14" />
+          <dc:Bounds x="723" y="452" width="46" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1nkkl8e_di" bpmnElement="Flow_1nkkl8e">
-        <di:waypoint x="1225" y="690" />
-        <di:waypoint x="1255" y="690" />
+        <di:waypoint x="1225" y="640" />
+        <di:waypoint x="1255" y="640" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0j9k4j5_di" bpmnElement="Flow_0j9k4j5">
-        <di:waypoint x="1355" y="690" />
-        <di:waypoint x="1392" y="690" />
+        <di:waypoint x="1355" y="640" />
+        <di:waypoint x="1392" y="640" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Activity_1y1vn4t_di" bpmnElement="Task_FetchPastConversations">
         <dc:Bounds x="270" y="220" width="100" height="80" />

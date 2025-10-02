@@ -393,7 +393,7 @@
           <zeebe:input source="{{secrets.AWS_OPEN_SEARCH_REGION}}" target="vectorStore.amazonManagedOpensearch.region" />
           <zeebe:input source="=&#34;conversation-knowledge-base-demo-loan-agent-&#34; + supportCase.communicationContext.emailAddress" target="vectorStore.amazonManagedOpensearch.indexName" />
           <zeebe:input source="PlainText" target="vectorDatabaseConnectorOperation.documentSource" />
-          <zeebe:input source="=agent.responseText" target="vectorDatabaseConnectorOperation.documentSourceFromProcessVariable" />
+          <zeebe:input source="=agent.responseMessage" target="vectorDatabaseConnectorOperation.documentSourceFromProcessVariable" />
           <zeebe:input source="noopDocumentSplitter" target="vectorDatabaseConnectorOperation.documentSplitter.splitterType" />
         </zeebe:ioMapping>
         <zeebe:taskHeaders>

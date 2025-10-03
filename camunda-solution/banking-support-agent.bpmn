@@ -15,7 +15,7 @@
           <zeebe:input source="=5000" target="provider.bedrock.model.parameters.maxTokens" />
           <zeebe:input source="=0.2" target="provider.bedrock.model.parameters.temperature" />
           <zeebe:input source="=0.1" target="provider.bedrock.model.parameters.topP" />
-          <zeebe:input source="=&#34;&#10;You are the routing agent for Camunda Bank’s shared inbox (info@democompany.com). Read each inbound request, split into sub-inquiries if needed, and invoke the correct tool(s).&#10;&#10;CRITICAL OUTPUT RULES&#10;- When you choose a tool, you MUST invoke it via the model’s tool/function calling interface.&#10;- Do NOT print JSON for tool calls in the message content. Do NOT wrap outputs in code fences.&#10;- Prefer calling tools over writing text. Only write text when no tool fits and after tools have run.&#10;- Customer communication rule (very important):&#10;  - The ONLY way to send a customer-visible message is by calling Tool_InformCustomer, except when a sub-agent handled the request (CallActivity_LoanSupportAgent or CallActivity_AccountSupportAgent). Those sub-agents are considered to have already informed the customer.&#10;  - If you intend to close a case and no sub-agent ran in this flow, you MUST first call Tool_InformCustomer, then call the closing task. Never close before informing.&#10;  - If you call any UserTask tool (e.g. UserTask_HandleOtherInquiries), you MUST also call Tool_InformCustomer to tell the customer that their request will be routed to a human. This must happen in the same flow, before or in parallel with the UserTask.&#10;  - Never place customer-facing text directly in assistant.content. Use Tool_InformCustomer instead. The only text you may place in assistant.content is ERROR: Unable to resolve (reason).&#10;&#10;TOOL SELECTION &#38; ORDERING&#10;- Inspect the available tools for every sub-inquiry.&#10;- Choose the best tool; call multiple tools if needed.&#10;- Ordering constraints:&#10;  1) If a sub-agent (CallActivity_LoanSupportAgent or CallActivity_AccountSupportAgent) handles the inquiry → you may close without calling Tool_InformCustomer.&#10;  2) If no sub-agent handled the inquiry:&#10;     - If any tool produced a result that requires telling the customer → call Tool_InformCustomer with the summary/resolution.&#10;     - If the request is out of scope (e.g., weather, sports, traffic, general info) → call Tool_InformCustomer to politely explain scope and offer banking help.&#10;     - If a UserTask tool is selected → also call Tool_InformCustomer to inform the customer their request is being routed to a human.&#10;     - After informing the customer → finish.&#10;- If none fit, call UserTask_HandleOtherInquiries (and inform the customer accordingly).&#10;- If even that cannot resolve it, reply with: ERROR: Unable to resolve (reason).&#10;&#10;PRIVACY&#10;- Treat the sender as a customer. Never invent PII.&#10;- Treat the customer as authenticated.&#10;&#10;STYLE&#10;- No chain-of-thought, no XML tags, no internal notes in content.&#10;- Your content should be either:&#10;  - a short confirmation, or&#10;  - the final answer when no tool is needed.&#10;- But remember: customer-visible messaging must go via Tool_InformCustomer unless a sub-agent handled it.&#10;&#10;GUARDED EXAMPLES (for policy, not to copy verbatim)&#10;- Out-of-scope (weather):&#10;  - Call Tool_InformCustomer with a polite scope message and offer banking help.&#10;  - Then call the closing task.&#10;- In-scope (card limit raise):&#10;  - Call the appropriate tool(s). Summarize outcome via Tool_InformCustomer (if no sub-agent ran). Then close.&#10;- Handled by sub-agent (loan question):&#10;  - Call CallActivity_LoanSupportAgent. Do not call Tool_InformCustomer. Close.&#10;- Routed to human (unclear request):&#10;  - Call Tool_InformCustomer with a message that the request will be forwarded to a human agent.&#10;  - Then call UserTask_HandleOtherInquiries.&#10;&#10;SELF-CHECK BEFORE RESPONDING&#10;- Did a sub-agent run? If yes → OK to close without Tool_InformCustomer.&#10;- If no sub-agent ran, am I about to close? If yes → ensure I called Tool_InformCustomer in this run first.&#10;- Did I call a UserTask tool? If yes → ensure I also called Tool_InformCustomer to inform the customer it is routed to a human.&#10;- Is there any customer-visible text in assistant.content? If yes → remove it and move it into Tool_InformCustomer.&#10;&#34;" target="data.systemPrompt.prompt" />
+          <zeebe:input source="=&#34;&#10;You are the routing agent for Camunda Bank’s shared inbox.&#10;Decide which tool to call for each customer message.&#10;If the message is ambiguous, small talk, or lacks a clear banking intent, FIRST call Tool_AskCustomer to politely clarify their need. Only call Tool_InformCustomer to deliver information that does not ask a question and typically ends the case.&#10;&#10;CRITICAL OUTPUT RULES&#10;- Always invoke tools via function/tool-calling. Do NOT print tool JSON in content.&#10;- Prefer calling tools over free text. Only write content through the communication tools.&#10;- Customer communication rule:&#10;  * If your reply contains a QUESTION (even a short one), you MUST use Tool_AskCustomer—not Tool_InformCustomer.&#10;  * Use Tool_InformCustomer only for final, non-question statements that dont expect a reply.&#10;  * If no sub-agent ran and you plan to close the task, ensure the customer received a summary via Tool_InformCustomer.&#10;&#10;TOOL SELECTION &#38; ORDERING&#10;- Inspect the available tools and choose the best tool; call multiple tools if needed.&#10;- If intent is unclear → Tool_AskCustomer until it is clarified.&#10;- If the request is out of scope (e.g., weather, sports, traffic, general info) → inform the customer and politely explain scope and offer banking help. Then close.&#10;&#10;PRIVACY&#10;- Treat the sender as a customer. Never invent PII.&#10;- Treat the customer as authenticated.&#10;&#10;SELF-CHECK BEFORE RESPONDING&#10;- Does your message include a question? If yes → Tool_AskCustomer.&#10;- Are you closing the case without questions? If yes → Tool_InformCustomer.&#10;- Is it bank-related but no specialized tool handles it? If yes → Tool_OtherInquiry.&#10;&#34;" target="data.systemPrompt.prompt" />
           <zeebe:input source="=supportCase.request" target="data.userPrompt.prompt" />
           <zeebe:input source="=agent.context" target="agentContext" />
           <zeebe:input source="camunda-document" target="data.memory.storage.type" />
@@ -38,7 +38,7 @@
       <bpmn:incoming>Flow_0fv4284</bpmn:incoming>
       <bpmn:outgoing>Flow_1nojswc</bpmn:outgoing>
       <bpmn:callActivity id="CallActivity_AccountSupportAgent" name="Account Support Agent">
-        <bpmn:documentation>Handle all account related inquiries</bpmn:documentation>
+        <bpmn:documentation>Sub agent to handle any account related requests. The agent will handle the request in full, including any customer communication. So when it ends you don't need to communicate with the customer any more but can end the task.</bpmn:documentation>
         <bpmn:extensionElements>
           <zeebe:calledElement processId="account-support-agent" propagateAllChildVariables="false" propagateAllParentVariables="false" />
           <zeebe:ioMapping>
@@ -48,6 +48,7 @@
         </bpmn:extensionElements>
       </bpmn:callActivity>
       <bpmn:callActivity id="CallActivity_LoanSupportAgent" name="Loan Support Agent">
+        <bpmn:documentation>Sub agent to handle any loan related requests. The agent will handle the request in full, including any customer communication. So when it ends you don't need to communicate with the customer any more but can end the task.</bpmn:documentation>
         <bpmn:extensionElements>
           <zeebe:calledElement processId="loan-support-agent" propagateAllChildVariables="false" propagateAllParentVariables="false" />
           <zeebe:ioMapping>
@@ -55,23 +56,8 @@
           </zeebe:ioMapping>
         </bpmn:extensionElements>
       </bpmn:callActivity>
-      <bpmn:userTask id="UserTask_HandleLegalQuestions" name="Handle legal questions">
-        <bpmn:extensionElements>
-          <zeebe:userTask />
-          <zeebe:formDefinition formId="Form_HumanHandling" />
-          <zeebe:ioMapping>
-            <zeebe:input source="=fromAi(toolCall.requestToHuman, &#34;Describe what the specialist needs to do for the customer. Summarize in your own words - ideally easy to get bullet points, but attach the original customer request below for reference&#34;, &#34;string&#34;)" target="requestDetails" />
-          </zeebe:ioMapping>
-        </bpmn:extensionElements>
-      </bpmn:userTask>
-      <bpmn:userTask id="UserTask_HandleOtherInquiries" name="Handle other inquiries">
-        <bpmn:extensionElements>
-          <zeebe:userTask />
-          <zeebe:formDefinition formId="Form_HumanHandling" />
-        </bpmn:extensionElements>
-      </bpmn:userTask>
       <bpmn:serviceTask id="Tool_A2A_CreditCardAgent" name="Card Support Agent&#10;(A2A Client)" zeebe:modelerTemplate="dev.example.a2a.connector.outbound" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iMTIwMHB0IiBoZWlnaHQ9IjEyMDBwdCIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMTIwMCAxMjAwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogPHBhdGggZD0ibTEwMjAgMzExLjQ4Yy03Mi41MTYgMC0xMzEuNDgtNTkuMDE2LTEzMS40OC0xMzEuNDggMC0xMy41LTExLjAxNi0yNC45ODQtMjQuOTg0LTI0Ljk4NC0xMy41IDAtMjQuOTg0IDExLjQ4NC0yNC45ODQgMjQuOTg0IDAgOC40ODQ0LTAuOTg0MzggMTcuMDE2LTIuNDg0NCAyNC45ODQtMC41MTU2MiAzLjk4NDQtMS41IDguMDE1Ni0zIDEyLTAuOTg0MzggMy45ODQ0LTIuNDg0NCA4LjAxNTYtMy45ODQ0IDExLjQ4NC02IDE1Ljk4NC0xNS41MTYgMzAuNTE2LTI3IDQyLjUxNi0xMi41MTYgMTMuNS0yNy45ODQgMjQtNDUuNTE2IDMwLjk4NC0zIDEuNS02LjUxNTYgMi40ODQ0LTkuOTg0NCAzLjUxNTYtMS41IDAuNTE1NjItMyAwLjk4NDM4LTQuNSAxLjUtNi41MTU2IDIuMDE1Ni0xMy41IDMtMjEgMy45ODQ0LTQuNSAwLjUxNTYyLTkgMC41MTU2Mi0xMy41IDAuNTE1NjItMTQuMDE2IDAtMjQuOTg0IDExLjAxNi0yNC45ODQgMjQuOTg0IDAgMTMuNSAxMS4wMTYgMjQuOTg0IDI0Ljk4NCAyNC45ODQgNzIuNTE2IDAgMTMxLjAyIDU4LjUgMTMxLjAyIDEzMS4wMiAwIDE0LjAxNiAxMS40ODQgMjQuOTg0IDI0Ljk4NCAyNC45ODQgMTQuMDE2IDAgMjQuOTg0LTExLjAxNiAyNC45ODQtMjQuOTg0IDAtNC41IDAtOSAwLjUxNTYyLTEzLjUgMC45ODQzOC03LjUgMi4wMTU2LTE0LjQ4NCAzLjk4NDQtMjEgMC41MTU2Mi0xLjUgMC45ODQzOC0zIDEuNS00LjUgMC45ODQzOC0zLjUxNTYgMi4wMTU2LTYuOTg0NCAzLjk4NDQtOS45ODQ0IDYuNTE1Ni0xNy40ODQgMTcuMDE2LTMzIDMwLjUxNi00NS41MTYgMTItMTEuNDg0IDI2LjQ4NC0yMSA0Mi41MTYtMjcgMy41MTU2LTEuNSA3LjUtMyAxMS40ODQtMy45ODQ0IDMuOTg0NC0xLjUgOC4wMTU2LTIuNDg0NCAxMi0zIDguMDE1Ni0xLjUgMTYuNS0yLjQ4NDQgMjQuOTg0LTIuNDg0NCAxMy41IDAgMjQuOTg0LTExLjQ4NCAyNC45ODQtMjQuOTg0LTAuMDQ2ODc1LTE0LjAxNi0xMS41MzEtMjUuMDMxLTI1LjAzMS0yNS4wMzF6IiBmaWxsPSIjNGMyNWUwIi8+CiA8cGF0aCBkPSJtOTU0IDQ0NS41Yy05Ljk4NDQgMTMuNS0xNS41MTYgMjkuNDg0LTE1LjUxNiA0Ny4wMTYgMCA0MS40ODQtMzMuNTE2IDc1LTc1IDc1LTQxLjAxNiAwLTc1LTMzLjUxNi03NS03NSAwLTQ0LjQ4NC0zNi41MTYtODEtODEtODEtNDEuNDg0IDAtNzUtMzMuOTg0LTc1LTc1IDAtNDEuNDg0IDMzLjUxNi03NSA3NS03NSAxNy40ODQgMCAzMy41MTYtNS40ODQ0IDQ3LjAxNi0xNS41MTYgMTQuMDE2LTkuOTg0NCAyNC45ODQtMjQuNTE2IDMwLTQxLjQ4NC01Ni4wMTYtMjYuNTMxLTExOC41LTQxLjAxNi0xODQuNS00MS4wMTYtMjQwLjUyIDAtNDM2LjUgMTk1Ljk4LTQzNi41IDQzNi41czE5NS45OCA0MzYuNSA0MzYuNSA0MzYuNSA0MzYuNS0xOTUuOTggNDM2LjUtNDM2LjVjMC02Ni0xNC40ODQtMTI4LjQ4LTQxLjAxNi0xODQuNS0xNi45NjkgNS4wMTU2LTMxLjUgMTUuOTg0LTQxLjQ4NCAzMHptLTExNy45OCAxMzMuNWMxNC4wMTYgMCAyNC45ODQgMTEuNDg0IDI0Ljk4NCAyNC45ODQgMCAxNC4wMTYtMTEuMDE2IDI0Ljk4NC0yNC45ODQgMjQuOTg0LTExOC41IDAtMjE1LjAyIDk2LjUxNi0yMTUuMDIgMjE1LjQ4IDAgMTMuNS0xMS40ODQgMjQuOTg0LTI0Ljk4NCAyNC45ODQtMTQuMDE2IDAtMjQuOTg0LTExLjQ4NC0yNC45ODQtMjQuOTg0IDAtMTE5LjAyLTk2LjUxNi0yMTUuNDgtMjE1LjQ4LTIxNS40OC0xMy41IDAtMjQuOTg0LTExLjAxNi0yNC45ODQtMjQuOTg0IDAtMTMuNSAxMS40ODQtMjQuOTg0IDI0Ljk4NC0yNC45ODQgMTE5LjAyIDAgMjE1LjQ4LTk2LjUxNiAyMTUuNDgtMjE1LjAyIDAtMTQuMDE2IDExLjAxNi0yNC45ODQgMjQuOTg0LTI0Ljk4NCAxMy41IDAgMjQuOTg0IDExLjAxNiAyNC45ODQgMjQuOTg0IDAgMTE4LjUgOTYuNTE2IDIxNS4wMiAyMTUuMDIgMjE1LjAyeiIgZmlsbD0iIzRjMjVlMCIvPgogPHBhdGggZD0ibTQ2OCA2MDMuOThjNTYuMDE2IDI2LjQ4NCAxMDEuNDggNzIgMTI4LjAyIDEyOC4wMiAyNi4wMTYtNTYuMDE2IDcxLjQ4NC0xMDEuNDggMTI3LjUtMTI4LjAyLTU2LjAxNi0yNi4wMTYtMTAxLjQ4LTcxLjQ4NC0xMjcuNS0xMjcuNS0yNi41MzEgNTYuMDE2LTcyIDEwMS41My0xMjguMDIgMTI3LjV6IiBmaWxsPSIjNGMyNWUwIi8+Cjwvc3ZnPgo=">
-        <bpmn:documentation>Handle card related inquiries (e.g. to report a stolen card or to freeze a card)</bpmn:documentation>
+        <bpmn:documentation>Handle card related inquiries (e.g. to report a stolen card or to freeze a card). This agent doesn't include communication with the customer, so always communicate its result to the customer.</bpmn:documentation>
         <bpmn:extensionElements>
           <zeebe:taskDefinition type="dev.example:a2a:1" />
           <zeebe:ioMapping>
@@ -89,6 +75,7 @@
         </bpmn:extensionElements>
       </bpmn:serviceTask>
       <bpmn:callActivity id="Tool_AskCustomer" name="Ask customer">
+        <bpmn:documentation>Use for ANY message that includes a question or clarification. If you’re asking the customer anything, you MUST use this tool.</bpmn:documentation>
         <bpmn:extensionElements>
           <zeebe:calledElement processId="customer-communication-question" propagateAllChildVariables="false" propagateAllParentVariables="false" />
           <zeebe:ioMapping>
@@ -99,6 +86,7 @@
         </bpmn:extensionElements>
       </bpmn:callActivity>
       <bpmn:callActivity id="Tool_InformCustomer" name="Inform&#10;customer">
+        <bpmn:documentation>Use only to deliver final information/statement; NEVER include a question.</bpmn:documentation>
         <bpmn:extensionElements>
           <zeebe:calledElement processId="customer-communication-information" propagateAllChildVariables="false" propagateAllParentVariables="false" />
           <zeebe:ioMapping>
@@ -108,6 +96,81 @@
           </zeebe:ioMapping>
         </bpmn:extensionElements>
       </bpmn:callActivity>
+      <bpmn:subProcess id="Tool_LegalInquiry" name="Legal questions">
+        <bpmn:documentation>Use this tool to handle all inquiries related to legal matters. It will be handled by a human. The subflow includes any required customer communication. So when it ends you don't need to communicate with the customer any more but can end the task.</bpmn:documentation>
+        <bpmn:extensionElements>
+          <zeebe:ioMapping>
+            <zeebe:input source="=fromAi(toolCall.customerNotification, &#34;A text information for the customer that his inquiry gets routed to a human to resolve&#34;)" target="customerNote" />
+            <zeebe:input source="=fromAi(toolCall.requestToHuman, &#34;Describe what the specialist needs to do for the customer. Summarize in your own words - ideally easy to get bullet points, but attach the original customer request below for reference&#34;, &#34;string&#34;)" target="requestDetails" />
+          </zeebe:ioMapping>
+        </bpmn:extensionElements>
+        <bpmn:startEvent id="Event_1ic8um0">
+          <bpmn:outgoing>Flow_1eg2ql2</bpmn:outgoing>
+        </bpmn:startEvent>
+        <bpmn:callActivity id="CallActivity_InformLegal" name="Inform customer">
+          <bpmn:extensionElements>
+            <zeebe:calledElement processId="customer-communication-information" propagateAllChildVariables="false" propagateAllParentVariables="false" />
+            <zeebe:ioMapping>
+              <zeebe:input source="=supportCase.communicationContext" target="communicationContext" />
+              <zeebe:input source="={&#10;  &#34;subject&#34;: &#34;RE: &#34; + supportCase.subject,&#10;  &#34;text&#34;: customerNote&#10;}" target="communicationContent" />
+            </zeebe:ioMapping>
+          </bpmn:extensionElements>
+          <bpmn:incoming>Flow_1eg2ql2</bpmn:incoming>
+          <bpmn:outgoing>Flow_10xa81w</bpmn:outgoing>
+        </bpmn:callActivity>
+        <bpmn:userTask id="UserTask_HandleLegalQuestions" name="Handle legal questions">
+          <bpmn:extensionElements>
+            <zeebe:userTask />
+            <zeebe:formDefinition formId="Form_HumanHandling" />
+          </bpmn:extensionElements>
+          <bpmn:incoming>Flow_10xa81w</bpmn:incoming>
+          <bpmn:outgoing>Flow_0scv7bc</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:sequenceFlow id="Flow_10xa81w" sourceRef="CallActivity_InformLegal" targetRef="UserTask_HandleLegalQuestions" />
+        <bpmn:sequenceFlow id="Flow_1eg2ql2" sourceRef="Event_1ic8um0" targetRef="CallActivity_InformLegal" />
+        <bpmn:endEvent id="Event_1oi6fx6">
+          <bpmn:incoming>Flow_0scv7bc</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:sequenceFlow id="Flow_0scv7bc" sourceRef="UserTask_HandleLegalQuestions" targetRef="Event_1oi6fx6" />
+      </bpmn:subProcess>
+      <bpmn:subProcess id="Tool_OtherInquiry" name="Other inquiries">
+        <bpmn:documentation>Use this tool to handle banking related inquiries that are not handled by a more specialized tool. 
+The subflow includes any required customer communication. So when it ends you don't need to communicate with the customer any more but can end the task.</bpmn:documentation>
+        <bpmn:extensionElements>
+          <zeebe:ioMapping>
+            <zeebe:input source="=fromAi(toolCall.customerNotification, &#34;A text information for the customer that his inquiry gets routed to a human to resolve&#34;)" target="customerNote" />
+            <zeebe:input source="=fromAi(toolCall.requestToHuman, &#34;Describe what the specialist needs to do for the customer. Summarize in your own words - ideally easy to get bullet points, but attach the original customer request below for reference&#34;, &#34;string&#34;)" target="requestDetails" />
+          </zeebe:ioMapping>
+        </bpmn:extensionElements>
+        <bpmn:startEvent id="Event_06tosw6">
+          <bpmn:outgoing>Flow_1tk9zmd</bpmn:outgoing>
+        </bpmn:startEvent>
+        <bpmn:callActivity id="CallAcvtivity_INformOther" name="Inform customer">
+          <bpmn:extensionElements>
+            <zeebe:calledElement processId="customer-communication-information" propagateAllChildVariables="false" propagateAllParentVariables="false" />
+            <zeebe:ioMapping>
+              <zeebe:input source="=supportCase.communicationContext" target="communicationContext" />
+              <zeebe:input source="={&#10;  &#34;subject&#34;: &#34;RE: &#34; + supportCase.subject,&#10;  &#34;text&#34;: customerNote&#10;}" target="communicationContent" />
+            </zeebe:ioMapping>
+          </bpmn:extensionElements>
+          <bpmn:incoming>Flow_1tk9zmd</bpmn:incoming>
+          <bpmn:outgoing>Flow_0h3f1z6</bpmn:outgoing>
+        </bpmn:callActivity>
+        <bpmn:userTask id="UserTask_HandleOtherInquiries" name="Handle other inquiries">
+          <bpmn:extensionElements>
+            <zeebe:userTask />
+            <zeebe:formDefinition formId="Form_HumanHandling" />
+          </bpmn:extensionElements>
+          <bpmn:incoming>Flow_0h3f1z6</bpmn:incoming>
+          <bpmn:outgoing>Flow_0zii3wa</bpmn:outgoing>
+        </bpmn:userTask>
+        <bpmn:sequenceFlow id="Flow_0h3f1z6" sourceRef="CallAcvtivity_INformOther" targetRef="UserTask_HandleOtherInquiries" />
+        <bpmn:endEvent id="Event_1574q88">
+          <bpmn:incoming>Flow_0zii3wa</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:sequenceFlow id="Flow_0zii3wa" sourceRef="UserTask_HandleOtherInquiries" targetRef="Event_1574q88" />
+        <bpmn:sequenceFlow id="Flow_1tk9zmd" sourceRef="Event_06tosw6" targetRef="CallAcvtivity_INformOther" />
+      </bpmn:subProcess>
     </bpmn:adHocSubProcess>
     <bpmn:sequenceFlow id="Flow_1nojswc" sourceRef="AI_CustomerSupportAgent" targetRef="Activity_1mu0kb7" />
     <bpmn:exclusiveGateway id="Gateway_1sbtuh2" name="Review (exemplary samples)?">
@@ -290,10 +353,108 @@
   <bpmn:message id="Message_1qsv5s6" name="7815d82f-5770-4078-ae95-4d2bb4917682" zeebe:modelerTemplate="Template_0zt2ly0" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="banking-support-agent">
-      <bpmndi:BPMNShape id="Activity_15hyfoa_di" bpmnElement="Task_LoadCustomerMasterData">
-        <dc:Bounds x="480" y="270" width="100" height="80" />
+      <bpmndi:BPMNShape id="Gateway_1sbtuh2_di" bpmnElement="Gateway_1sbtuh2" isMarkerVisible="true">
+        <dc:Bounds x="1285" y="285" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1282" y="240" width="55" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_13awtny_di" bpmnElement="Event_13awtny">
+        <dc:Bounds x="1462" y="292" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1sx7tol_di" bpmnElement="Event_1sx7tol">
+        <dc:Bounds x="1462" y="392" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1hwucx3_di" bpmnElement="Activity_04lvuy1">
+        <dc:Bounds x="1260" y="370" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1vc8nnq_di" bpmnElement="Activity_1mu0kb7">
+        <dc:Bounds x="1130" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0qhv81v_di" bpmnElement="AI_CustomerSupportAgent" isExpanded="true">
+        <dc:Bounds x="640" y="80" width="450" height="590" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1jcnlqd_di" bpmnElement="CallActivity_LoanSupportAgent">
+        <dc:Bounds x="680" y="130" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_04qwkmr_di" bpmnElement="CallActivity_AccountSupportAgent">
+        <dc:Bounds x="820" y="130" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0xdxj61_di" bpmnElement="Tool_A2A_CreditCardAgent">
+        <dc:Bounds x="960" y="130" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1v0upkw_di" bpmnElement="Tool_AskCustomer">
+        <dc:Bounds x="680" y="550" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0jhfldm" bpmnElement="Tool_InformCustomer">
+        <dc:Bounds x="820" y="550" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1sn3a74_di" bpmnElement="Tool_LegalInquiry" isExpanded="true">
+        <dc:Bounds x="680" y="250" width="380" height="130" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1abi4b8" bpmnElement="CallActivity_InformLegal">
+        <dc:Bounds x="760" y="280" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0osei79_di" bpmnElement="UserTask_HandleLegalQuestions">
+        <dc:Bounds x="880" y="280" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1oi6fx6_di" bpmnElement="Event_1oi6fx6">
+        <dc:Bounds x="1002" y="302" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ic8um0_di" bpmnElement="Event_1ic8um0">
+        <dc:Bounds x="702" y="302" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1eg2ql2_di" bpmnElement="Flow_1eg2ql2">
+        <di:waypoint x="738" y="320" />
+        <di:waypoint x="760" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10xa81w_di" bpmnElement="Flow_10xa81w">
+        <di:waypoint x="860" y="320" />
+        <di:waypoint x="880" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0scv7bc_di" bpmnElement="Flow_0scv7bc">
+        <di:waypoint x="980" y="320" />
+        <di:waypoint x="1002" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_1uysxcg_di" bpmnElement="Tool_OtherInquiry" isExpanded="true">
+        <dc:Bounds x="680" y="390" width="380" height="130" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1onblxi" bpmnElement="CallAcvtivity_INformOther">
+        <dc:Bounds x="760" y="420" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xr4dk0_di" bpmnElement="UserTask_HandleOtherInquiries">
+        <dc:Bounds x="880" y="420" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1574q88_di" bpmnElement="Event_1574q88">
+        <dc:Bounds x="1002" y="442" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_06tosw6_di" bpmnElement="Event_06tosw6">
+        <dc:Bounds x="702" y="442" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1tk9zmd_di" bpmnElement="Flow_1tk9zmd">
+        <di:waypoint x="738" y="460" />
+        <di:waypoint x="760" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0h3f1z6_di" bpmnElement="Flow_0h3f1z6">
+        <di:waypoint x="860" y="460" />
+        <di:waypoint x="880" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zii3wa_di" bpmnElement="Flow_0zii3wa">
+        <di:waypoint x="980" y="460" />
+        <di:waypoint x="1002" y="460" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_0bgxirs_di" bpmnElement="StartEvent_Email">
         <dc:Bounds x="182" y="142" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -312,6 +473,10 @@
           <dc:Bounds x="159" y="385" width="82" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15hyfoa_di" bpmnElement="Task_LoadCustomerMasterData">
+        <dc:Bounds x="480" y="270" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0u2k6do_di" bpmnElement="StartEvent_Chat">
         <dc:Bounds x="182" y="242" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -328,79 +493,43 @@
           <dc:Bounds x="158" y="475" width="85" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_13awtny_di" bpmnElement="Event_13awtny">
-        <dc:Bounds x="1292" y="292" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1sx7tol_di" bpmnElement="Event_1sx7tol">
-        <dc:Bounds x="1292" y="392" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1vc8nnq_di" bpmnElement="Activity_1mu0kb7">
-        <dc:Bounds x="960" y="270" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1sbtuh2_di" bpmnElement="Gateway_1sbtuh2" isMarkerVisible="true">
-        <dc:Bounds x="1115" y="285" width="50" height="50" />
+      <bpmndi:BPMNEdge id="Flow_1nojswc_di" bpmnElement="Flow_1nojswc">
+        <di:waypoint x="1090" y="310" />
+        <di:waypoint x="1130" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0xnx5gq_di" bpmnElement="Flow_0xnx5gq">
+        <di:waypoint x="1230" y="310" />
+        <di:waypoint x="1285" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0g2kbqn_di" bpmnElement="Flow_0g2kbqn">
+        <di:waypoint x="1310" y="335" />
+        <di:waypoint x="1310" y="370" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1112" y="240" width="55" height="40" />
+          <dc:Bounds x="1318" y="333" width="44" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1hwucx3_di" bpmnElement="Activity_04lvuy1">
-        <dc:Bounds x="1090" y="370" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0qhv81v_di" bpmnElement="AI_CustomerSupportAgent" isExpanded="true">
-        <dc:Bounds x="620" y="80" width="290" height="460" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_04qwkmr_di" bpmnElement="CallActivity_AccountSupportAgent">
-        <dc:Bounds x="780" y="130" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1jcnlqd_di" bpmnElement="CallActivity_LoanSupportAgent">
-        <dc:Bounds x="660" y="130" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0osei79_di" bpmnElement="UserTask_HandleLegalQuestions">
-        <dc:Bounds x="660" y="230" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1xr4dk0_di" bpmnElement="UserTask_HandleOtherInquiries">
-        <dc:Bounds x="660" y="330" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0xdxj61_di" bpmnElement="Tool_A2A_CreditCardAgent">
-        <dc:Bounds x="780" y="230" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1v0upkw_di" bpmnElement="Tool_AskCustomer">
-        <dc:Bounds x="660" y="430" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_0jhfldm" bpmnElement="Tool_InformCustomer">
-        <dc:Bounds x="780" y="430" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19tm0v8_di" bpmnElement="Flow_19tm0v8">
+        <di:waypoint x="1335" y="310" />
+        <di:waypoint x="1462" y="310" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1376" y="292" width="45" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1w8zj7s_di" bpmnElement="Flow_1w8zj7s">
+        <di:waypoint x="1360" y="410" />
+        <di:waypoint x="1462" y="410" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1i0kcwv_di" bpmnElement="Flow_1i0kcwv">
         <di:waypoint x="218" y="260" />
         <di:waypoint x="270" y="260" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0fv4284_di" bpmnElement="Flow_0fv4284">
         <di:waypoint x="580" y="310" />
-        <di:waypoint x="620" y="310" />
+        <di:waypoint x="640" y="310" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0l0i2vg_di" bpmnElement="Flow_0l0i2vg">
-        <di:waypoint x="370" y="260" />
-        <di:waypoint x="420" y="260" />
-        <di:waypoint x="420" y="310" />
-        <di:waypoint x="480" y="310" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_18e2jyj_di" bpmnElement="Flow_18e2jyj">
-        <di:waypoint x="218" y="360" />
-        <di:waypoint x="420" y="360" />
-        <di:waypoint x="420" y="310" />
-        <di:waypoint x="480" y="310" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_04dj9kf_di" bpmnElement="Flow_04dj9kf">
-        <di:waypoint x="218" y="590" />
-        <di:waypoint x="420" y="590" />
+      <bpmndi:BPMNEdge id="Flow_1rqop3e_di" bpmnElement="Flow_1rqop3e">
+        <di:waypoint x="218" y="450" />
+        <di:waypoint x="420" y="450" />
         <di:waypoint x="420" y="310" />
         <di:waypoint x="480" y="310" />
       </bpmndi:BPMNEdge>
@@ -410,37 +539,23 @@
         <di:waypoint x="420" y="310" />
         <di:waypoint x="480" y="310" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1rqop3e_di" bpmnElement="Flow_1rqop3e">
-        <di:waypoint x="218" y="450" />
-        <di:waypoint x="420" y="450" />
+      <bpmndi:BPMNEdge id="Flow_04dj9kf_di" bpmnElement="Flow_04dj9kf">
+        <di:waypoint x="218" y="590" />
+        <di:waypoint x="420" y="590" />
         <di:waypoint x="420" y="310" />
         <di:waypoint x="480" y="310" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1nojswc_di" bpmnElement="Flow_1nojswc">
-        <di:waypoint x="910" y="310" />
-        <di:waypoint x="960" y="310" />
+      <bpmndi:BPMNEdge id="Flow_18e2jyj_di" bpmnElement="Flow_18e2jyj">
+        <di:waypoint x="218" y="360" />
+        <di:waypoint x="420" y="360" />
+        <di:waypoint x="420" y="310" />
+        <di:waypoint x="480" y="310" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0xnx5gq_di" bpmnElement="Flow_0xnx5gq">
-        <di:waypoint x="1060" y="310" />
-        <di:waypoint x="1115" y="310" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0g2kbqn_di" bpmnElement="Flow_0g2kbqn">
-        <di:waypoint x="1140" y="335" />
-        <di:waypoint x="1140" y="370" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1148" y="333" width="44" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_19tm0v8_di" bpmnElement="Flow_19tm0v8">
-        <di:waypoint x="1165" y="310" />
-        <di:waypoint x="1292" y="310" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1206" y="292" width="45" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1w8zj7s_di" bpmnElement="Flow_1w8zj7s">
-        <di:waypoint x="1190" y="410" />
-        <di:waypoint x="1292" y="410" />
+      <bpmndi:BPMNEdge id="Flow_0l0i2vg_di" bpmnElement="Flow_0l0i2vg">
+        <di:waypoint x="370" y="260" />
+        <di:waypoint x="420" y="260" />
+        <di:waypoint x="420" y="310" />
+        <di:waypoint x="480" y="310" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

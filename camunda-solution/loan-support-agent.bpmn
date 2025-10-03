@@ -265,8 +265,8 @@
           </zeebe:ioMapping>
         </bpmn:extensionElements>
       </bpmn:callActivity>
-      <bpmn:callActivity id="CallActivity_LoanApplication" name="Loan Application">
-        <bpmn:documentation>Whenever a concrete loan is requested by the customer use this tool to go through a proper loan application process</bpmn:documentation>
+      <bpmn:callActivity id="CallActivity_LoanApplication" name="Consumer Loan Application">
+        <bpmn:documentation>Whenever a concrete consumer loan is requested by the customer use this tool to go through a proper consumer loan application process</bpmn:documentation>
         <bpmn:extensionElements>
           <zeebe:calledElement processId="loan-application" propagateAllChildVariables="false" propagateAllParentVariables="false" />
           <zeebe:ioMapping>

@@ -1,0 +1,31 @@
+{
+  "components": [
+    {
+      "text": "# Please...",
+      "type": "text",
+      "layout": {
+        "row": "Row_0k47vbl",
+        "columns": null
+      },
+      "id": "Field_0eltn7l"
+    },
+    {
+      "type": "image",
+      "layout": {
+        "row": "Row_1u99lug",
+        "columns": null
+      },
+      "id": "Field_0hg4cu9",
+      "source": "https://sdmntprnortheu.oaiusercontent.com/files/00000000-05b4-61f4-abdb-fd97515afe57/raw?se=2025-10-02T08%3A09%3A12Z&sp=r&sv=2024-08-04&sr=b&scid=0d51c92a-be0c-531b-8f78-2f5b930bc0ec&skoid=0a4a0f0c-99ac-4752-9d87-cfac036fa93f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-10-02T06%3A06%3A47Z&ske=2025-10-03T06%3A06%3A47Z&sks=b&skv=2024-08-04&sig=OAqts8ah4ySKc/szFpDYR%2BT3cVAfT84A9lqVWmy683w%3D"
+    }
+  ],
+  "type": "default",
+  "id": "Form_Applause",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.8.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.40.0-rc.1"
+  },
+  "schemaVersion": 19
+}

@@ -18,7 +18,7 @@
           <zeebe:input source="=5000" target="provider.bedrock.model.parameters.maxTokens" />
           <zeebe:input source="=0.2" target="provider.bedrock.model.parameters.temperature" />
           <zeebe:input source="=0.1" target="provider.bedrock.model.parameters.topP" />
-          <zeebe:input source="=&#34;You are TaskAgent, a helpful chat agent that handles customer conversations using domain knowledge and the tools provided at runtime.&#10;&#10;CRITICAL INTERFACE RULES&#10;- When you choose a tool, you MUST invoke it via the model’s tool/function calling interface.&#10;- Do NOT print JSON for tool calls in your message content. Do NOT wrap outputs in code fences.&#10;- Use tools to fetch/act. Write the final reply to the customer via Tool_InformCustomer.&#10;&#10;WHEN TO USE TOOLS&#10;- Prefer tools for facts/actions they cover. You may call the same tool multiple times with different inputs.&#10;- If no tool matches, answer directly. If you cannot answer, say why.&#10;- Invoke Tool_InformCustomer when finished to send the case resolution to the customer before it gets completed.&#10;&#10;THINKING FORMAT&#10;Wrap minimal, inspectable reasoning in exactly this JSON (keep it short):&#10;{&#10;\&#34;thinking\&#34;: {&#10;  \&#34;context\&#34;: briefly state the customer’s need and current state,&#10;  \&#34;reflection\&#34;: list candidate tools, justify which to call next and why&#10;  },&#10;  \&#34;resolution\&#34;: When you resolved the inquiry, provide a human readable answer or explanation which can be sent to the customer&#10;}&#10;&#10;Do not reveal any other private reasoning outside these tags. Keep the rest of your assistant text concise.&#10;&#34;" target="data.systemPrompt.prompt" />
+          <zeebe:input source="=&#34;You are a helpful account support agent that handles customer conversations using domain knowledge and the tools provided at runtime.&#10;&#10;CRITICAL INTERFACE RULES&#10;- When you choose a tool, you MUST invoke it via the model’s tool/function calling interface.&#10;- Do NOT print JSON for tool calls in your message content. Do NOT wrap outputs in code fences.&#10;- Use tools to fetch/act. Write the final reply to the customer via Tool_InformCustomer.&#10;- If you intend to close a case, you MUST communicate with the customer before closing task. Never close before &#10;&#10;WHEN TO USE TOOLS&#10;- Prefer tools for facts/actions they cover. You may call the same tool multiple times with different inputs.&#10;- If no tool matches, answer directly. If you cannot answer, say why.&#10;- Invoke Tool_InformCustomer when finished to send the case resolution to the customer before it gets completed.&#10;&#10;SELF-CHECK BEFORE RESPONDING&#10;- Did the tool did its own customer communication? If yes → OK to close without Tool_InformCustomer.&#10;- If no tool or only tools without customer communication ran, am I about to close? If yes → ensure I called Tool_InformCustomer in this run first.&#10;&#34;" target="data.systemPrompt.prompt" />
           <zeebe:input source="=supportCase.request" target="data.userPrompt.prompt" />
           <zeebe:input source="=agent.context" target="agentContext" />
           <zeebe:input source="camunda-document" target="data.memory.storage.type" />
@@ -41,7 +41,7 @@
       <bpmn:incoming>Flow_0syzscg</bpmn:incoming>
       <bpmn:outgoing>Flow_17qvxan</bpmn:outgoing>
       <bpmn:serviceTask id="Task_MCP_AccountManagementTools" name="Account Management Tools" zeebe:modelerTemplate="io.camunda.connectors.agenticai.mcp.remoteclient.v0" zeebe:modelerTemplateVersion="0" zeebe:modelerTemplateIcon="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJub25lIiB2aWV3Qm94PSIwIDAgMjAwIDIwMCI+CiAgICA8cGF0aCBkPSJNMjUgOTcuODUyOEw5Mi44ODIzIDI5Ljk3MDZDMTAyLjI1NSAyMC41OTggMTE3LjQ1MSAyMC41OTggMTI2LjgyMyAyOS45NzA2VjI5Ljk3MDZDMTM2LjE5NiAzOS4zNDMxIDEzNi4xOTYgNTQuNTM5MSAxMjYuODIzIDYzLjkxMTdMNzUuNTU4MSAxMTUuMTc3IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjEyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik03Ni4yNjUzIDExNC40N0wxMjYuODIzIDYzLjkxMTdDMTM2LjE5NiA1NC41MzkxIDE1MS4zOTIgNTQuNTM5MSAxNjAuNzY1IDYzLjkxMTdMMTYxLjExOCA2NC4yNjUyQzE3MC40OTEgNzMuNjM3OCAxNzAuNDkxIDg4LjgzMzggMTYxLjExOCA5OC4yMDYzTDk5LjcyNDggMTU5LjZDOTYuNjAwNiAxNjIuNzI0IDk2LjYwMDYgMTY3Ljc4OSA5OS43MjQ4IDE3MC45MTNMMTEyLjMzMSAxODMuNTIiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMTIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTEwOS44NTMgNDYuOTQxMUw1OS42NDgyIDk3LjE0NTdDNTAuMjc1NyAxMDYuNTE4IDUwLjI3NTcgMTIxLjcxNCA1OS42NDgyIDEzMS4wODdWMTMxLjA4N0M2OS4wMjA4IDE0MC40NTkgODQuMjE2OCAxNDAuNDU5IDkzLjU4OTQgMTMxLjA4N0wxNDMuNzk0IDgwLjg4MjIiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMTIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K">
-        <bpmn:documentation>Tools to query and actively manage the account. Rely on MCP to provide the exact liust of tools</bpmn:documentation>
+        <bpmn:documentation>Tools to query and actively manage the account. Rely on MCP to provide the exact list of tools</bpmn:documentation>
         <bpmn:extensionElements>
           <zeebe:taskDefinition type="io.camunda.agenticai:mcpremoteclient:0" retries="3" />
           <zeebe:ioMapping>
@@ -74,6 +74,7 @@
         </bpmn:extensionElements>
       </bpmn:userTask>
       <bpmn:callActivity id="Tool_AskCustomer" name="Ask customer">
+        <bpmn:documentation>Use for ANY message that includes a question or clarification. If you’re asking the customer anything, you MUST use this tool.</bpmn:documentation>
         <bpmn:extensionElements>
           <zeebe:calledElement processId="customer-communication-question" propagateAllChildVariables="false" propagateAllParentVariables="false" />
           <zeebe:ioMapping>
@@ -84,6 +85,7 @@
         </bpmn:extensionElements>
       </bpmn:callActivity>
       <bpmn:callActivity id="Tool_InformCustomer" name="Inform&#10;customer">
+        <bpmn:documentation>Use only to deliver final information/statement; NEVER include a question. Never end with phrases like “Is there anything else…?” or “Would you like…?” If your response contains a question mark or solicits input, do not use this tool.</bpmn:documentation>
         <bpmn:extensionElements>
           <zeebe:calledElement processId="customer-communication-information" propagateAllChildVariables="false" propagateAllParentVariables="false" />
           <zeebe:ioMapping>
@@ -103,13 +105,6 @@
         <bpmn:documentation>never call this tool</bpmn:documentation>
         <bpmn:extensionElements />
       </bpmn:task>
-      <bpmn:userTask id="Activity_04tjm0p" name="Greet CamundaCon">
-        <bpmn:documentation>This tool is used to greet our crowd while answering customer support request.
-ALWAYS use this tool before doing anything else to support the customer</bpmn:documentation>
-        <bpmn:extensionElements>
-          <zeebe:userTask />
-        </bpmn:extensionElements>
-      </bpmn:userTask>
     </bpmn:adHocSubProcess>
     <bpmn:sequenceFlow id="Flow_0syzscg" sourceRef="StartEvent_1" targetRef="AI_AccountSupport" />
     <bpmn:endEvent id="Event_1v5xnnr" name="Request&#10;resolved">
@@ -130,6 +125,13 @@ ALWAYS use this tool before doing anything else to support the customer</bpmn:do
       <bpmn:incoming>Flow_17qvxan</bpmn:incoming>
       <bpmn:outgoing>Flow_0gm6v5b</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:userTask id="Activity_04tjm0p" name="Greet CamundaCon">
+      <bpmn:documentation>This tool is used to greet our crowd in a demo
+ALWAYS use this tool before doing anything else to support the customer.</bpmn:documentation>
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+      </bpmn:extensionElements>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="account-support-agent">
@@ -148,8 +150,12 @@ ALWAYS use this tool before doing anything else to support the customer</bpmn:do
       <bpmndi:BPMNShape id="Activity_09utzci_di" bpmnElement="Activity_0zmupl2">
         <dc:Bounds x="640" y="190" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_039xalp_di" bpmnElement="Activity_04tjm0p">
+        <dc:Bounds x="320" y="620" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_04wzcos_di" bpmnElement="AI_AccountSupport" isExpanded="true">
-        <dc:Bounds x="290" y="110" width="310" height="490" />
+        <dc:Bounds x="290" y="110" width="310" height="360" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0nt8y5o_di" bpmnElement="Task_MCP_AccountManagementTools">
@@ -174,10 +180,6 @@ ALWAYS use this tool before doing anything else to support the customer</bpmn:do
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_078zm78_di" bpmnElement="Activity_078zm78">
         <dc:Bounds x="460" y="360" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_039xalp_di" bpmnElement="Activity_04tjm0p">
-        <dc:Bounds x="330" y="470" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0syzscg_di" bpmnElement="Flow_0syzscg">

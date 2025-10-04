@@ -12,7 +12,7 @@
       <bpmn:outgoing>Flow_Approved</bpmn:outgoing>
       <bpmn:outgoing>Flow_NotApproved</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_1oe26jq" sourceRef="Activity_1rdpgfs" targetRef="Gateway_Approved" />
+    <bpmn:sequenceFlow id="Flow_1oe26jq" sourceRef="UserTask_LoanApproval" targetRef="Gateway_Approved" />
     <bpmn:sequenceFlow id="Flow_Approved" name="yes" sourceRef="Gateway_Approved" targetRef="ServiceTask_PrepareOffer">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">= approved = true or approved = "true"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -46,6 +46,7 @@
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="noop" />
       </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0o3wetw</bpmn:incoming>
       <bpmn:outgoing>Flow_1qy3wod</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="ServiceTask_RiskAssesment" name="Risk Assesment &#38; Evaluation">
@@ -65,6 +66,7 @@
         <zeebe:formDefinition formId="loan-underwriting" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_04ewa7t</bpmn:incoming>
+      <bpmn:outgoing>Flow_1oe26jq</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:serviceTask id="ServiceTask_PrepareOffer" name="Prepare loan offer">
       <bpmn:extensionElements>
@@ -119,114 +121,109 @@
           <zeebe:header key="retryBackoff" value="PT0S" />
         </zeebe:taskHeaders>
       </bpmn:extensionElements>
-      <bpmn:incoming>Flow_0o3wetw</bpmn:incoming>
-      <bpmn:outgoing>Flow_1oe26jq</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="Flow_0o3wetw" sourceRef="StartEvent_ApplicationReceived" targetRef="Activity_1rdpgfs" />
+    <bpmn:sequenceFlow id="Flow_0o3wetw" sourceRef="StartEvent_ApplicationReceived" targetRef="ServiceTask_CreditCheck" />
   </bpmn:process>
   <bpmn:error id="Error_0hfnbee" name="TAKTILE_DECISION_PENDING" errorCode="TAKTILE_DECISION_PENDING" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="loan-application">
+      <bpmndi:BPMNShape id="Gateway_1bd12u1_di" bpmnElement="Gateway_Approved" isMarkerVisible="true">
+        <dc:Bounds x="685" y="105" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="683" y="83" width="53" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1jx9893_di" bpmnElement="CallActivity_LoanDisbursement">
+        <dc:Bounds x="1220" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0kgslys_di" bpmnElement="EndEvent_Disbursed">
+        <dc:Bounds x="1372" y="112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1352" y="155" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1jm3oun_di" bpmnElement="EndEvent_Rejected">
+        <dc:Bounds x="802" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="787" y="265" width="67" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1otiqci_di" bpmnElement="CallActivity_Signature">
+        <dc:Bounds x="1080" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0aok6wf_di" bpmnElement="ServiceTask_CreditCheck">
+        <dc:Bounds x="290" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_09anmhu_di" bpmnElement="ServiceTask_RiskAssesment">
+        <dc:Bounds x="420" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00ff77u_di" bpmnElement="UserTask_LoanApproval">
+        <dc:Bounds x="550" y="90" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ma2ddq_di" bpmnElement="ServiceTask_PrepareOffer">
+        <dc:Bounds x="800" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_031hlbh" bpmnElement="Tool_InformCustomer">
+        <dc:Bounds x="940" y="90" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_073ol7q_di" bpmnElement="Activity_1rdpgfs">
+        <dc:Bounds x="1490" y="90" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_ApplicationReceived">
         <dc:Bounds x="182" y="112" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="160" y="155" width="81" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1bd12u1_di" bpmnElement="Gateway_Approved" isMarkerVisible="true">
-        <dc:Bounds x="735" y="105" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="733" y="83" width="53" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1jx9893_di" bpmnElement="CallActivity_LoanDisbursement">
-        <dc:Bounds x="1270" y="90" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0kgslys_di" bpmnElement="EndEvent_Disbursed">
-        <dc:Bounds x="1422" y="112" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1402" y="155" width="76" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1jm3oun_di" bpmnElement="EndEvent_Rejected">
-        <dc:Bounds x="852" y="222" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="837" y="265" width="67" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1otiqci_di" bpmnElement="CallActivity_Signature">
-        <dc:Bounds x="1130" y="90" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0aok6wf_di" bpmnElement="ServiceTask_CreditCheck">
-        <dc:Bounds x="340" y="90" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_09anmhu_di" bpmnElement="ServiceTask_RiskAssesment">
-        <dc:Bounds x="470" y="90" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_00ff77u_di" bpmnElement="UserTask_LoanApproval">
-        <dc:Bounds x="600" y="90" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0ma2ddq_di" bpmnElement="ServiceTask_PrepareOffer">
-        <dc:Bounds x="850" y="90" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_031hlbh" bpmnElement="Tool_InformCustomer">
-        <dc:Bounds x="990" y="90" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_073ol7q_di" bpmnElement="Activity_1rdpgfs">
-        <dc:Bounds x="340" y="200" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1qy3wod_di" bpmnElement="Flow_1qy3wod">
-        <di:waypoint x="440" y="130" />
-        <di:waypoint x="470" y="130" />
+        <di:waypoint x="390" y="130" />
+        <di:waypoint x="420" y="130" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_04ewa7t_di" bpmnElement="Flow_04ewa7t">
-        <di:waypoint x="570" y="130" />
-        <di:waypoint x="600" y="130" />
+        <di:waypoint x="520" y="130" />
+        <di:waypoint x="550" y="130" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1oe26jq_di" bpmnElement="Flow_1oe26jq">
-        <di:waypoint x="440" y="240" />
-        <di:waypoint x="670" y="230" />
-        <di:waypoint x="748" y="143" />
+        <di:waypoint x="650" y="130" />
+        <di:waypoint x="685" y="130" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1q136am_di" bpmnElement="Flow_Approved">
-        <di:waypoint x="785" y="130" />
-        <di:waypoint x="850" y="130" />
+        <di:waypoint x="735" y="130" />
+        <di:waypoint x="800" y="130" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="809" y="112" width="18" height="14" />
+          <dc:Bounds x="759" y="112" width="18" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_09ppakv_di" bpmnElement="Flow_09ppakv">
-        <di:waypoint x="950" y="130" />
-        <di:waypoint x="990" y="130" />
+        <di:waypoint x="900" y="130" />
+        <di:waypoint x="940" y="130" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0vqriwu_di" bpmnElement="Flow_0vqriwu">
-        <di:waypoint x="1230" y="130" />
-        <di:waypoint x="1270" y="130" />
+        <di:waypoint x="1180" y="130" />
+        <di:waypoint x="1220" y="130" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0gec06r_di" bpmnElement="Flow_0gec06r">
-        <di:waypoint x="1370" y="130" />
-        <di:waypoint x="1422" y="130" />
+        <di:waypoint x="1320" y="130" />
+        <di:waypoint x="1372" y="130" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1f8qnem_di" bpmnElement="Flow_NotApproved">
-        <di:waypoint x="760" y="155" />
-        <di:waypoint x="760" y="240" />
-        <di:waypoint x="852" y="240" />
+        <di:waypoint x="710" y="155" />
+        <di:waypoint x="710" y="240" />
+        <di:waypoint x="802" y="240" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="769" y="195" width="13" height="14" />
+          <dc:Bounds x="719" y="195" width="13" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1fhdk24_di" bpmnElement="Flow_1fhdk24">
-        <di:waypoint x="1090" y="130" />
-        <di:waypoint x="1130" y="130" />
+        <di:waypoint x="1040" y="130" />
+        <di:waypoint x="1080" y="130" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0o3wetw_di" bpmnElement="Flow_0o3wetw">
         <di:waypoint x="218" y="130" />
-        <di:waypoint x="279" y="130" />
-        <di:waypoint x="279" y="240" />
-        <di:waypoint x="340" y="240" />
+        <di:waypoint x="290" y="130" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

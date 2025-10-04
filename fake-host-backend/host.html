@@ -1,0 +1,109 @@
+<html>
+<body style="background-color:black;">
+
+<style>
+table {
+  font-family: courier;
+  font-size: 40px;
+  border-collapse: collapse;
+  width: 45%;
+}
+
+td, th {
+  color: powderblue;
+  text-align: left;
+}
+
+td:nth-child(even) {
+  color: green;
+}
+
+input[type=text] {
+  border: none;
+  font-family: Courier;
+  font-size: 40px;
+  background-color: black;
+  color: powderblue;
+  text-align: left;
+  border-bottom: 2px solid green;
+}
+
+@keyframes blinker {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+input[type=label] {
+  animation: blinker 1s linear infinite;
+  border: none;
+  font-family: Courier;
+  font-size: 40px;
+  background-color: black;
+  color: orange;
+  text-align: left;
+}
+</style>
+
+<h2 style="color:white;font-family:Courier;font-size:50px;text-align:left">LOANS</h2>
+
+<table>
+  <tr>
+    <td>CUSTOMER ID:</td>
+    <td><input type="text" name="CustomerId" id="customerId"/></td>
+  </tr>
+</table>
+
+<table id="loanTable" style="margin-top:40px; display: none; text-align:left;color:orange;font-family:Courier;font-size:40px">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>AMOUNT</th>
+      <th>STATUS</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>  
+
+
+<p style="text-align:left;color:red;font-family:Courier;font-size:40px">ERROR MESSAGES:</p>
+<p style="text-align:left;color:yellow;font-family:Courier;font-size:40px">PF KEYS: PF1=HELP    PF3=EXIT PF5=UPDATE</p>
+<a id="secretLink" onclick="fetchLoans();">test</a>
+
+</body>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script type="text/javascript">
+
+  function fetchLoans() {
+      // Simulate a backend response
+      function generateLoanId() {
+        const randomNum = Math.floor(100000 + Math.random() * 900000); // 6-digit number
+        return `LN${randomNum}`;
+      }
+      const mockLoans = [
+          { id: generateLoanId(), amount: "15,500", status: "CLOSED" },
+          { id: "LN123456", amount: "11,500", status: "ACTIVE" },
+          { id: generateLoanId(), amount: "35,200", status: "CLOSED" }
+      ];
+
+      const tbody = $("#loanTable tbody");
+      tbody.empty();
+
+      mockLoans.forEach(loan => {
+          const row = `<tr><td>${loan.id}</td><td>${loan.amount}</td><td>${loan.status}</td></tr>`;
+          tbody.append(row);
+      });
+
+      $("#loanTable").show();
+  }
+
+  $("#customerId").keyup(function(event) {
+    if (event.keyCode === 13) {
+      fetchLoans();
+    }
+  });
+
+
+</script>
+
+</html>

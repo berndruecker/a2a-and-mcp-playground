@@ -1,34 +1,49 @@
-# a2a-and-mcp-playground
+# Bank Support Agent Demo
 
-Playground and prototypes for
+This is bank support agent demo I used for CamundaCon NYC 2025.
 
-- Using MCP from a Camunda process
-  - Using free hosted Deepwiki as an example
-- Providing a Camunda process (aka agent) via A2A
-- Consuming an agent via A2A
-  - a sample agent build in Langchain to be used
+It features:
+- Agentic BPMN
+- Multi-agent collaboration
+- Omni-channel interaction in agents
+- Employee engagement in agents
+- Long running agents
+- ...
 
-# BPMN Process
+# Business Architecture
 
-![Simple example process](example.png)
+Here is the overal business architecture this demo plays in. We use the levels from [Enterprise Process Orchestration](https://www.amazon.com/Enterprise-Process-Orchestration-Hands-Technology/dp/1394309678/).
+
+ The yellow parts are covered in the demo.
+
+![Simple example process](pics/business-architecture.png)
+
+There are 4 business capabilities built out:
+
+* Bank Support Agent (level 3 - end-to-end process): Agentic BPMN process in Camunda. See [process model](pics/banking-support-agent.png).
+* Account Support Agent (level 4 - business capability): Simple Agentic BPMN process in Camunda. [process model](pics/account-support-agent.png)
+* Loan Support Agent (level 4 - business capability): Agentic BPMN process in Camunda also using long-term memory and agent as a judge. [process model](pics/loan-support-agent.png)
+* Card Support Agent (level 4 - business capability): Agent written in Python and Langchain. No graphical model.
+* Loan Application Process (level 4 - business capability): Determinsitic BPMN process in Camunda. [process model](pics/loan-application.png)
+
+![Simple example process](pics/agent-collaboration.png)
+
+The Card Support Agent is pulled in via Agent-to-Agent protocol (A2A). Currently this runs on the prototypical connector in [a2a-connector](a2a-connector/), but can e switched to Camunda nativ capabilities once developed (targeting Camunda 8.9). It will call a dummy card management agent which can be found here: [python-agents/credit-card-support-a2a/](python-agents/credit-card-support-a2a/))
+
+The Account Support Agent uses Model Context Protocol (MCP) to get available Account Management Tools from a MCP server (a dummy server written in python is contained in [python-agents/account-management-mcp/](python-agents/account-management-mcp/)).
 
 # How to run
 
-## Download a nightly of the Modeler
 
-https://downloads.camunda.cloud/release/camunda-modeler/nightly/
+## Setup Camunda Orchestration Cluster 
 
-## Run Camunda Orchestration Cluster 8.8-alpha8
+* You need version >= 8.8.0
+  * You could use the docker-compose file provided, but might want to switch to SaaS for integrating Chat
 
-Set OpenAPI keys in `docker-compose/secrets.txt`
-
+* Set the following Keys:
 ```properties
-OPEN_API_KEY=xxx
-OPEN_API_ORG=yyy
-OPEN_API_PROJ=zzz
+todo
 ```
-
-Currently available as rc2 via Docker, see docker compose config in `docker-compose/`
 
 ## Credit Card Loss Agent (Langchain/Python)
 
@@ -132,10 +147,6 @@ There is no discovery phase implemented yet - but it would work comparable to MC
       </bpmn:serviceTask>
 ```
 
-## Adhoc subprocess 
-
-Using the Adhoc subprocess tying it together. See `example.bpmn`.
-
 ## Testing the E2E
 
 List Agents:
@@ -217,4 +228,122 @@ Will kick of a process instance resulting in tools being executed:
         }
     }
 ]
+```
+
+
+
+## Data Format
+
+Here are two examples of the typical data format for an agent:
+
+
+```
+supportCase
+{
+	"subject": "Help",
+	"request": "I need to get my bank details to receive money internationally. My customer id = ACC123456789",
+	"originalMessageInFull": "",
+	"communicationContext": {
+		"channel": "email",
+		"channelId": "<UUID of the channel>",
+		"emailAddress": "bernd.it.depends.ruecker@gmail.com",
+		"conversationId": null
+	},
+	"customer": {
+		"name": "Ruecker",
+		"email": "bernd.it.depends.ruecker@gmail.com",
+		"firstname": "Bernd",
+		"id": 7839451262, // ACC123456789?
+		"address": "Hauptstrasse 123, 10115 Berlin, Germany"
+	}
+}
+
+riskAssesment
+{
+  riskClass: "B",
+  riskAssesment: "No risks specific discovered, fair customer history, payback realistic",
+  approval: true
+}
+
+loanApplication
+{
+  customerId: "15",
+  lastName: "Ruecker",
+  firstName: "Bernd",
+  newCustomer: false,
+  emailAddress: "bernd.it.depends.ruecker@gmail.com",
+  requestedTerm: 36,
+  amountRequested: 2000,
+  moreData: "..."
+}
+```
+
+Variable called **supportCase**:
+
+```json
+
+{
+    "subject": "Request for bank details",
+    "request": "I need to get my bank details to receive money internationally. My customer id = ACC123456789",
+    "originalMessageInFull": "",
+    "communicationContext": {
+        "channel" : "email",
+        "emailAddress": "bernd.ruecker@amunda.com",
+        "conversationId": "emailmessageId"
+    }
+}
+
+{
+    "subject": "Request for bank details",
+    "request": "I need to get my bank details to receive money internationally. My customer id = ACC123456789",
+    "originalMessageInFull": "",
+    "communicationContext": {
+        "channel" : "chat",
+        "channelId": "<UUID of the channel>",
+        "emailAddress": "bernd.ruecker@amunda.com",
+        "conversationId": "<UUID of the conversation>"
+    }
+}
+
+{
+    "subject": "Request for bank details",
+    "request": "I need to get my bank details to receive money internationally. My customer id = ACC123456789",
+    "originalMessageInFull": "",
+    "resolution": "You need to do this",
+    "communicationContext": {
+        "channel" : "chat",
+        "channelId": "<UUID of the channel>",
+        "emailAddress": "bernd.ruecker@amunda.com",
+        "conversationId": "<UUID of the conversation>"
+    }
+}
+```
+
+Response:
+
+```json
+{
+  "resolution": "..."
+  "thinking": "..."
+}
+```
+
+Email Interface:
+
+* communicationContext
+* communicationContent
+```JSON
+{
+    "subject": "RE: " + supportCase.subject,
+    "text": fromAi(toolCall.response, "The text response to reply to the customer")
+}
+```
+
+* response:
+```JSON
+{
+  "status": "success",
+  "email": "...",
+  "text": "This is what we got"
+}
 ```

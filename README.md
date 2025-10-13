@@ -1,39 +1,52 @@
 # Bank Support Agent Demo
 
-This is bank support agent demo I used for CamundaCon NYC 2025.
+A comprehensive demonstration of agentic BPMN and multi-agent collaboration built for CamundaCon NYC 2025. This demo showcases how modern process orchestration can integrate AI agents across multiple business capabilities to deliver intelligent, automated customer support.
 
-It features:
-- Agentic BPMN
-- Multi-agent collaboration
-- Omni-channel interaction in agents
-- Employee engagement in agents
-- Long running agents
-- ...
+## What is it?
 
-# Business Architecture
+This demo implements a bank support system that demonstrates:
 
-Here is the overal business architecture this demo plays in. We use the levels from [Enterprise Process Orchestration](https://www.amazon.com/Enterprise-Process-Orchestration-Hands-Technology/dp/1394309678/).
+- **Agentic BPMN** - BPMN processes that can make autonomous decisions using AI
+- **Multi-agent collaboration** - Multiple specialized agents working together
+- **Omni-channel interaction** - Support across email, chat, and other channels
+- **Employee engagement integration** - Human-in-the-loop workflows when needed
+- **Long-running agents** - Persistent agent state and memory
+- **Agent-to-Agent (A2A) protocol** - Direct communication between agents
+- **Model Context Protocol (MCP)** - Tool discovery and integration
 
- The yellow parts are covered in the demo.
+## Why is it great?
 
-![Simple example process](pics/business-architecture.png)
+This architecture demonstrates Enterprise Agentic Automation by combining:
 
-There are 4 business capabilities built out:
+1. **Enterprise-grade orchestration** with Camunda's proven BPMN engine
+2. **AI-powered decision making** leveraging LLMs
+3. **Seamless integration** between different agent technologies (Camunda, Python/Langchain)
+4. **Real-world business scenarios** from banking support operations
+5. **Scalable multi-level architecture** following Enterprise Process Orchestration principles
 
-* Bank Support Agent (level 3 - end-to-end process): Agentic BPMN process in Camunda. See [process model](pics/banking-support-agent.png).
-* Account Support Agent (level 4 - business capability): Simple Agentic BPMN process in Camunda. [process model](pics/account-support-agent.png)
-* Loan Support Agent (level 4 - business capability): Agentic BPMN process in Camunda also using long-term memory and agent as a judge. [process model](pics/loan-support-agent.png)
-* Card Support Agent (level 4 - business capability): Agent written in Python and Langchain. No graphical model.
-* Loan Application Process (level 4 - business capability): Determinsitic BPMN process in Camunda. [process model](pics/loan-application.png)
+## Business Architecture
 
-![Simple example process](pics/agent-collaboration.png)
+The demo follows the levels from [Enterprise Process Orchestration](https://www.amazon.com/Enterprise-Process-Orchestration-Hands-Technology/dp/1394309678/). The yellow highlighted components are implemented in this demo:
 
-The Card Support Agent is pulled in via Agent-to-Agent protocol (A2A). Currently this runs on the prototypical connector in [a2a-connector](a2a-connector/), but can e switched to Camunda nativ capabilities once developed (targeting Camunda 8.9). It will call a dummy card management agent which can be found here: [python-agents/credit-card-support-a2a/](python-agents/credit-card-support-a2a/))
+![Business Architecture](pics/business-architecture.png)
 
-The Account Support Agent uses Model Context Protocol (MCP) to get available Account Management Tools from a MCP server (a dummy server written in python is contained in [python-agents/account-management-mcp/](python-agents/account-management-mcp/)).
+### Business Capabilities
+
+**Level 3 - End-to-End Process:**
+- **Bank Support Agent**: Main orchestration process ([process model](pics/banking-support-agent.png))
+
+**Level 4 - Business Capabilities:**
+- **Account Support Agent**: Account management using MCP tools ([process model](pics/account-support-agent.png))
+- **Loan Support Agent**: Loan support with long-term memory and AI judging ([process model](pics/loan-support-agent.png))
+- **Card Support Agent**: Python/Langchain agent for card operations (no graphical model)
+- **Loan Application Process**: Traditional deterministic BPMN ([process model](pics/loan-application.png))
+
+![Agent Collaboration](pics/agent-collaboration.png)
+
 
 # How to run
 
+**...THIS NEADS CLEANUP...**
 
 ## Setup Camunda Orchestration Cluster 
 

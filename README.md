@@ -47,7 +47,7 @@ The demo follows the levels from [Enterprise Process Orchestration](https://www.
 
 ### Recording from CamundaCon NYC 2025
 
-will be vailable soon
+See [https://www.camundacon.com/event-session/camundacon-new-york-2025/day-2-opening-keynote-building-the-ai-driven-enterprise-with-agentic-orchestration?on_demand=true](Recording).
 
 ### Screenshots
 
